@@ -8,9 +8,8 @@
         android:id="@+id/logo"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:src="@drawable/app_logo"
-        android:contentDescription="WeParty Logo" />
+        android:contentDescription="WeParty Logo"
+        android:src="@drawable/app_logo" />
 
     <TextView
         android:id="@+id/tagline"
@@ -18,20 +17,20 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/logo"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="378dp"
+        android:layout_marginBottom="341dp"
         android:text="Plan. Party. Repeat."
         android:textColor="#333333"
         android:textSize="22sp"
         android:textStyle="bold" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="226dp"
+        android:layout_height="138dp"
         android:layout_alignBottom="@id/logo"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="232dp"
+        android:layout_marginBottom="94dp"
         android:gravity="center"
-        android:text="By: Rodney Ford\nLesly Morales\nMaret Rivera Merced"
+        android:text="By: Rodney Ford\nLesly Morales\nMaret Rivera Merced\nAndy Tran"
         android:textColor="#333333"
         android:textSize="14sp"
         android:textStyle="bold" />
