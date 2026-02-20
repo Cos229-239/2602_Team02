@@ -4,9 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -54,7 +56,7 @@ fun AddItemsScreenUI() {
                     contentDescription = "Create Event"
                 )
             }
-            Icon(                                                           //add items icon
+            Icon(                                                           //pg icon
                 imageVector = Icons.Default.ShoppingCart,
                 contentDescription = null
             )
@@ -63,10 +65,18 @@ fun AddItemsScreenUI() {
                 color = Color.Black,
                 fontSize = 18.sp
             )
-            Row(
+            Row(                                                            //add items section
                 modifier = Modifier.fillMaxWidth()
             ) {
-
+                OutlinedTextField(
+                    value = item,
+                    onValueChange = {},
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Button(onClick = {}) {
+                    Text(text = "Add")
+                }
             }
         }
     }

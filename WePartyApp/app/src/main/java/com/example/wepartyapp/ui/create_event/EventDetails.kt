@@ -33,14 +33,14 @@ fun EventDetailsScreenUI() {
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            IconButton(onClick = {})                                        //back to home pg btn
+            IconButton(onClick = {})                                        //back to home/create events pg btn?
             {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Home"
                 )
             }
-            Icon(                                                           //add items icon
+            Icon(                                                           //pg icon
                 imageVector = Icons.Default.Create,
                 contentDescription = null
             )

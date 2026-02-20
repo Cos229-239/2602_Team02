@@ -40,7 +40,7 @@ fun InviteFriendsScreenUI() {
                     contentDescription = "Add items"
                 )
             }
-            Icon(                                                           //invite friends icon
+            Icon(                                                           //pg icon
                 imageVector = Icons.Default.AccountCircle,
                 contentDescription = null
             )
