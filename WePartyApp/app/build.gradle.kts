@@ -1,17 +1,31 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+<<<<<<< Updated upstream
     alias(libs.plugins.google.services)
+=======
+>>>>>>> Stashed changes
 }
 
 android {
     namespace = "com.example.wepartyapp"
+<<<<<<< Updated upstream
     compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.wepartyapp"
         minSdk = 26
         targetSdk = 35
+=======
+    compileSdk {
+        version = release(36)
+    }
+
+    defaultConfig {
+        applicationId = "com.example.wepartyapp"
+        minSdk = 24
+        targetSdk = 36
+>>>>>>> Stashed changes
         versionCode = 1
         versionName = "1.0"
 
@@ -45,12 +59,15 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+<<<<<<< Updated upstream
     implementation(libs.material)
     
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
 
+=======
+>>>>>>> Stashed changes
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -58,4 +75,8 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+<<<<<<< Updated upstream
 }
+=======
+}
+>>>>>>> Stashed changes

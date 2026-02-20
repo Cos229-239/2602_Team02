@@ -8,9 +8,12 @@ lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.4"
 kotlin = "2.0.21"
 composeBom = "2024.09.00"
+<<<<<<< Updated upstream
 googleServices = "4.4.4"
 firebaseBom = "34.9.0"
 material = "1.13.0"
+=======
+>>>>>>> Stashed changes
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -27,11 +30,18 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+<<<<<<< Updated upstream
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+=======
+>>>>>>> Stashed changes
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+<<<<<<< Updated upstream
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+=======
+
+>>>>>>> Stashed changes
