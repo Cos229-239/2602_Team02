@@ -3,25 +3,44 @@ package com.example.wepartyapp.ui.create_event
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // Invite Friends Screen
+@Preview
 @Composable
 fun InviteFriendsScreenUI() {
+    var urlLink by remember() {
+        mutableStateOf("")
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -30,25 +49,91 @@ fun InviteFriendsScreenUI() {
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(16.dp)
         ) {
-            IconButton(onClick = {})                                        //back to add items btn
-            {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Add items"
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = {/*EXECUTABLE CODE*/}) {                   //back to add items btn
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = null,
+                        Modifier.size(35.dp)
+                    )
+                }
+                Text(
+                    text = "Add Items",
+                    fontSize = 20.sp
                 )
             }
-            Icon(                                                           //pg icon
-                imageVector = Icons.Default.AccountCircle,
-                contentDescription = null
-            )
-            Text(                                                           //pg title
-                text = "Invite Friends (Coming Soon)",
-                color = Color.Black,
-                fontSize = 18.sp
-            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(                                                           //pg icon
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = null,
+                    Modifier.size(60.dp)
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(                                                           //pg title
+                    text = "Invite Friends",
+                    color = Color.Black,
+                    fontSize = 30.sp
+                )
+            }
+            Spacer(modifier = Modifier.height(30.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Sharing Link",
+                    color = Color.Black,
+                    fontSize = 20.sp
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier.weight(1f),
+                        value = urlLink,
+                        onValueChange = { urlLink = it }
+                    )
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(                                                           //pg icon
+                    imageVector = Icons.Default.AccountBox,
+                    contentDescription = null,
+                    Modifier.size(30.dp)
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(                                                           //pg title
+                    text = "Copy",
+                    color = Color.Black,
+                    fontSize = 20.sp,
+                )
+            }
+        }
+        Button(
+            onClick = {/*EXECUTABLE CODE*/},
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(16.dp)
+        ) {
+            Text(text = "Complete Event")
         }
     }
 }

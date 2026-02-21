@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -25,10 +27,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // UI for the Add Items screen
+@Preview
 @Composable
 fun AddItemsScreenUI() {
     var item by remember {                                              //start with an empty string
@@ -46,38 +50,73 @@ fun AddItemsScreenUI() {
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(16.dp)
         ) {
-            IconButton(onClick = {})                                        //back to events btn
-            {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Create Event"
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = {/*EXECUTABLE CODE*/}) {                    //back to events btn
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = null,
+                        Modifier.size(35.dp)
+                    )
+                }
+                Text(
+                    text = "Create Event",
+                    fontSize = 20.sp
                 )
             }
-            Icon(                                                           //pg icon
-                imageVector = Icons.Default.ShoppingCart,
-                contentDescription = null
-            )
-            Text(                                                           //pg title
-                text = "Add Items",
-                color = Color.Black,
-                fontSize = 18.sp
-            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(                                                           //pg icon
+                    imageVector = Icons.Default.ShoppingCart,
+                    contentDescription = null,
+                    Modifier.size(60.dp)
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(                                                           //pg title
+                    text = "Add Items",
+                    color = Color.Black,
+                    fontSize = 30.sp
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
             Row(                                                            //add items section
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
                     value = item,
-                    onValueChange = {},
-                    modifier = Modifier.weight(1f)
+                    onValueChange = { text ->
+                        item = text
+                    },
+                    modifier = Modifier.weight(1f),
+                    label = {Text(text = "Item")}
                 )
                 Spacer(modifier = Modifier.width(16.dp))
-                Button(onClick = {}) {
+                Button(onClick = {/*EXECUTABLE CODE*/}) {
                     Text(text = "Add")
                 }
             }
+            //implement lazy column here - will contain the items added to the list and show it
+            //API will be implemented here for the prices for each item
+        }
+        Button(
+            onClick = {/*EXECUTABLE CODE*/},
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+            ) {
+            Text(text = "Next: Invite Friends")
         }
     }
 }
