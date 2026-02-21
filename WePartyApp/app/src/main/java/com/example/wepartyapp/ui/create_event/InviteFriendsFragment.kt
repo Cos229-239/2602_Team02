@@ -13,10 +13,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -78,12 +77,12 @@ fun InviteFriendsScreenUI() {
                 Icon(                                                           //pg icon
                     imageVector = Icons.Default.AccountCircle,
                     contentDescription = null,
-                    Modifier.size(60.dp)
+                    Modifier.size(60.dp),
+                    tint = Color(0xFFBF6363)
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(                                                           //pg title
                     text = "Invite Friends",
-                    color = Color.Black,
                     fontSize = 30.sp
                 )
             }
@@ -95,7 +94,6 @@ fun InviteFriendsScreenUI() {
             ) {
                 Text(
                     text = "Sharing Link",
-                    color = Color.Black,
                     fontSize = 20.sp
                 )
                 Row(
@@ -117,23 +115,24 @@ fun InviteFriendsScreenUI() {
                 Icon(                                                           //pg icon
                     imageVector = Icons.Default.AccountBox,
                     contentDescription = null,
-                    Modifier.size(30.dp)
+                    Modifier.size(30.dp),
+                    tint = Color(0xFFFA8989)
                 )
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(                                                           //pg title
                     text = "Copy",
-                    color = Color.Black,
-                    fontSize = 20.sp,
+                    fontSize = 18.sp,
                 )
             }
         }
         Button(
             onClick = {/*EXECUTABLE CODE*/},
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(16.dp)
         ) {
-            Text(text = "Complete Event")
+            Text(text = "Complete Event", color = Color.Black)
         }
     }
 }

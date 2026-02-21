@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -80,11 +81,11 @@ fun CreateEventScreenUI() {
                     imageVector = Icons.Default.Create,
                     contentDescription = null,
                     Modifier.size(60.dp),
+                    tint = Color(0xFFBF6363)
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(                                                           //pg title
                     text = "Create Event",
-                    color = Color.Black,
                     fontSize = 30.sp,
                 )
             }
@@ -93,11 +94,12 @@ fun CreateEventScreenUI() {
         }
         Button(
             onClick = {/*EXECUTABLE CODE*/},
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
         ) {
-            Text(text = "Next: Add Items")
+            Text(text = "Next: Add Items", color = Color.Black)
         }
     }
 }

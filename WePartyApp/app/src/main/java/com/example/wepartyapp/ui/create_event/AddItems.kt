@@ -11,10 +11,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -38,7 +42,7 @@ fun AddItemsScreenUI() {
     var item by remember {                                              //start with an empty string
         mutableStateOf("")
     }
-    var items by remember {                                             //start with an empty list of strings
+    var itemsList by remember {                                             //start with an empty list of strings
         mutableStateOf(listOf<String>())
     }
 
@@ -79,12 +83,12 @@ fun AddItemsScreenUI() {
                 Icon(                                                           //pg icon
                     imageVector = Icons.Default.ShoppingCart,
                     contentDescription = null,
-                    Modifier.size(60.dp)
+                    Modifier.size(60.dp),
+                    tint = Color(0xFFBF6363)
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(                                                           //pg title
                     text = "Add Items",
-                    color = Color.Black,
                     fontSize = 30.sp
                 )
             }
@@ -103,20 +107,45 @@ fun AddItemsScreenUI() {
                     label = {Text(text = "Item")}
                 )
                 Spacer(modifier = Modifier.width(16.dp))
-                Button(onClick = {/*EXECUTABLE CODE*/}) {
-                    Text(text = "Add")
+                Button(
+                    onClick = {
+                    if (item.isNotBlank()) {
+                        itemsList = itemsList + item                         //adding item to list when btn is clicked
+                        item = ""                                           //resetting item to an empty string
+                    } },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
+                ) {
+                    Text(text = "Add", color = Color.Black)
                 }
             }
-            //implement lazy column here - will contain the items added to the list and show it
-            //API will be implemented here for the prices for each item
+            ItemListComp(itemsList = itemsList)
         }
         Button(
             onClick = {/*EXECUTABLE CODE*/},
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
             ) {
-            Text(text = "Next: Invite Friends")
+            Text(text = "Next: Invite Friends", color = Color.Black)
+        }
+    }
+}
+
+@Composable
+fun ItemListComp(
+    itemsList: List<String>,
+    modifier: Modifier = Modifier
+){
+    LazyColumn(modifier) {
+        items(itemsList) {currentItem ->
+            Text(
+                text = currentItem,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
+            Divider()
         }
     }
 }
