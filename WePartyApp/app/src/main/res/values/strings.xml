@@ -1,9 +1,6 @@
 <resources>
     <string name="app_name">WePartyApp</string>
-<<<<<<< Updated upstream
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="event_time_format">Time: %1$s</string>
-=======
->>>>>>> Stashed changes
 </resources>
