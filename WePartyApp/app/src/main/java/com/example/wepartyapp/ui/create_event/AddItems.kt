@@ -34,11 +34,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.wepartyapp.ui.ItemPriceViewModel
 
 // UI for the Add Items screen
-@Preview
+//@Preview
 @Composable
-fun AddItemsScreenUI() {
+fun AddItemsScreenUI(navController: NavController) {
     var item by remember {                                              //start with an empty string
         mutableStateOf("")
     }
@@ -62,7 +64,7 @@ fun AddItemsScreenUI() {
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {/*EXECUTABLE CODE*/}) {                    //back to events btn
+                IconButton(onClick = {navController.navigate(CreateEventRoutes.createEvent)}) {                    //back to events btn
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,
@@ -121,7 +123,7 @@ fun AddItemsScreenUI() {
             ItemListComp(itemsList = itemsList)
         }
         Button(
-            onClick = {/*EXECUTABLE CODE*/},
+            onClick = {navController.navigate(CreateEventRoutes.inviteFriends)},
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
             modifier = Modifier
                 .align(Alignment.BottomEnd)

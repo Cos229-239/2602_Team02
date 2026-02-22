@@ -31,11 +31,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 
 // Invite Friends Screen
-@Preview
+//@Preview
 @Composable
-fun InviteFriendsScreenUI() {
+fun InviteFriendsScreenUI(navController: NavController) {
     var urlLink by remember() {
         mutableStateOf("")
     }
@@ -56,7 +57,7 @@ fun InviteFriendsScreenUI() {
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {/*EXECUTABLE CODE*/}) {                   //back to add items btn
+                IconButton(onClick = {navController.navigate(CreateEventRoutes.addItems)}) {                   //back to add items btn
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,

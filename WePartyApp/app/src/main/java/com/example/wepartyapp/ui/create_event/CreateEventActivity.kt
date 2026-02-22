@@ -28,21 +28,42 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.wepartyapp.ui.ItemPriceViewModel
 
 class CreateEventActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        //val itemPriceViewModel = ViewModelProvider(this)[ItemPriceViewModel::class.java]
+
         setContent {
-            CreateEventScreenUI()
+            val navController = rememberNavController()
+
+            NavHost(navController = navController, startDestination = CreateEventRoutes.createEvent) {
+                composable(CreateEventRoutes.createEvent) {
+                    CreateEventScreenUI(navController)
+                }
+                composable(CreateEventRoutes.addItems) {
+                    AddItemsScreenUI(navController)
+                }
+                composable(CreateEventRoutes.inviteFriends) {
+                    InviteFriendsScreenUI(navController)
+                }
+            }
+            //AddItemsScreenUI(itemPriceViewModel)
         }
     }
 }
 
 // CreateEventScreenUI.kt
-@Preview
+//@Preview
 @Composable
-fun CreateEventScreenUI() {
+fun CreateEventScreenUI(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -59,7 +80,7 @@ fun CreateEventScreenUI() {
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {/*EXECUTABLE CODE*/}) {                        //back to home pg btn
+                IconButton(onClick = {}) {                        //back to home pg btn
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,
@@ -93,7 +114,7 @@ fun CreateEventScreenUI() {
             EventDetailsScreenUI()
         }
         Button(
-            onClick = {/*EXECUTABLE CODE*/},
+            onClick = {navController.navigate(CreateEventRoutes.addItems)},
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
