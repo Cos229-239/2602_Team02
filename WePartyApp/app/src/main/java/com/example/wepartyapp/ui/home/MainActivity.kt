@@ -35,7 +35,6 @@ import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.wepartyapp.ui.create_event.CreateEventScreenUI
 import com.example.wepartyapp.ui.event_dashboard.ConsolidatedShoppingListScreenUI
-import com.example.wepartyapp.ui.profile.DietaryPreferencesScreenUI
 import com.example.wepartyapp.ui.profile.DietaryPreferencesActivity
 
 
