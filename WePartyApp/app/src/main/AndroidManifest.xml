@@ -31,12 +31,6 @@
             android:name=".ui.event_dashboard.EventInfoActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.event_dashboard.ChatFeedActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.event_dashboard.ChecklistActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.event_dashboard.SuggestItemActivity"
             android:exported="false" />
         <activity

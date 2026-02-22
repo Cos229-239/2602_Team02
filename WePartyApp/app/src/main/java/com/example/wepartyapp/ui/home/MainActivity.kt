@@ -147,6 +147,21 @@ fun HomeScreenUI() {
             color = Color.Black,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // --- TEMPORARY DASHBOARD BUTTON ---
+        Button(
+            onClick = {
+                // Intent to open specific EventDashboardActivity
+                val intent = Intent(context, com.example.wepartyapp.ui.event_dashboard.EventDashboardActivity::class.java)
+                context.startActivity(intent)
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFECA4A6)),
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text("Go to Event Dashboard (Test)", color = Color.Black)
+        }
     }
 }
 
