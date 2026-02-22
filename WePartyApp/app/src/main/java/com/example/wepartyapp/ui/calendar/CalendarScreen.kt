@@ -2,6 +2,9 @@ package com.example.wepartyapp.ui.calendar
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +34,15 @@ import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+class CalendarActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            CalendarScreenUI()
+        }
+    }
+}
+
 @Composable
 fun CalendarScreenUI() {
     val context = LocalContext.current
@@ -38,10 +50,10 @@ fun CalendarScreenUI() {
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
 
-    val eventDate = LocalDate.of(2026, 2, 20)
+    val eventDate = LocalDate.of(2026, 2, 14)
     val eventName = "Valentines Day Party!!"
-    val eventAddress = "115 Alamo Dr., Lakeland, FL"
-    val eventTime = "Feb 20, 2026 @ 8:00 PM"
+    val eventAddress = "123 Mickey Ln, Winter Park, FL"
+    val eventTime = "Feb 14, 2026 @ 4:00 PM"
 
     val isEventDay = selectedDate == eventDate
     val monthTitleFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.US)

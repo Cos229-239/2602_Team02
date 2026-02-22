@@ -36,7 +36,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.wepartyapp.R
-import com.example.wepartyapp.ui.home.MainActivity
+import com.example.wepartyapp.ui.onboarding.OnboardingActivity // <-- Updated Import
 import com.google.firebase.auth.FirebaseAuth
 
 class SignUpActivity : ComponentActivity() {
@@ -48,7 +48,6 @@ class SignUpActivity : ComponentActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        // If the user is already logged in, go to MainActivity
         setContent {
             SignUpScreenUI(
                 onSignUpClick = { name, email, password ->
@@ -61,8 +60,8 @@ class SignUpActivity : ComponentActivity() {
                     auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this) { task ->
                             if (task.isSuccessful) {
-                                // Success: Go to Main App (or Onboarding later!)
-                                startActivity(Intent(this, MainActivity::class.java))
+                                // Success: Route straight to the Onboarding Screen
+                                startActivity(Intent(this, OnboardingActivity::class.java))
                                 finish()
                             } else {
                                 // Fail: Show error message
