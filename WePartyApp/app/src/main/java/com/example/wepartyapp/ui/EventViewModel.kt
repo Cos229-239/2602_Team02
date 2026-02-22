@@ -21,8 +21,8 @@ class EventViewModel : ViewModel() {
     // Later, we will delete this and let the "Create Event" screen fill it in.
     init {
         _eventName.value = "Valentines Day Party!!"
-        _eventTime.value = "Feb 20, 2026 @ 8:00 PM"
-        _eventAddress.value = "115 Alamo Dr., Lakeland, FL"
+        _eventTime.value = "Feb 14, 2026 @ 8:00 PM"
+        _eventAddress.value = "123 Mickey Ln, Winter Park, FL"
     }
 
     // Call this function later to update the data from the "Create Event" screen
