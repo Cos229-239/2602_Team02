@@ -36,7 +36,10 @@ import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.wepartyapp.ui.create_event.CreateEventScreenUI
 import com.example.wepartyapp.ui.event_dashboard.ConsolidatedShoppingListScreenUI
-import com.example.wepartyapp.ui.profile.DietaryPreferencesActivity
+import androidx.compose.foundation.shape.CircleShape
+import com.example.wepartyapp.ui.profile.DietaryPreferencesScreenUI
+import com.example.wepartyapp.ui.create_event.CreateEventActivity
+
 
 
 class MainActivity : ComponentActivity() {
@@ -57,7 +60,7 @@ fun MainScreen() {
     Scaffold(
         modifier = Modifier.border(3.dp, color = Color.Black),
         topBar = {
-            Header()
+            Header(onNavigateToDietary = { selectedTab = 5 })
         },
         bottomBar = {
             NavigationBar(
@@ -78,16 +81,17 @@ fun MainScreen() {
                 // *Add Screens In Here With Corresponding Tabs*
                 0 -> HomeScreenUI()
                 1 -> CalendarScreenUI()
-                2 -> CreateEventScreenUI()
+                // 2 -> Create Event Activity Launched In Navigation Bar
                 3 -> ConsolidatedShoppingListScreenUI()
 //                4 -> EventsUI()
+                5 -> DietaryPreferencesScreenUI( onBack = { selectedTab = 0 } )
             }
         }
     }
 }
 
 @Composable
-fun Header(){
+fun Header(onNavigateToDietary: () -> Unit){
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -144,8 +148,7 @@ fun Header(){
                     onClick = {
                         expanded = false
                         // Add Screen Navigation Here (Dietary Preferences)
-                        val intent = Intent(context, DietaryPreferencesActivity::class.java)
-                        context.startActivity(intent)
+                        onNavigateToDietary()
                     }
                 )
 
@@ -202,7 +205,7 @@ fun NavigationBar(
     selectedTab: Int,
     onTabSelected: (Int) -> Unit
 ) {
-
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -232,7 +235,9 @@ fun NavigationBar(
             icon = Icons.Default.Add,
             label = "Create Event",
             selected = selectedTab == 2
-        ) { onTabSelected(2) }
+        ) {
+            context.startActivity(Intent(context, CreateEventActivity::class.java))
+        }
 
         // - Consolidated Lists -
         NavigationItem(
