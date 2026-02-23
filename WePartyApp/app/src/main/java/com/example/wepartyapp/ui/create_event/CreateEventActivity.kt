@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
@@ -39,7 +38,7 @@ class CreateEventActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //val itemPriceViewModel = ViewModelProvider(this)[ItemPriceViewModel::class.java]
+        val itemPriceViewModel = ViewModelProvider(this)[ItemPriceViewModel::class.java]
 
         setContent {
             val navController = rememberNavController()
@@ -49,19 +48,17 @@ class CreateEventActivity : ComponentActivity() {
                     CreateEventScreenUI(navController)
                 }
                 composable(CreateEventRoutes.addItems) {
-                    AddItemsScreenUI(navController)
+                    AddItemsScreenUI(navController, itemPriceViewModel)
                 }
                 composable(CreateEventRoutes.inviteFriends) {
                     InviteFriendsScreenUI(navController)
                 }
             }
-            //AddItemsScreenUI(itemPriceViewModel)
         }
     }
 }
 
 // CreateEventScreenUI.kt
-//@Preview
 @Composable
 fun CreateEventScreenUI(navController: NavController) {
     Box(

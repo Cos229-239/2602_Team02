@@ -31,16 +31,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.wepartyapp.ui.ItemPriceViewModel
 
 // UI for the Add Items screen
-//@Preview
 @Composable
-fun AddItemsScreenUI(navController: NavController) {
+fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel) {
     var item by remember {                                              //start with an empty string
         mutableStateOf("")
     }
@@ -113,7 +111,8 @@ fun AddItemsScreenUI(navController: NavController) {
                     onClick = {
                     if (item.isNotBlank()) {
                         itemsList = itemsList + item                         //adding item to list when btn is clicked
-                        item = ""                                           //resetting item to an empty string
+                        viewModel.getData(item)                              //before resetting grab the data
+                        item = ""                                            //resetting item to an empty string
                     } },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
                 ) {
