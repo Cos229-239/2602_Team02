@@ -48,6 +48,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.navigation.compose)
     implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("com.google.firebase:firebase-storage")
     
     // Firebase
     implementation(platform(libs.firebase.bom))

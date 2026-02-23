@@ -1,19 +1,24 @@
 package com.example.wepartyapp.ui.home
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person // <-- Added Person Icon
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,10 +31,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.layout.ContentScale // <-- Added for image cropping
+import coil.compose.AsyncImage // <-- Added Coil for loading images
 import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.auth.LoginActivity
 import com.example.wepartyapp.ui.calendar.CalendarScreenUI
 import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.wepartyapp.ui.create_event.CreateEventScreenUI
+import com.example.wepartyapp.ui.event_dashboard.ConsolidatedShoppingListScreenUI
+import androidx.compose.foundation.shape.CircleShape
+import com.example.wepartyapp.ui.profile.DietaryPreferencesScreenUI
+import com.example.wepartyapp.ui.profile.ProfileScreenUI
+import com.example.wepartyapp.ui.create_event.CreateEventActivity
+
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,138 +56,354 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
 @Composable
 fun MainScreen() {
-    // 0 = Home, 1 = Calendar, 2 = Profile
+
     var selectedTab by remember { mutableIntStateOf(0) }
 
     Scaffold(
+        modifier = Modifier.border(3.dp, color = Color.Black),
+        topBar = {
+            Header(
+                selectedTab = selectedTab, // <-- Passed the tab so Header knows when to refresh!
+                onNavigateToDietary = { selectedTab = 5 },
+                onNavigateToProfile = { selectedTab = 6 }
+            )
+        },
         bottomBar = {
-            // The Navigation Bar is now ALWAYS visible on every screen
-            NavigationBar(containerColor = Color.White) {
-                // Home Tab
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Home, null) },
-                    label = { Text("Home") },
-                    selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color(0xFFFF4081),
-                        indicatorColor = Color(0xFFFFE9EA)
-                    )
-                )
-                // Calendar Tab
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.DateRange, null) },
-                    label = { Text("Calendar") },
-                    selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color(0xFFFF4081),
-                        indicatorColor = Color(0xFFFFE9EA)
-                    )
-                )
-                // Profile Tab
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Person, null) },
-                    label = { Text("Profile") },
-                    // Keep the Profile icon highlighted even if they are in the Dietary sub-screen!
-                    selected = selectedTab == 2 || selectedTab == 3,
-                    onClick = { selectedTab = 2 }, // Clicking this while in Dietary takes you back to main Profile
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color(0xFFFF4081),
-                        indicatorColor = Color(0xFFFFE9EA)
-                    )
-                )
-            }
+            NavigationBar(
+                selectedTab = selectedTab,
+                onTabSelected = { selectedTab = it }
+            )
         }
     ) { paddingValues ->
-        // This Box handles switching screens
-        Box(modifier = Modifier.padding(paddingValues)) {
+
+        // - This Box Contains Screen UI Content -
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(Color(0xFFFFE9EA))
+        ) {
             when (selectedTab) {
+                // *Add Screens In Here With Corresponding Tabs*
                 0 -> HomeScreenUI()
                 1 -> CalendarScreenUI()
-                2 -> ProfileScreenUI(onEditClick = { selectedTab = 3 })
-                3 -> DietaryPreferencesScreenUI(onBack = { selectedTab = 2 })
+                // 2 -> Create Event Activity Launched In Navigation Bar
+                3 -> ConsolidatedShoppingListScreenUI()
+//                4 -> EventsUI()
+                5 -> DietaryPreferencesScreenUI( onBack = { selectedTab = 6 } )
+                6 -> ProfileScreenUI(
+                    onEditDietaryClick = { selectedTab = 5 },
+                    onEditProfileClick = { selectedTab = 7 }
+                )
+                7 -> com.example.wepartyapp.ui.profile.ProfileSettingsScreenUI( onBack = { selectedTab = 6 } )
             }
         }
     }
 }
 
-// --- SCREEN 0: HOME ---
 @Composable
-fun HomeScreenUI() {
-    val context = LocalContext.current
-    Column(
-        modifier = Modifier.fillMaxSize().background(Color(0xFFFFE9EA)).padding(24.dp)
-    ) {
-        Box(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)) {
-            Image(
-                painter = painterResource(id = R.drawable.app_logo),
-                contentDescription = "Logo",
-                modifier = Modifier.size(150.dp, 100.dp).align(Alignment.Center)
-            )
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .size(60.dp, 75.dp)
-                    .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp, bottomEnd = 30.dp, bottomStart = 4.dp))
-                    .background(Color(0xFFFF1744))
-                    .clickable {
-                        FirebaseAuth.getInstance().signOut()
-                        val intent = Intent(context, LoginActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        context.startActivity(intent)
-                    }
-            ) {
-                Text("Logout", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-            }
-        }
-        Text(
-            text = "Welcome Home!",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
+fun Header(
+    selectedTab: Int, // <-- Added parameter
+    onNavigateToDietary: () -> Unit,
+    onNavigateToProfile: () -> Unit
+){
+    var profilePhotoUri by remember { mutableStateOf<Uri?>(null) }
+
+    // Every time the user changes a tab (like returning from settings), fetch the newest picture!
+    LaunchedEffect(selectedTab) {
+        profilePhotoUri = FirebaseAuth.getInstance().currentUser?.photoUrl
     }
-}
 
-// --- SCREEN 2: PROFILE (MAIN) ---
-@Composable
-fun ProfileScreenUI(onEditClick: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize().background(Color(0xFFFFE9EA)),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Profile Coming Soon!", fontSize = 24.sp, color = Color.Black)
-
-        Button(
-            onClick = onEditClick,
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4081)),
-            modifier = Modifier.padding(top = 16.dp)
-        ) {
-            Text("Edit Profile Setup", color = Color.White)
-        }
-    }
-}
-
-// --- SCREEN 3: DIETARY PREFERENCES (SUB-SCREEN) ---
-@Composable
-fun DietaryPreferencesScreenUI(onBack: () -> Unit) {
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFFFE9EA))
+            .fillMaxWidth()
+            .background(Color(0xFFB65C5C))
+            .border(3.dp, color = Color.Black)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        // Just the text, centered on the screen, exactly as requested
+
+        val context = LocalContext.current
+        var expanded by remember { mutableStateOf(false) }
+
+        // - Profile (Now with the image inside!) -
+        Box(
+            modifier = Modifier
+                .size(50.dp)
+                .border(2.dp, color = Color.Black, shape = CircleShape)
+                .clip(CircleShape)
+                .background(Color.White)
+                .align(Alignment.CenterStart)
+                .clickable { onNavigateToProfile() },
+            contentAlignment = Alignment.Center // Centers the placeholder icon if no image
+        ) {
+            if (profilePhotoUri != null) {
+                // Load the image from Firebase Storage
+                AsyncImage(
+                    model = profilePhotoUri,
+                    contentDescription = "Profile Picture",
+                    contentScale = ContentScale.Crop, // Crops the image perfectly to the circle
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                // Show a default gray icon if they haven't uploaded an image yet
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Default Profile Icon",
+                    modifier = Modifier.size(32.dp),
+                    tint = Color.Gray
+                )
+            }
+        }
+
+        // - Logo -
+        Image(
+            painter = painterResource(id = R.drawable.app_logo),
+            contentDescription = "Logo",
+            modifier = Modifier
+                .size(120.dp)
+                .align(Alignment.Center)
+        )
+
+        // - Settings Menu -
+        Box(
+            modifier = Modifier.align(Alignment.CenterEnd)
+        ) {
+
+            IconButton(
+                onClick = { expanded = true }
+            ) {
+                Icon(
+                    modifier = Modifier.size(50.dp),
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Settings",
+                    tint = Color.White
+                )
+            }
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+
+                DropdownMenuItem(
+                    text = { Text("Profile") },
+                    onClick = {
+                        expanded = false
+                        onNavigateToProfile()
+                    }
+                )
+
+                DropdownMenuItem(
+                    text = { Text("Dietary Preferences") },
+                    onClick = {
+                        expanded = false
+                        // Add Screen Navigation Here (Dietary Preferences)
+                        onNavigateToDietary()
+                    }
+                )
+
+                DropdownMenuItem(
+                    text = { Text("Logout", color = Color.Red) },
+                    onClick = {
+                        expanded = false
+
+                        FirebaseAuth.getInstance().signOut()
+                        val intent = Intent(context, LoginActivity::class.java)
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        context.startActivity(intent)
+                    }
+                )
+            }
+        }
+    }
+
+    // - Add date and notifications button -
+}
+
+@Composable
+fun HomeScreenUI(){
+    Column(
+        modifier = Modifier.padding(horizontal = 24.dp).padding(top = 50.dp)
+    ) {
+
         Text(
-            text = "Dietary Preferences\n(Coming Soon)",
-            fontSize = 20.sp,
-            color = Color.Black,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.align(Alignment.Center)
+            text = "Upcoming Events",
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            EventCard("Valentine's Day Party", "Feb 20, 2026")
+            EventCard("Bob's Birthday", "March 9, 2026")
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        EventCard("Ryan's Wedding", "April 10, 2026")
+    }
+
+    Spacer(modifier = Modifier.height(32.dp))
+
+}
+
+@Composable
+fun NavigationBar(
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit
+) {
+    val context = LocalContext.current
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp)
+            .background(Color(0xFFB65C5C))
+            .border(3.dp, Color.Black),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        // - Home -
+        NavigationItem(
+            icon = Icons.Default.Home,
+            label = "Home",
+            selected = selectedTab == 0
+        ) { onTabSelected(0) }
+
+        // - Calendar -
+        NavigationItem(
+            icon = Icons.Default.DateRange,
+            label = "Calendar",
+            selected = selectedTab == 1
+        ) { onTabSelected(1) }
+
+        // - Create Event -
+        NavigationItem(
+            icon = Icons.Default.Add,
+            label = "Create Event",
+            selected = selectedTab == 2
+        ) {
+            context.startActivity(Intent(context, CreateEventActivity::class.java))
+        }
+
+        // - Consolidated Lists -
+        NavigationItem(
+            icon = Icons.Default.CheckCircle,
+            label = "Lists",
+            selected = selectedTab == 3
+        ) { onTabSelected(3) }
+
+        // - Events -
+        NavigationItem(
+            icon = Icons.Default.Edit,
+            label = "Events",
+            selected = selectedTab == 4
+        ) { onTabSelected(4) }
+    }
+}
+@Composable
+fun NavigationItem(
+    icon: ImageVector,
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clickable { onClick() }
+    ) {
+
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = if (selected) Color.White else Color.Black,
+            modifier = Modifier.size(22.dp)
+        )
+
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            color = if (selected) Color.White else Color.Black
         )
     }
 }
+
+@Composable
+fun EventCard(title: String, date: String) {
+
+    Card(
+        modifier = Modifier
+            .width(160.dp)
+            .height(120.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFE57373)
+        )
+    ) {
+
+        Column(
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            Text(title)
+            Text(date, style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}
+
+// 2. The Main Scaffold with Bottom Navigation
+//@Composable
+//fun MainScreen() {
+//    // 0 = Home, 1 = Calendar, 2 = Profile
+//    var selectedTab by remember { mutableIntStateOf(0) }
+//
+//    Scaffold(
+//        bottomBar = {
+//            NavigationBar(containerColor = Color.White) {
+//                // Home Tab
+//                NavigationBarItem(
+//                    icon = { Icon(Icons.Default.Home, contentDescription = null) },
+//                    label = { Text("Home") },
+//                    selected = selectedTab == 0,
+//                    onClick = { selectedTab = 0 },
+//                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Color(0xFFFF4081))
+//                )
+//                // Calendar Tab
+//                NavigationBarItem(
+//                    icon = { Icon(Icons.Default.DateRange, contentDescription = null) },
+//                    label = { Text("Calendar") },
+//                    selected = selectedTab == 1,
+//                    onClick = { selectedTab = 1 },
+//                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Color(0xFFFF4081))
+//                )
+//                // Profile Tab
+//                NavigationBarItem(
+//                    icon = { Icon(Icons.Default.Person, contentDescription = null) },
+//                    label = { Text("Profile") },
+//                    selected = selectedTab == 2,
+//                    onClick = { selectedTab = 2 },
+//                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Color(0xFFFF4081))
+//                )
+//            }
+//        }
+//    ) { paddingValues ->
+//        // This Box handles switching screens
+//        Box(modifier = Modifier.padding(paddingValues)) {
+//            when (selectedTab) {
+//                0 -> HomeScreenUI()
+//                1 -> CalendarScreenUI()
+//                2 -> ProfileScreenUI()
+//            }
+//        }
+//    }
+//}
