@@ -1,6 +1,7 @@
 package com.example.wepartyapp.ui.home
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person // <-- Added Person Icon
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,6 +31,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.layout.ContentScale // <-- Added for image cropping
+import coil.compose.AsyncImage // <-- Added Coil for loading images
 import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.auth.LoginActivity
 import com.example.wepartyapp.ui.calendar.CalendarScreenUI
@@ -38,6 +42,7 @@ import com.example.wepartyapp.ui.create_event.CreateEventScreenUI
 import com.example.wepartyapp.ui.event_dashboard.ConsolidatedShoppingListScreenUI
 import androidx.compose.foundation.shape.CircleShape
 import com.example.wepartyapp.ui.profile.DietaryPreferencesScreenUI
+import com.example.wepartyapp.ui.profile.ProfileScreenUI
 import com.example.wepartyapp.ui.create_event.CreateEventActivity
 
 
@@ -60,7 +65,11 @@ fun MainScreen() {
     Scaffold(
         modifier = Modifier.border(3.dp, color = Color.Black),
         topBar = {
-            Header(onNavigateToDietary = { selectedTab = 5 })
+            Header(
+                selectedTab = selectedTab, // <-- Passed the tab so Header knows when to refresh!
+                onNavigateToDietary = { selectedTab = 5 },
+                onNavigateToProfile = { selectedTab = 6 }
+            )
         },
         bottomBar = {
             NavigationBar(
@@ -84,14 +93,30 @@ fun MainScreen() {
                 // 2 -> Create Event Activity Launched In Navigation Bar
                 3 -> ConsolidatedShoppingListScreenUI()
 //                4 -> EventsUI()
-                5 -> DietaryPreferencesScreenUI( onBack = { selectedTab = 0 } )
+                5 -> DietaryPreferencesScreenUI( onBack = { selectedTab = 6 } )
+                6 -> ProfileScreenUI(
+                    onEditDietaryClick = { selectedTab = 5 },
+                    onEditProfileClick = { selectedTab = 7 }
+                )
+                7 -> com.example.wepartyapp.ui.profile.ProfileSettingsScreenUI( onBack = { selectedTab = 6 } )
             }
         }
     }
 }
 
 @Composable
-fun Header(onNavigateToDietary: () -> Unit){
+fun Header(
+    selectedTab: Int, // <-- Added parameter
+    onNavigateToDietary: () -> Unit,
+    onNavigateToProfile: () -> Unit
+){
+    var profilePhotoUri by remember { mutableStateOf<Uri?>(null) }
+
+    // Every time the user changes a tab (like returning from settings), fetch the newest picture!
+    LaunchedEffect(selectedTab) {
+        profilePhotoUri = FirebaseAuth.getInstance().currentUser?.photoUrl
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -103,15 +128,35 @@ fun Header(onNavigateToDietary: () -> Unit){
         val context = LocalContext.current
         var expanded by remember { mutableStateOf(false) }
 
-        // - Profile -
+        // - Profile (Now with the image inside!) -
         Box(
             modifier = Modifier
                 .size(50.dp)
                 .border(2.dp, color = Color.Black, shape = CircleShape)
                 .clip(CircleShape)
                 .background(Color.White)
-                .align(Alignment.CenterStart),
-        )
+                .align(Alignment.CenterStart)
+                .clickable { onNavigateToProfile() },
+            contentAlignment = Alignment.Center // Centers the placeholder icon if no image
+        ) {
+            if (profilePhotoUri != null) {
+                // Load the image from Firebase Storage
+                AsyncImage(
+                    model = profilePhotoUri,
+                    contentDescription = "Profile Picture",
+                    contentScale = ContentScale.Crop, // Crops the image perfectly to the circle
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                // Show a default gray icon if they haven't uploaded an image yet
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Default Profile Icon",
+                    modifier = Modifier.size(32.dp),
+                    tint = Color.Gray
+                )
+            }
+        }
 
         // - Logo -
         Image(
@@ -142,6 +187,14 @@ fun Header(onNavigateToDietary: () -> Unit){
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
+
+                DropdownMenuItem(
+                    text = { Text("Profile") },
+                    onClick = {
+                        expanded = false
+                        onNavigateToProfile()
+                    }
+                )
 
                 DropdownMenuItem(
                     text = { Text("Dietary Preferences") },
@@ -351,33 +404,6 @@ fun EventCard(title: String, date: String) {
 //                1 -> CalendarScreenUI()
 //                2 -> ProfileScreenUI()
 //            }
-//        }
-//    }
-//}
-
-// 4. PROFILE SCREEN UI
-//@Composable
-//fun ProfileScreenUI() {
-//    val context = LocalContext.current
-//
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .background(Color(0xFFFFE9EA)),
-//        verticalArrangement = Arrangement.Center,
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//        Text("Profile Coming Soon!", fontSize = 24.sp, color = Color.Black)
-//
-//        Button(
-//            onClick = {
-//                // Navigate back to setup if they want to edit
-//                context.startActivity(Intent(context, DietaryPreferencesActivity::class.java))
-//            },
-//            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4081)),
-//            modifier = Modifier.padding(top = 16.dp)
-//        ) {
-//            Text("Edit Profile Setup")
 //        }
 //    }
 //}

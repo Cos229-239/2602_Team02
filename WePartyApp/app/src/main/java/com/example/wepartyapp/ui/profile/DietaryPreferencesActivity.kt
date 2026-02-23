@@ -1,18 +1,16 @@
 package com.example.wepartyapp.ui.profile
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -22,11 +20,18 @@ import com.example.wepartyapp.R
 
 @Composable
 fun DietaryPreferencesScreenUI(onBack: () -> Unit) {
-    // State variables for the toggle switches
-    var noOnions by remember { mutableStateOf(true) }
-    var noKetchup by remember { mutableStateOf(true) }
-    var extraMayo by remember { mutableStateOf(true) }
-    var glutenFree by remember { mutableStateOf(false) }
+    // 1. Grab the context and the SharedPreferences file
+    val context = LocalContext.current
+    val sharedPref = remember {
+        context.getSharedPreferences("DietaryPrefs", Context.MODE_PRIVATE)
+    }
+
+    // 2. Initialize variables by reading from SharedPreferences
+    // The second parameter (e.g., 'true' or 'false') is the default fallback if no save exists yet
+    var noOnions by remember { mutableStateOf(sharedPref.getBoolean("noOnions", true)) }
+    var noKetchup by remember { mutableStateOf(sharedPref.getBoolean("noKetchup", true)) }
+    var extraMayo by remember { mutableStateOf(sharedPref.getBoolean("extraMayo", true)) }
+    var glutenFree by remember { mutableStateOf(sharedPref.getBoolean("glutenFree", false)) }
 
     Column(
         modifier = Modifier
@@ -72,42 +77,26 @@ fun DietaryPreferencesScreenUI(onBack: () -> Unit) {
             PreferenceToggle("Gluten Free", glutenFree) { glutenFree = it }
         }
 
-        // BOTTOM: Navigation
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            FilledIconButton(
-                onClick = onBack,
-                colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color(0xFFFF4081)),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.size(50.dp)
-            ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
-            }
-
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                repeat(3) { index ->
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .clip(CircleShape)
-                            .background(if (index == 0) Color(0xFFFF4081) else Color.LightGray)
-                    )
+        // BOTTOM: Navigation & Save
+        Button(
+            onClick = {
+                // 3. Write the current toggle states to SharedPreferences
+                with(sharedPref.edit()) {
+                    putBoolean("noOnions", noOnions)
+                    putBoolean("noKetchup", noKetchup)
+                    putBoolean("extraMayo", extraMayo)
+                    putBoolean("glutenFree", glutenFree)
+                    apply() // apply() saves it asynchronously in the background
                 }
-            }
 
-            Button(
-                onClick = onBack,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4081)),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.height(50.dp)
-            ) {
-                Text("Save", color = Color.White, fontWeight = FontWeight.Bold)
-            }
+                // 4. Navigate back to the Home screen
+                onBack()
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4081)),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.height(50.dp)
+        ) {
+            Text("Save", color = Color.White, fontWeight = FontWeight.Bold)
         }
     }
 }
