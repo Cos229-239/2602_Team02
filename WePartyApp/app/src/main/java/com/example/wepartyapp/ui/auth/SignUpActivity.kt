@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.onboarding.OnboardingActivity // <-- Updated Import
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest // <-- NEW IMPORT NEEDED TO SAVE NAME
 
 class SignUpActivity : ComponentActivity() {
 
@@ -60,9 +61,20 @@ class SignUpActivity : ComponentActivity() {
                     auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this) { task ->
                             if (task.isSuccessful) {
-                                // Success: Route straight to the Onboarding Screen
-                                startActivity(Intent(this, OnboardingActivity::class.java))
-                                finish()
+
+                                // Save name to Firebase
+                                val user = auth.currentUser
+                                val profileUpdates = UserProfileChangeRequest.Builder()
+                                    .setDisplayName(name)
+                                    .build()
+
+                                user?.updateProfile(profileUpdates)?.addOnCompleteListener { profileTask ->
+                                    // Success: Route straight to the Onboarding Screen
+                                    startActivity(Intent(this, OnboardingActivity::class.java))
+                                    finish()
+                                }
+                                // -------------------------------------------
+
                             } else {
                                 // Fail: Show error message
                                 Toast.makeText(this, "Sign Up Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
