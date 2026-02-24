@@ -28,13 +28,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 // Invite Friends Screen
-//@Preview
 @Composable
 fun InviteFriendsScreenUI(navController: NavController) {
     var urlLink by remember() {

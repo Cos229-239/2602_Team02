@@ -1,6 +1,7 @@
 package com.example.wepartyapp.ui.create_event
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,31 +25,34 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.wepartyapp.ui.ItemPriceViewModel
+import com.example.wepartyapp.ui.api.NetworkResponse
 
 // UI for the Add Items screen
-//@Preview
 @Composable
-fun AddItemsScreenUI(navController: NavController) {
-    var item by remember {                                              //start with an empty string
+fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel) {
+    var item by remember {                                                  //start with an empty string
         mutableStateOf("")
     }
-    var itemsList by remember {                                             //start with an empty list of strings
-        mutableStateOf(listOf<String>())
+    var itemsList by remember {                                             //start with an empty list of object
+        mutableStateOf(listOf<PartyItem>())
     }
 
-    Box(                                                                //outer most layer
+    val priceResult = viewModel.priceResult.observeAsState()
+
+    Box(                                                                    //outer most layer
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFFFE9EA)),
@@ -64,7 +68,7 @@ fun AddItemsScreenUI(navController: NavController) {
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {navController.navigate(CreateEventRoutes.createEvent)}) {                    //back to events btn
+                IconButton(onClick = {navController.navigate(CreateEventRoutes.createEvent)}) {           //back to events btn
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,
@@ -95,7 +99,7 @@ fun AddItemsScreenUI(navController: NavController) {
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Row(                                                            //add items section
+            Row(                                                               //add items section
                 modifier = Modifier
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -112,15 +116,61 @@ fun AddItemsScreenUI(navController: NavController) {
                 Button(
                     onClick = {
                     if (item.isNotBlank()) {
-                        itemsList = itemsList + item                         //adding item to list when btn is clicked
-                        item = ""                                           //resetting item to an empty string
+                        itemsList = itemsList + PartyItem(name = item, price = "Loading...")
+                        viewModel.getData(item)                              //trigger api before resetting item string
+                        item = ""                                            //resetting item to an empty string
                     } },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
                 ) {
                     Text(text = "Add", color = Color.Black)
                 }
             }
-            ItemListComp(itemsList = itemsList)
+            //LaunchedEffect is used to run suspendable side effects - coroutine
+            LaunchedEffect(priceResult.value) {
+                when (val result = priceResult.value) {
+                    is NetworkResponse.Success -> {
+                        val searchResults = result.data.organic_results
+                        val exactPrice =
+                            if(!searchResults.isNullOrEmpty()) {
+                                "$${searchResults[0].primary_offer.offer_price}"
+                            } else {
+                                "Not Found"
+                            }
+                        val updatedList = itemsList.toMutableList()
+                        val index = updatedList.indexOfLast { it.price == "Loading..." }
+                        if(index != -1) {
+                            updatedList[index] = updatedList[index].copy(price = exactPrice)
+                            itemsList = updatedList
+                        }
+                    }
+                    is NetworkResponse.Error -> {
+                        val updatedList = itemsList.toMutableList()
+                        val index = updatedList.indexOfLast { it.price == "Loading..." }
+                        if(index != -1) {
+                            updatedList[index] = updatedList[index].copy(price = "error")
+                            itemsList = updatedList
+                        }
+                    }
+                    else -> {}
+                }
+            }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                items(itemsList) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = it.name)
+                        Text(text = it.price)
+                    }
+                    Divider()
+                }
+            }
         }
         Button(
             onClick = {navController.navigate(CreateEventRoutes.inviteFriends)},
@@ -134,20 +184,4 @@ fun AddItemsScreenUI(navController: NavController) {
     }
 }
 
-@Composable
-fun ItemListComp(
-    itemsList: List<String>,
-    modifier: Modifier = Modifier
-){
-    LazyColumn(modifier) {
-        items(itemsList) {currentItem ->
-            Text(
-                text = currentItem,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
-            Divider()
-        }
-    }
-}
+data class PartyItem(val name: String, val price: String)
