@@ -67,6 +67,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
 
+    val context = LocalContext.current
     var selectedTab by remember { mutableIntStateOf(0) }
     val eventViewModel: EventViewModel = viewModel() // <-- Instantiated the ViewModel here
 
@@ -76,7 +77,8 @@ fun MainScreen() {
             Header(
                 selectedTab = selectedTab, // <-- Passed the tab so Header knows when to refresh!
                 onNavigateToDietary = { selectedTab = 5 },
-                onNavigateToProfile = { selectedTab = 6 }
+                onNavigateToProfile = { selectedTab = 6 },
+                onNotificationClick = { selectedTab = 8 }
             )
         },
         bottomBar = {
@@ -105,7 +107,10 @@ fun MainScreen() {
                 6 -> ProfileScreenUI(
                     onEditDietaryClick = { selectedTab = 5 },
                     onEditProfileClick = { selectedTab = 7 },
-                    onNotificationsClick = { selectedTab = 8 }
+                    onEventDashboardClick = {
+                        val intent = Intent(context, com.example.wepartyapp.ui.event_dashboard.EventDashboardActivity::class.java)
+                        context.startActivity(intent)
+                    }
                 )
                 7 -> com.example.wepartyapp.ui.profile.ProfileSettingsScreenUI( onBack = { selectedTab = 6 } )
                 8 -> NotificationsScreenUI( onBack = { selectedTab = 0 } ) // <-- Added Notifications Screen here
@@ -118,7 +123,8 @@ fun MainScreen() {
 fun Header(
     selectedTab: Int, // <-- Added parameter
     onNavigateToDietary: () -> Unit,
-    onNavigateToProfile: () -> Unit
+    onNavigateToProfile: () -> Unit,
+    onNotificationClick: () -> Unit,
 ){
     var profilePhotoUri by remember { mutableStateOf<Uri?>(null) }
 
@@ -182,66 +188,89 @@ fun Header(
             modifier = Modifier.align(Alignment.CenterEnd)
         ) {
 
-            IconButton(
-                onClick = { expanded = true }
+            // - Notification Button -
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(10.dp)) // rounded square
+                    .background(Color.White)
+                    .border(
+                        width = 1.dp,
+                        color = Color.Black,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .clickable { onNotificationClick() },
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    modifier = Modifier.size(50.dp),
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "Settings",
-                    tint = Color.White
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = "Notifications",
+                    tint = Color.Black,
+                    modifier = Modifier.size(22.dp) // icon size inside the square
                 )
             }
 
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
 
-                DropdownMenuItem(
-                    text = { Text("Profile") },
-                    onClick = {
-                        expanded = false
-                        onNavigateToProfile()
-                    }
-                )
-
-                DropdownMenuItem(
-                    text = { Text("Dietary Preferences") },
-                    onClick = {
-                        expanded = false
-                        // Add Screen Navigation Here (Dietary Preferences)
-                        onNavigateToDietary()
-                    }
-                )
-
-                // --- ANDY'S TEMPORARY DASHBOARD BUTTON MOVED HERE ---
-                DropdownMenuItem(
-                    text = { Text("Event Dashboard") },
-                    onClick = {
-                        expanded = false
-                        val intent = Intent(context, com.example.wepartyapp.ui.event_dashboard.EventDashboardActivity::class.java)
-                        context.startActivity(intent)
-                    }
-                )
-
-                DropdownMenuItem(
-                    text = { Text("Logout", color = Color.Red) },
-                    onClick = {
-                        expanded = false
-
-                        FirebaseAuth.getInstance().signOut()
-                        val intent = Intent(context, LoginActivity::class.java)
-                        intent.flags =
-                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        context.startActivity(intent)
-                    }
-                )
-            }
+//            IconButton(
+//                onClick = { expanded = true }
+//            ) {
+//                Icon(
+//                    modifier = Modifier.size(50.dp),
+//                    imageVector = Icons.Default.Menu,
+//                    contentDescription = "Settings",
+//                    tint = Color.White
+//                )
+//            }
+//
+//            DropdownMenu(
+//                expanded = expanded,
+//                onDismissRequest = { expanded = false }
+//            ) {
+//
+//                DropdownMenuItem(
+//                    text = { Text("Profile") },
+//                    onClick = {
+//                        expanded = false
+//                        onNavigateToProfile()
+//                    }
+//                )
+//
+//                DropdownMenuItem(
+//                    text = { Text("Dietary Preferences") },
+//                    onClick = {
+//                        expanded = false
+//                        // Add Screen Navigation Here (Dietary Preferences)
+//                        onNavigateToDietary()
+//                    }
+//                )
+//
+//                // --- ANDY'S TEMPORARY DASHBOARD BUTTON MOVED HERE ---
+//                DropdownMenuItem(
+//                    text = { Text("Event Dashboard") },
+//                    onClick = {
+//                        expanded = false
+//                        val intent = Intent(context, com.example.wepartyapp.ui.event_dashboard.EventDashboardActivity::class.java)
+//                        context.startActivity(intent)
+//                    }
+//                )
+//
+//                DropdownMenuItem(
+//                    text = { Text("Logout", color = Color.Red) },
+//                    onClick = {
+//                        expanded = false
+//
+//                        FirebaseAuth.getInstance().signOut()
+//                        val intent = Intent(context, LoginActivity::class.java)
+//                        intent.flags =
+//                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+//                        context.startActivity(intent)
+//                    }
+//                )
+//            }
         }
     }
 
-    // - Add notifications button -
+
 }
 
 @Composable
@@ -273,28 +302,6 @@ fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
                 text = today.toString(),
                 style = MaterialTheme.typography.labelLarge
             )
-
-            // - Notification Button -
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(10.dp)) // rounded square
-                    .background(Color.White)
-                    .border(
-                        width = 1.dp,
-                        color = Color.Black,
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                    .clickable { onNotificationsClick() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifications",
-                    tint = Color.Black,
-                    modifier = Modifier.size(22.dp) // icon size inside the square
-                )
-            }
         }
 
         Spacer(modifier = Modifier.height(25.dp))
