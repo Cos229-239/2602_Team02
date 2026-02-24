@@ -206,6 +206,16 @@ fun Header(
                         onNavigateToDietary()
                     }
                 )
+7
+                // --- ANDY'S TEMPORARY DASHBOARD BUTTON MOVED HERE ---
+                DropdownMenuItem(
+                    text = { Text("Event Dashboard") },
+                    onClick = {
+                        expanded = false
+                        val intent = Intent(context, com.example.wepartyapp.ui.event_dashboard.EventDashboardActivity::class.java)
+                        context.startActivity(intent)
+                    }
+                )
 
                 DropdownMenuItem(
                     text = { Text("Logout", color = Color.Red) },
@@ -334,21 +344,6 @@ fun NavigationItem(
             fontSize = 11.sp,
             color = if (selected) Color.White else Color.Black
         )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // --- TEMPORARY DASHBOARD BUTTON ---
-        Button(
-            onClick = {
-                // Intent to open specific EventDashboardActivity
-                val intent = Intent(context, com.example.wepartyapp.ui.event_dashboard.EventDashboardActivity::class.java)
-                context.startActivity(intent)
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFECA4A6)),
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
-            Text("Go to Event Dashboard (Test)", color = Color.Black)
-        }
     }
 }
 
