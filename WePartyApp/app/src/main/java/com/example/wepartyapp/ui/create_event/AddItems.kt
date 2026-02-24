@@ -1,6 +1,7 @@
 package com.example.wepartyapp.ui.create_event
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,14 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,27 +34,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.wepartyapp.ui.ItemPriceViewModel
 import com.example.wepartyapp.ui.api.NetworkResponse
-import com.example.wepartyapp.ui.api.WalmartPriceModel
 
 // UI for the Add Items screen
 @Composable
 fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel) {
-    var item by remember {                                              //start with an empty string
+    var item by remember {                                                  //start with an empty string
         mutableStateOf("")
     }
-    var itemsList by remember {                                             //start with an empty list of strings
+    var itemsList by remember {                                             //start with an empty list of object
         mutableStateOf(listOf<PartyItem>())
     }
 
     val priceResult = viewModel.priceResult.observeAsState()
 
-    Box(                                                                //outer most layer
+    Box(                                                                    //outer most layer
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFFFE9EA)),
@@ -71,7 +68,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {navController.navigate(CreateEventRoutes.createEvent)}) {                    //back to events btn
+                IconButton(onClick = {navController.navigate(CreateEventRoutes.createEvent)}) {           //back to events btn
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,
@@ -102,7 +99,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Row(                                                            //add items section
+            Row(                                                               //add items section
                 modifier = Modifier
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -120,7 +117,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                     onClick = {
                     if (item.isNotBlank()) {
                         itemsList = itemsList + PartyItem(name = item, price = "Loading...")
-                        viewModel.getData(item)                              //trigger api before resetting item
+                        viewModel.getData(item)                              //trigger api before resetting item string
                         item = ""                                            //resetting item to an empty string
                     } },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
@@ -128,6 +125,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                     Text(text = "Add", color = Color.Black)
                 }
             }
+            //LaunchedEffect is used to run suspendable side effects - coroutine
             LaunchedEffect(priceResult.value) {
                 when (val result = priceResult.value) {
                     is NetworkResponse.Success -> {
@@ -156,14 +154,20 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                     else -> {}
                 }
             }
-            LazyColumn() {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
                 items(itemsList) {
-                    Text(
-                        text = it.name + "                              " + it.price,
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp)
-                    )
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = it.name)
+                        Text(text = it.price)
+                    }
                     Divider()
                 }
             }
