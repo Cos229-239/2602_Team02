@@ -37,7 +37,8 @@ import com.google.firebase.storage.FirebaseStorage
 @Composable
 fun ProfileScreenUI(
     onEditDietaryClick: () -> Unit,
-    onEditProfileClick: () -> Unit
+    onEditProfileClick: () -> Unit,
+    onNotificationsClick: () -> Unit // <-- Added this
 ) {
     val auth = FirebaseAuth.getInstance()
 
@@ -132,7 +133,7 @@ fun ProfileScreenUI(
                 icon = Icons.Default.Notifications,
                 title = "Notifications",
                 subtitle = "Manage event alerts and invites",
-                onClick = { /* TODO: Hook up to Notification settings */ }
+                onClick = onNotificationsClick // <-- Hooked up here
             )
         }
     }

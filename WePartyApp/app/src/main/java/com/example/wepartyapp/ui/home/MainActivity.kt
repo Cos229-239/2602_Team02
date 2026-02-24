@@ -44,7 +44,8 @@ import androidx.compose.foundation.shape.CircleShape
 import com.example.wepartyapp.ui.profile.DietaryPreferencesScreenUI
 import com.example.wepartyapp.ui.profile.ProfileScreenUI
 import com.example.wepartyapp.ui.create_event.CreateEventActivity
-
+import androidx.lifecycle.viewmodel.compose.viewModel // <-- Added for ViewModel
+import com.example.wepartyapp.ui.EventViewModel // <-- Added to import EventViewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -61,6 +62,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen() {
 
     var selectedTab by remember { mutableIntStateOf(0) }
+    val eventViewModel: EventViewModel = viewModel() // <-- Instantiated the ViewModel here
 
     Scaffold(
         modifier = Modifier.border(3.dp, color = Color.Black),
@@ -89,16 +91,18 @@ fun MainScreen() {
             when (selectedTab) {
                 // *Add Screens In Here With Corresponding Tabs*
                 0 -> HomeScreenUI()
-                1 -> CalendarScreenUI()
+                1 -> CalendarScreenUI(viewModel = eventViewModel) // <-- Passed the ViewModel to fix the error!
                 // 2 -> Create Event Activity Launched In Navigation Bar
                 3 -> ConsolidatedShoppingListScreenUI()
 //                4 -> EventsUI()
                 5 -> DietaryPreferencesScreenUI( onBack = { selectedTab = 6 } )
                 6 -> ProfileScreenUI(
                     onEditDietaryClick = { selectedTab = 5 },
-                    onEditProfileClick = { selectedTab = 7 }
+                    onEditProfileClick = { selectedTab = 7 },
+                    onNotificationsClick = { selectedTab = 8 }
                 )
                 7 -> com.example.wepartyapp.ui.profile.ProfileSettingsScreenUI( onBack = { selectedTab = 6 } )
+                8 -> NotificationsScreenUI( onBack = { selectedTab = 6 } ) // <-- Added Notifications Screen here
             }
         }
     }
@@ -205,6 +209,16 @@ fun Header(
                     }
                 )
 
+                // --- ANDY'S TEMPORARY DASHBOARD BUTTON MOVED HERE ---
+                DropdownMenuItem(
+                    text = { Text("Event Dashboard") },
+                    onClick = {
+                        expanded = false
+                        val intent = Intent(context, com.example.wepartyapp.ui.event_dashboard.EventDashboardActivity::class.java)
+                        context.startActivity(intent)
+                    }
+                )
+
                 DropdownMenuItem(
                     text = { Text("Logout", color = Color.Red) },
                     onClick = {
@@ -240,7 +254,7 @@ fun HomeScreenUI(){
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            EventCard("Valentine's Day Party", "Feb 20, 2026")
+            EventCard("Valentine's Day Party", "Feb 14, 2026")
             EventCard("Bob's Birthday", "March 9, 2026")
         }
 
