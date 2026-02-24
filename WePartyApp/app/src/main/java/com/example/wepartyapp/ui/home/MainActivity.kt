@@ -96,9 +96,11 @@ fun MainScreen() {
                 5 -> DietaryPreferencesScreenUI( onBack = { selectedTab = 6 } )
                 6 -> ProfileScreenUI(
                     onEditDietaryClick = { selectedTab = 5 },
-                    onEditProfileClick = { selectedTab = 7 }
+                    onEditProfileClick = { selectedTab = 7 },
+                    onNotificationsClick = { selectedTab = 8 }
                 )
                 7 -> com.example.wepartyapp.ui.profile.ProfileSettingsScreenUI( onBack = { selectedTab = 6 } )
+                8 -> NotificationsScreenUI( onBack = { selectedTab = 6 } ) // <-- Added Notifications Screen here
             }
         }
     }
@@ -240,7 +242,7 @@ fun HomeScreenUI(){
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            EventCard("Valentine's Day Party", "Feb 20, 2026")
+            EventCard("Valentine's Day Party", "Feb 14, 2026")
             EventCard("Bob's Birthday", "March 9, 2026")
         }
 

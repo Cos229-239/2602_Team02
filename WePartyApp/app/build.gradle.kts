@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.androidx.compose.runtime.livedata)
+    implementation ("com.google.firebase:firebase-messaging")
     
     // Firebase
     implementation(platform(libs.firebase.bom))
