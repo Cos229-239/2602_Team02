@@ -33,6 +33,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.wepartyapp.ui.ItemPriceViewModel
+import com.example.wepartyapp.ui.home.MainScreen
 
 class CreateEventActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +45,9 @@ class CreateEventActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             NavHost(navController = navController, startDestination = CreateEventRoutes.createEvent) {
+                composable(CreateEventRoutes.mainScreen) {
+                    MainScreen()
+                }
                 composable(CreateEventRoutes.createEvent) {
                     CreateEventScreenUI(navController)
                 }
@@ -77,7 +81,7 @@ fun CreateEventScreenUI(navController: NavController) {
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {}) {                        //back to home pg btn
+                IconButton(onClick = {navController.navigate(CreateEventRoutes.mainScreen)}) {                        //back to home pg btn
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,
