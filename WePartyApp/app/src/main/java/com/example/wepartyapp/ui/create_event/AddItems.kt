@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,6 +26,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.wepartyapp.ui.ItemPriceViewModel
+import com.example.wepartyapp.ui.api.NetworkResponse
+import com.example.wepartyapp.ui.api.WalmartPriceModel
 
 // UI for the Add Items screen
 @Composable
@@ -45,6 +49,12 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
     var itemsList by remember {                                             //start with an empty list of strings
         mutableStateOf(listOf<String>())
     }
+
+    var priceList by remember {                                         //still trying this out - TRIAL
+        mutableStateOf(listOf<String>())
+    }
+
+    val priceResult = viewModel.priceResult.observeAsState()
 
     Box(                                                                //outer most layer
         modifier = Modifier
@@ -120,6 +130,19 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                 }
             }
             ItemListComp(itemsList = itemsList)
+            when(val result = priceResult.value) {
+                is NetworkResponse.Error -> {
+                    Text(text = result.message)
+                }
+                NetworkResponse.Loading -> {
+                    CircularProgressIndicator()
+                }
+                is NetworkResponse.Success -> {
+                    Text(text = result.data.toString())                     //curr shows all info on screen
+                }
+                null -> {}
+            }
+            //LazyVerticalGrid(){}                                          //TRIAL - trying to implement two columns (lists) - item name and price -
         }
         Button(
             onClick = {navController.navigate(CreateEventRoutes.inviteFriends)},
