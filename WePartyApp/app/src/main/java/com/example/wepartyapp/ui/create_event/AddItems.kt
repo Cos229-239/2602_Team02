@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -25,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -47,11 +50,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
         mutableStateOf("")
     }
     var itemsList by remember {                                             //start with an empty list of strings
-        mutableStateOf(listOf<String>())
-    }
-
-    var priceList by remember {                                         //still trying this out - TRIAL
-        mutableStateOf(listOf<String>())
+        mutableStateOf(listOf<PartyItem>())
     }
 
     val priceResult = viewModel.priceResult.observeAsState()
@@ -120,8 +119,8 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                 Button(
                     onClick = {
                     if (item.isNotBlank()) {
-                        itemsList = itemsList + item                         //adding item to list when btn is clicked
-                        viewModel.getData(item)                              //before resetting grab the data
+                        itemsList = itemsList + PartyItem(name = item, price = "Loading...")
+                        viewModel.getData(item)                              //trigger api before resetting item
                         item = ""                                            //resetting item to an empty string
                     } },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
@@ -129,20 +128,45 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                     Text(text = "Add", color = Color.Black)
                 }
             }
-            ItemListComp(itemsList = itemsList)
-            when(val result = priceResult.value) {
-                is NetworkResponse.Error -> {
-                    Text(text = result.message)
+            LaunchedEffect(priceResult.value) {
+                when (val result = priceResult.value) {
+                    is NetworkResponse.Success -> {
+                        val searchResults = result.data.organic_results
+                        val exactPrice =
+                            if(!searchResults.isNullOrEmpty()) {
+                                "$${searchResults[0].primary_offer.offer_price}"
+                            } else {
+                                "Not Found"
+                            }
+                        val updatedList = itemsList.toMutableList()
+                        val index = updatedList.indexOfLast { it.price == "Loading..." }
+                        if(index != -1) {
+                            updatedList[index] = updatedList[index].copy(price = exactPrice)
+                            itemsList = updatedList
+                        }
+                    }
+                    is NetworkResponse.Error -> {
+                        val updatedList = itemsList.toMutableList()
+                        val index = updatedList.indexOfLast { it.price == "Loading..." }
+                        if(index != -1) {
+                            updatedList[index] = updatedList[index].copy(price = "error")
+                            itemsList = updatedList
+                        }
+                    }
+                    else -> {}
                 }
-                NetworkResponse.Loading -> {
-                    CircularProgressIndicator()
-                }
-                is NetworkResponse.Success -> {
-                    Text(text = result.data.toString())                     //curr shows all info on screen
-                }
-                null -> {}
             }
-            //LazyVerticalGrid(){}                                          //TRIAL - trying to implement two columns (lists) - item name and price -
+            LazyColumn() {
+                items(itemsList) {
+                    Text(
+                        text = it.name + "                              " + it.price,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    )
+                    Divider()
+                }
+            }
         }
         Button(
             onClick = {navController.navigate(CreateEventRoutes.inviteFriends)},
@@ -156,20 +180,4 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
     }
 }
 
-@Composable
-fun ItemListComp(
-    itemsList: List<String>,
-    modifier: Modifier = Modifier
-){
-    LazyColumn(modifier) {
-        items(itemsList) {currentItem ->
-            Text(
-                text = currentItem,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
-            Divider()
-        }
-    }
-}
+data class PartyItem(val name: String, val price: String)
