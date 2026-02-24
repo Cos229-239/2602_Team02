@@ -44,7 +44,8 @@ import androidx.compose.foundation.shape.CircleShape
 import com.example.wepartyapp.ui.profile.DietaryPreferencesScreenUI
 import com.example.wepartyapp.ui.profile.ProfileScreenUI
 import com.example.wepartyapp.ui.create_event.CreateEventActivity
-
+import androidx.lifecycle.viewmodel.compose.viewModel // <-- Added for ViewModel
+import com.example.wepartyapp.ui.EventViewModel // <-- Added to import EventViewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -61,6 +62,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen() {
 
     var selectedTab by remember { mutableIntStateOf(0) }
+    val eventViewModel: EventViewModel = viewModel() // <-- Instantiated the ViewModel here
 
     Scaffold(
         modifier = Modifier.border(3.dp, color = Color.Black),
@@ -89,7 +91,7 @@ fun MainScreen() {
             when (selectedTab) {
                 // *Add Screens In Here With Corresponding Tabs*
                 0 -> HomeScreenUI()
-                1 -> CalendarScreenUI()
+                1 -> CalendarScreenUI(viewModel = eventViewModel) // <-- Passed the ViewModel to fix the error!
                 // 2 -> Create Event Activity Launched In Navigation Bar
                 3 -> ConsolidatedShoppingListScreenUI()
 //                4 -> EventsUI()
@@ -206,7 +208,7 @@ fun Header(
                         onNavigateToDietary()
                     }
                 )
-7
+
                 // --- ANDY'S TEMPORARY DASHBOARD BUTTON MOVED HERE ---
                 DropdownMenuItem(
                     text = { Text("Event Dashboard") },
