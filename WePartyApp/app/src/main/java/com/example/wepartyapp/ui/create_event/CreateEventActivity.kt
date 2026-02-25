@@ -28,10 +28,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.wepartyapp.ui.EventViewModel
 import com.example.wepartyapp.ui.ItemPriceViewModel
 import com.example.wepartyapp.ui.home.MainScreen
 
@@ -48,14 +50,17 @@ class CreateEventActivity : ComponentActivity() {
                 composable(CreateEventRoutes.mainScreen) {
                     MainScreen()
                 }
-                composable(CreateEventRoutes.createEvent) {
-                    CreateEventScreenUI(navController)
+                composable(CreateEventRoutes.createEvent) { backStackEntry ->
+                    val viewItemModel: EventViewModel = viewModel(backStackEntry)
+                    CreateEventScreenUI(navController, viewItemModel)
                 }
-                composable(CreateEventRoutes.addItems) {
-                    AddItemsScreenUI(navController, itemPriceViewModel)
+                composable(CreateEventRoutes.addItems) { backStackEntry ->
+                    val viewItemModel: EventViewModel = viewModel(backStackEntry)
+                    AddItemsScreenUI(navController, itemPriceViewModel, viewItemModel)
                 }
-                composable(CreateEventRoutes.inviteFriends) {
-                    InviteFriendsScreenUI(navController)
+                composable(CreateEventRoutes.inviteFriends) { backStackEntry ->
+                    val viewItemModel: EventViewModel = viewModel(backStackEntry)
+                    InviteFriendsScreenUI(navController, viewItemModel)
                 }
             }
         }
@@ -64,7 +69,7 @@ class CreateEventActivity : ComponentActivity() {
 
 // CreateEventScreenUI.kt
 @Composable
-fun CreateEventScreenUI(navController: NavController) {
+fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewModel) {
     Box(
         modifier = Modifier
             .fillMaxSize()

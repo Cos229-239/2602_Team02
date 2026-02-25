@@ -31,10 +31,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.wepartyapp.ui.EventViewModel
 
 // Invite Friends Screen
 @Composable
-fun InviteFriendsScreenUI(navController: NavController) {
+fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventViewModel) {
     var urlLink by remember() {
         mutableStateOf("")
     }
