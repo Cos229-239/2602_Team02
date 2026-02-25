@@ -55,7 +55,7 @@ fun InviteFriendsScreenUI(navController: NavController) {
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {navController.navigate(CreateEventRoutes.addItems)}) {                   //back to add items btn
+                IconButton(onClick = {navController.popBackStack()}) {                   //back to add items btn
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,

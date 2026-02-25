@@ -68,7 +68,10 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {navController.navigate(CreateEventRoutes.createEvent)}) {           //back to events btn
+                IconButton(onClick = {
+                    navController.previousBackStackEntry
+                    navController.popBackStack()
+                }) {           //back to events btn
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,
