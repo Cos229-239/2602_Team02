@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
@@ -33,14 +35,18 @@ import coil.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.storage.FirebaseStorage
+import android.content.Intent
+import androidx.compose.material.icons.filled.Edit
+import com.example.wepartyapp.ui.auth.LoginActivity
 
 @Composable
 fun ProfileScreenUI(
     onEditDietaryClick: () -> Unit,
     onEditProfileClick: () -> Unit,
-    onNotificationsClick: () -> Unit // <-- Added this
+    onEventDashboardClick: () -> Unit
 ) {
     val auth = FirebaseAuth.getInstance()
+    val context = LocalContext.current
 
     // 1. Use State variables so the UI knows to redraw when these change
     var userName by remember { mutableStateOf("Party Animal") }
@@ -130,10 +136,28 @@ fun ProfileScreenUI(
             Spacer(modifier = Modifier.height(16.dp))
 
             ProfileMenuRow(
-                icon = Icons.Default.Notifications,
-                title = "Notifications",
-                subtitle = "Manage event alerts and invites",
-                onClick = onNotificationsClick // <-- Hooked up here
+                icon = Icons.Default.Edit,
+                title = "Event Dashboard",
+                subtitle = "Claim Items, Chat with event attendees, and view Location",
+                onClick = onEventDashboardClick
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            ProfileMenuRow(
+                icon = Icons.Default.Close,
+                title = "Log out",
+                subtitle = "Sign out of your account",
+                onClick = {
+                    auth.signOut()
+
+                    val intent = Intent(context, LoginActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+
+                    context.startActivity(intent)
+                }
             )
         }
     }
