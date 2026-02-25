@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,7 +47,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
     var item by remember {                                                  //start with an empty string
         mutableStateOf("")
     }
-    var itemsList by remember {                                             //start with an empty list of object
+    var itemsList by rememberSaveable {                                             //start with an empty list of object
         mutableStateOf(listOf<PartyItem>())
     }
 
@@ -68,10 +69,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {
-                    navController.previousBackStackEntry
-                    navController.popBackStack()
-                }) {           //back to events btn
+                IconButton(onClick = { navController.popBackStack() }) {           //back to events btn
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,
@@ -186,5 +184,4 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
         }
     }
 }
-
 data class PartyItem(val name: String, val price: String)
