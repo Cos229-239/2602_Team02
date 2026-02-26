@@ -10,8 +10,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState // <-- Added for scrolling
+import androidx.compose.foundation.verticalScroll // <-- Added for scrolling
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -52,6 +52,7 @@ class CalendarActivity : ComponentActivity() {
 @Composable
 fun CalendarScreenUI(viewModel: EventViewModel) {
     val context = LocalContext.current
+    val scrollState = rememberScrollState() // <-- Added to track scroll position
 
     // 1. Observe the LIST of events from Firebase
     val events by viewModel.events.observeAsState(emptyList())
@@ -69,9 +70,10 @@ fun CalendarScreenUI(viewModel: EventViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFFFE9EA))
+            .verticalScroll(scrollState) // <-- This makes the whole screen scrollable
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+        verticalArrangement = Arrangement.Top // Changed to Top so items don't float weirdly when scrolling
     ) {
 
         // 1. LOGO
@@ -83,6 +85,8 @@ fun CalendarScreenUI(viewModel: EventViewModel) {
                 .height(220.dp),
             contentScale = ContentScale.Fit
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // 2. EVENT NAME (Pulls from the selectedEvent)
         Column(
@@ -98,6 +102,8 @@ fun CalendarScreenUI(viewModel: EventViewModel) {
                 modifier = Modifier.padding(top = 4.dp)
             )
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // 3. CALENDAR CARD
         Card(
@@ -142,12 +148,14 @@ fun CalendarScreenUI(viewModel: EventViewModel) {
             }
         }
 
+        Spacer(modifier = Modifier.height(24.dp))
+
         // 4. FOOTER INFO (Pulls from selectedEvent)
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .alpha(if (isEventDay) 1f else 0f)
-                .padding(bottom = 8.dp)
+                .padding(bottom = 24.dp) // Added more padding to the bottom
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "Where: ", fontSize = 16.sp, color = Color.Black)
@@ -190,48 +198,55 @@ fun CalendarGrid(
     val firstDayOfWeek = currentMonth.atDay(1).dayOfWeek.value
     val emptyDaysBefore = if (firstDayOfWeek == 7) 0 else firstDayOfWeek
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(7),
-        modifier = Modifier.fillMaxWidth(),
-        userScrollEnabled = false
-    ) {
-        items(emptyDaysBefore) {
-            Spacer(modifier = Modifier.padding(4.dp).aspectRatio(1f))
-        }
+    // We calculate all the days we need to show (including empty ones)
+    val totalGridItems = emptyDaysBefore + daysInMonth
 
-        items(daysInMonth) { dayIndex ->
-            val date = currentMonth.atDay(dayIndex + 1)
-            val isSelected = date == selectedDate
+    Column(modifier = Modifier.fillMaxWidth()) {
+        // We chunk the days into groups of 7 to create "Rows" manually
+        for (i in 0 until totalGridItems step 7) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                for (j in 0 until 7) {
+                    val index = i + j
+                    if (index < emptyDaysBefore || index >= totalGridItems) {
+                        // Empty spacer for days before/after the month
+                        Spacer(modifier = Modifier.weight(1f).aspectRatio(1f).padding(4.dp))
+                    } else {
+                        val dayNumber = index - emptyDaysBefore + 1
+                        val date = currentMonth.atDay(dayNumber)
+                        val isSelected = date == selectedDate
+                        val isEvent = eventDates.contains(date)
 
-            // Check if the current date is anywhere inside our list of event dates
-            val isEvent = eventDates.contains(date)
+                        val backgroundColor = when {
+                            isEvent -> Color(0xFF00C853)
+                            isSelected -> Color(0xFF2979FF)
+                            else -> Color.Transparent
+                        }
+                        val textColor = if (isSelected || isEvent) Color.White else Color.Black
 
-            val backgroundColor = when {
-                isEvent -> Color(0xFF00C853)
-                isSelected -> Color(0xFF2979FF)
-                else -> Color.Transparent
-            }
-            val textColor = if (isSelected || isEvent) Color.White else Color.Black
-
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .padding(4.dp)
-                    .aspectRatio(1f)
-                    .background(color = backgroundColor, shape = CircleShape)
-                    .clickable { onDateSelected(date) }
-            ) {
-                Text(
-                    text = (dayIndex + 1).toString(),
-                    color = textColor,
-                    fontSize = 16.sp,
-                    fontWeight = if (isSelected || isEvent) FontWeight.Bold else FontWeight.Normal
-                )
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .weight(1f) // Takes equal width in the row
+                                .aspectRatio(1f)
+                                .padding(4.dp)
+                                .background(color = backgroundColor, shape = CircleShape)
+                                .clickable { onDateSelected(date) }
+                        ) {
+                            Text(
+                                text = dayNumber.toString(),
+                                color = textColor,
+                                fontSize = 16.sp,
+                                fontWeight = if (isSelected || isEvent) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 }
 
+// Updated to be non-lazy for scrolling compatibility
 @Composable
 fun CalendarGrid(
     currentMonth: YearMonth,
@@ -242,44 +257,46 @@ fun CalendarGrid(
     val daysInMonth = currentMonth.lengthOfMonth()
     val firstDayOfWeek = currentMonth.atDay(1).dayOfWeek.value
     val emptyDaysBefore = if (firstDayOfWeek == 7) 0 else firstDayOfWeek
+    val totalGridItems = emptyDaysBefore + daysInMonth
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(7),
-        modifier = Modifier.fillMaxWidth(),
-        userScrollEnabled = false
-    ) {
-        items(emptyDaysBefore) {
-            Spacer(modifier = Modifier.padding(4.dp).aspectRatio(1f))
-        }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        for (i in 0 until totalGridItems step 7) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                for (j in 0 until 7) {
+                    val index = i + j
+                    if (index < emptyDaysBefore || index >= totalGridItems) {
+                        Spacer(modifier = Modifier.weight(1f).aspectRatio(1f).padding(4.dp))
+                    } else {
+                        val dayNumber = index - emptyDaysBefore + 1
+                        val date = currentMonth.atDay(dayNumber)
+                        val isSelected = date == selectedDate
+                        val isEvent = eventDate != null && date == eventDate
 
-        items(daysInMonth) { dayIndex ->
-            val date = currentMonth.atDay(dayIndex + 1)
-            val isSelected = date == selectedDate
+                        val backgroundColor = when {
+                            isEvent -> Color(0xFF00C853)
+                            isSelected -> Color(0xFF2979FF)
+                            else -> Color.Transparent
+                        }
+                        val textColor = if (isSelected || isEvent) Color.White else Color.Black
 
-            // Check if it's an event day without crashing on null
-            val isEvent = eventDate != null && date == eventDate
-
-            val backgroundColor = when {
-                isEvent -> Color(0xFF00C853)
-                isSelected -> Color(0xFF2979FF)
-                else -> Color.Transparent
-            }
-            val textColor = if (isSelected || isEvent) Color.White else Color.Black
-
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .padding(4.dp)
-                    .aspectRatio(1f)
-                    .background(color = backgroundColor, shape = CircleShape)
-                    .clickable { onDateSelected(date) }
-            ) {
-                Text(
-                    text = (dayIndex + 1).toString(),
-                    color = textColor,
-                    fontSize = 16.sp,
-                    fontWeight = if (isSelected || isEvent) FontWeight.Bold else FontWeight.Normal
-                )
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .weight(1f)
+                                .aspectRatio(1f)
+                                .padding(4.dp)
+                                .background(color = backgroundColor, shape = CircleShape)
+                                .clickable { onDateSelected(date) }
+                        ) {
+                            Text(
+                                text = dayNumber.toString(),
+                                color = textColor,
+                                fontSize = 16.sp,
+                                fontWeight = if (isSelected || isEvent) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    }
+                }
             }
         }
     }
