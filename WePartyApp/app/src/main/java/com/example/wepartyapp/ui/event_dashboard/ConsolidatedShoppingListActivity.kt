@@ -12,10 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -48,43 +46,27 @@ fun ConsolidatedShoppingListScreenUI() {
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = {})                                        //back to home pg btn
-                {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Home"
-                    )
-                }
-                Text(
-                    text = "Home",
-                    fontSize = 20.sp
-                )
-            }
             Column(
                 modifier = Modifier
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Icon(                                                           //pg icon
-                    imageVector = Icons.Default.List,
+                    imageVector = Icons.Default.ShoppingCart,
                     contentDescription = null,
-                    Modifier.size(60.dp),
+                    Modifier.size(80.dp),
                     tint = Color(0xFFBF6363)
                 )
                 Text(                                                           //pg title
                     text = "Consolidated",
-                    fontSize = 30.sp
+                    fontSize = 45.sp
                 )
                 Text(                                                           //pg title
                     text = "Shopping List",
-                    fontSize = 30.sp
+                    fontSize = 45.sp
                 )
             }
+            //add list of items based on event
         }
     }
 }

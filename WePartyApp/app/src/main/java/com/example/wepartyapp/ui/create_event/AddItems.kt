@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -16,7 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -30,7 +31,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +42,7 @@ import com.example.wepartyapp.ui.EventViewModel
 import com.example.wepartyapp.ui.ItemPriceViewModel
 import com.example.wepartyapp.ui.api.NetworkResponse
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.text.font.FontWeight
 
 // UI for the Add Items screen
 @Composable
@@ -55,7 +56,8 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
     Box(                                                                    //outer most layer
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFFE9EA)),
+            .background(Color(0xFFFFE9EA))
+            .navigationBarsPadding(),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -89,18 +91,19 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Icon(                                                           //pg icon
-                    imageVector = Icons.Default.ShoppingCart,
+                    imageVector = Icons.Default.List,
                     contentDescription = null,
-                    Modifier.size(60.dp),
+                    Modifier.size(70.dp),
                     tint = Color(0xFFBF6363)
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(                                                           //pg title
                     text = "Add Items",
+                    fontWeight = FontWeight.SemiBold,
                     fontSize = 30.sp
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             Row(                                                               //add items section
                 modifier = Modifier
                     .fillMaxWidth(),

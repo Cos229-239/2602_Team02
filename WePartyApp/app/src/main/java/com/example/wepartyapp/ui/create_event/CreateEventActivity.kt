@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -30,11 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView // <-- Added for status bar
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat // <-- Added for status bar
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -89,7 +90,8 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFFE9EA)),
+            .background(Color(0xFFFFE9EA))
+            .navigationBarsPadding(),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -137,6 +139,7 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(                                                           //pg title
                     text = "Create Event",
+                    fontWeight = FontWeight.SemiBold,
                     fontSize = 30.sp,
                 )
             }
