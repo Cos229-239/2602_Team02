@@ -1,5 +1,7 @@
 package com.example.wepartyapp.ui.create_event
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,11 +24,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect // <-- Added for status bar
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView // <-- Added for status bar
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat // <-- Added for status bar
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -35,6 +41,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.wepartyapp.ui.EventViewModel
 import com.example.wepartyapp.ui.ItemPriceViewModel
+import com.example.wepartyapp.ui.home.MainActivity
 import com.example.wepartyapp.ui.home.MainScreen
 
 class CreateEventActivity : ComponentActivity() {
@@ -45,6 +52,15 @@ class CreateEventActivity : ComponentActivity() {
         val viewItemModel = ViewModelProvider(this)[EventViewModel::class.java]
 
         setContent {
+            // --- Status Bar Fix ---
+            val view = LocalView.current
+            if (!view.isInEditMode) {
+                SideEffect {
+                    val window = (view.context as Activity).window
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+                }
+            }
+
             val navController = rememberNavController()
 
             NavHost(navController = navController, startDestination = CreateEventRoutes.createEvent) {
@@ -68,6 +84,8 @@ class CreateEventActivity : ComponentActivity() {
 // CreateEventScreenUI.kt
 @Composable
 fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewModel) {
+    val context = LocalContext.current // <-- Grab context for the Intent
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -79,12 +97,20 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+            Spacer(modifier = Modifier.height(40.dp)) // <-- Pushes the whole screen down!
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {navController.navigate(CreateEventRoutes.mainScreen)}) {                        //back to home pg btn
+                IconButton(onClick = {
+                    // Explicitly return to Main Activity and kill this one
+                    val intent = Intent(context, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    context.startActivity(intent)
+                    (context as? Activity)?.finish()
+                }) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,
@@ -115,6 +141,8 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
+
+            // Pass the viewItemModel to EventDetailsScreenUI so it caches data
             EventDetailsScreenUI(viewItemModel)
         }
         Button(

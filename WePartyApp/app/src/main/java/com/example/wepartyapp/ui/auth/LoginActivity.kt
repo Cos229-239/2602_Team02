@@ -1,5 +1,6 @@
 package com.example.wepartyapp.ui.auth
 
+import android.app.Activity // <-- Added
 import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions // <-- Added
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -23,20 +25,26 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect // <-- Added
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection // <-- Added
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager // <-- Added
+import androidx.compose.ui.platform.LocalView // <-- Added
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction // <-- Added
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat // <-- Added
 import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.home.MainActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -62,6 +70,15 @@ class LoginActivity : ComponentActivity() {
         auth = FirebaseAuth.getInstance()
 
         setContent {
+            // --- Status Bar Fix ---
+            val view = LocalView.current
+            if (!view.isInEditMode) {
+                SideEffect {
+                    val window = (view.context as Activity).window
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+                }
+            }
+
             LoginScreenUI(
                 onLoginClick = { emailInput, passwordInput ->
                     val email = emailInput.trim()
@@ -110,6 +127,8 @@ fun LoginScreenUI(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    val focusManager = LocalFocusManager.current // <-- Controls moving between fields
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -140,7 +159,15 @@ fun LoginScreenUI(
             value = email,
             onValueChange = { email = it },
             placeholder = { Text("Email") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            // Set keyboard to show "Next" instead of enter
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next
+            ),
+            // Move focus down to password field when "Next" is hit
+            keyboardActions = KeyboardActions(
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
@@ -158,7 +185,18 @@ fun LoginScreenUI(
             onValueChange = { password = it },
             placeholder = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            // Set keyboard to show "Done" instead of enter
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done
+            ),
+            // Submits the form when "Done" is hit
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    focusManager.clearFocus() // Hide keyboard
+                    onLoginClick(email, password)
+                }
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),

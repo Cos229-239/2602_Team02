@@ -24,18 +24,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.google.firebase.messaging.FirebaseMessaging // <-- Added FCM Import
+import com.example.wepartyapp.ui.EventViewModel // <-- Added ViewModel Import
+import com.example.wepartyapp.ui.PartyNotification // <-- Added Data Class Import
 
-// The "Container" for notification data
-data class NotificationItem(
-    val id: String,
-    val title: String,
-    val message: String,
-    val time: String
-)
+// The "Container" for notification data (Moved to EventViewModel as PartyNotification)
 
 @Composable
-fun NotificationsScreenUI(onBack: () -> Unit) {
+fun NotificationsScreenUI(viewModel: EventViewModel, onBack: () -> Unit) { // <-- Added ViewModel Parameter
     val context = LocalContext.current
+
+    // Observe the Real list of notifications from Firestore
+    val realNotifications by viewModel.notificationsList.collectAsState()
 
     // 1. Check if the app already has permission (Required for Android 13+)
     var hasNotificationPermission by remember {
@@ -68,13 +67,6 @@ fun NotificationsScreenUI(onBack: () -> Unit) {
             Toast.makeText(context, "Permission Denied. You can enable them in your phone settings.", Toast.LENGTH_LONG).show()
         }
     }
-
-    // Mock data to test the layout
-    val dummyNotifications = listOf(
-        NotificationItem("1", "New Invite!", "Lesly invited you to 'Graduation Bash'", "2 mins ago"),
-        NotificationItem("2", "Item Added", "Maret added 'Chips Ahoy' to the party list", "1 hour ago"),
-        NotificationItem("3", "Event Update", "Location changed for 'Game Night'", "Yesterday")
-    )
 
     Column(
         modifier = Modifier
@@ -163,13 +155,22 @@ fun NotificationsScreenUI(onBack: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        // The List Display
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(dummyNotifications) { notification ->
-                NotificationCard(notification)
+        // Check if the real list is empty and show a placeholder if it is
+        if (realNotifications.isEmpty()) {
+            Text(
+                text = "No recent alerts.",
+                color = Color.Gray,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+        } else {
+            // The List Display
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(realNotifications) { notification ->
+                    NotificationCard(notification)
+                }
             }
         }
     }
@@ -177,7 +178,7 @@ fun NotificationsScreenUI(onBack: () -> Unit) {
 
 // The Reusable Card UI
 @Composable
-fun NotificationCard(notification: NotificationItem) {
+fun NotificationCard(notification: PartyNotification) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
