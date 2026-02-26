@@ -1,5 +1,6 @@
 package com.example.wepartyapp.ui.auth
 
+import android.app.Activity // <-- Added
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions // <-- Added
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -22,19 +24,25 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect // <-- Added
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection // <-- Added
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager // <-- Added
+import androidx.compose.ui.platform.LocalView // <-- Added
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction // <-- Added
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat // <-- Added
 import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.onboarding.OnboardingActivity // <-- Updated Import
 import com.google.firebase.auth.FirebaseAuth
@@ -50,6 +58,15 @@ class SignUpActivity : ComponentActivity() {
         auth = FirebaseAuth.getInstance()
 
         setContent {
+            // --- Status Bar Fix ---
+            val view = LocalView.current
+            if (!view.isInEditMode) {
+                SideEffect {
+                    val window = (view.context as Activity).window
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+                }
+            }
+
             SignUpScreenUI(
                 onSignUpClick = { name, email, password ->
                     if (email.isEmpty() || password.isEmpty() || name.isEmpty()) {
@@ -100,6 +117,8 @@ fun SignUpScreenUI(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    val focusManager = LocalFocusManager.current // <-- Controls moving between fields
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -132,6 +151,12 @@ fun SignUpScreenUI(
             value = name,
             onValueChange = { name = it },
             placeholder = { Text("Full Name") },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
@@ -149,7 +174,13 @@ fun SignUpScreenUI(
             value = email,
             onValueChange = { email = it },
             placeholder = { Text("Email Address") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
@@ -168,7 +199,16 @@ fun SignUpScreenUI(
             onValueChange = { password = it },
             placeholder = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    focusManager.clearFocus()
+                    onSignUpClick(name, email, password)
+                }
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 24.dp),

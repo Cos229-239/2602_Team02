@@ -63,6 +63,8 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+            Spacer(modifier = Modifier.height(40.dp)) // <-- Pushes the whole screen down!
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -115,11 +117,11 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
                     onClick = {
-                    if (item.isNotBlank()) {
-                        viewItemModel.addItems(PartyItem(name = item, price = "Loading..."))
-                        viewModel.getData(item)                              //trigger api before resetting item string
-                        item = ""                                            //resetting item to an empty string
-                    } },
+                        if (item.isNotBlank()) {
+                            viewItemModel.addItems(PartyItem(name = item, price = "Loading..."))
+                            viewModel.getData(item)                              //trigger api before resetting item string
+                            item = ""                                            //resetting item to an empty string
+                        } },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
                 ) {
                     Text(text = "Add", color = Color.Black)
@@ -129,13 +131,8 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
             LaunchedEffect(priceResult.value) {
                 when (val result = priceResult.value) {
                     is NetworkResponse.Success -> {
-                        val searchResults = result.data.organic_results
-                        val exactPrice =
-                            if(!searchResults.isNullOrEmpty()) {
-                                "$${searchResults[0].primary_offer.offer_price}"
-                            } else {
-                                "Not Found"
-                            }
+                        val exactPrice = result.data // The ViewModel now hands us the exact string directly
+
                         val ogList = viewItemModel._items.value
                         val mutableCopy = ogList.toMutableList()
                         val index = mutableCopy.indexOfLast { it.price == "Loading..." }
@@ -179,7 +176,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
-            ) {
+        ) {
             Text(text = "Next: Invite Friends", color = Color.Black)
         }
     }

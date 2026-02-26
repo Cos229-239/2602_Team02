@@ -1,5 +1,6 @@
 package com.example.wepartyapp.ui.home
 
+import android.app.Activity // <-- Added for status bar
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete // <-- Added for Delete Button
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
@@ -27,12 +29,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView // <-- Added for status bar
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.ContentScale // <-- Added for image cropping
+import androidx.core.view.WindowCompat // <-- Added for status bar
 import coil.compose.AsyncImage // <-- Added Coil for loading images
 import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.auth.LoginActivity
@@ -53,11 +57,22 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid// <-- Added for La
 import androidx.compose.foundation.lazy.grid.items // <-- Added for LazyGrid Layout
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.graphics.Shape
+import java.time.format.DateTimeFormatter // <-- Added for formatting dates
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            // --- Status Bar Fix ---
+            // This grabs the phone's window and tells it to use Dark Icons (for light backgrounds)
+            val view = LocalView.current
+            if (!view.isInEditMode) {
+                SideEffect {
+                    val window = (view.context as Activity).window
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+                }
+            }
+
             MainScreen()
         }
     }
@@ -113,7 +128,7 @@ fun MainScreen() {
                     }
                 )
                 7 -> com.example.wepartyapp.ui.profile.ProfileSettingsScreenUI( onBack = { selectedTab = 6 } )
-                8 -> NotificationsScreenUI( onBack = { selectedTab = 0 } ) // <-- Added Notifications Screen here
+                8 -> NotificationsScreenUI( viewModel = eventViewModel, onBack = { selectedTab = 0 } ) // <-- Added Notifications Screen here
             }
         }
     }
@@ -279,6 +294,9 @@ fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
     val events by viewModel.events.observeAsState(emptyList())
     val today = java.time.LocalDate.now()
 
+    // --- Date Formatter ---
+    // This exact pattern turns "2026-02-26" into "Feb. 26, 2026"
+    val dateFormatter = DateTimeFormatter.ofPattern("MMM. d, yyyy")
 
     val upcomingEvents = events
         .filter { event -> event.date?.let { it >= today } ?: false }
@@ -299,7 +317,7 @@ fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
         ) {
 
             Text(
-                text = today.toString(),
+                text = today.format(dateFormatter), // <-- Applied format here
                 style = MaterialTheme.typography.labelLarge
             )
         }
@@ -323,7 +341,9 @@ fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
             items(upcomingEvents) { event ->
                 EventCard(
                     title = event.name,
-                    date = event.date?.toString() ?: "No Date"
+                    date = event.date?.format(dateFormatter) ?: "No Date", // <-- Applied format here too
+                    time = event.time, // <-- Added time here
+                    onDeleteClick = { viewModel.deleteEvent(event) } // <-- Triggers Firebase delete
                 )
             }
         }
@@ -342,6 +362,7 @@ fun NavigationBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .navigationBarsPadding() // <-- Added this to bump the bar above system navigation buttons
             .height(60.dp)
             .background(Color(0xFFB65C5C))
             .border(3.dp, Color.Black),
@@ -415,8 +436,9 @@ fun NavigationItem(
     }
 }
 
+// --- Updated Event Card ---
 @Composable
-fun EventCard(title: String, date: String) {
+fun EventCard(title: String, date: String, time: String, onDeleteClick: () -> Unit) {
 
     Card(
         modifier = Modifier
@@ -427,16 +449,36 @@ fun EventCard(title: String, date: String) {
             containerColor = Color(0xFFE57373)
         )
     ) {
+        // We use a Box here so the Delete button can sit completely independent in the corner
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(title, fontWeight = FontWeight.Bold)
 
-        Column(
-            modifier = Modifier
-                .padding(20.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
+                Column {
+                    Text(date, style = MaterialTheme.typography.bodySmall)
+                    Text(time, style = MaterialTheme.typography.bodySmall) // <-- Added the time
+                }
+            }
 
-            Text(title)
-            Text(date, style = MaterialTheme.typography.bodySmall)
+            // The Delete Button
+            IconButton(
+                onClick = onDeleteClick,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(4.dp)
+                    .size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete Event",
+                    tint = Color.White
+                )
+            }
         }
     }
 }
