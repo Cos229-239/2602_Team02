@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,17 +38,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.wepartyapp.ui.EventViewModel
 import com.example.wepartyapp.ui.ItemPriceViewModel
 import com.example.wepartyapp.ui.api.NetworkResponse
+import androidx.compose.runtime.collectAsState
 
 // UI for the Add Items screen
 @Composable
-fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel) {
+fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel, viewItemModel: EventViewModel) {
     var item by remember {                                                  //start with an empty string
         mutableStateOf("")
-    }
-    var itemsList by remember {                                             //start with an empty list of object
-        mutableStateOf(listOf<PartyItem>())
     }
 
     val priceResult = viewModel.priceResult.observeAsState()
@@ -68,7 +68,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {navController.navigate(CreateEventRoutes.createEvent)}) {           //back to events btn
+                IconButton(onClick = { navController.popBackStack() }) {           //back to events btn
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,
@@ -116,7 +116,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                 Button(
                     onClick = {
                     if (item.isNotBlank()) {
-                        itemsList = itemsList + PartyItem(name = item, price = "Loading...")
+                        viewItemModel.addItems(PartyItem(name = item, price = "Loading..."))
                         viewModel.getData(item)                              //trigger api before resetting item string
                         item = ""                                            //resetting item to an empty string
                     } },
@@ -136,29 +136,30 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                             } else {
                                 "Not Found"
                             }
-                        val updatedList = itemsList.toMutableList()
-                        val index = updatedList.indexOfLast { it.price == "Loading..." }
+                        val ogList = viewItemModel._items.value
+                        val mutableCopy = ogList.toMutableList()
+                        val index = mutableCopy.indexOfLast { it.price == "Loading..." }
                         if(index != -1) {
-                            updatedList[index] = updatedList[index].copy(price = exactPrice)
-                            itemsList = updatedList
+                            viewItemModel.updatePrice(mutableCopy[index].name, exactPrice)
                         }
                     }
                     is NetworkResponse.Error -> {
-                        val updatedList = itemsList.toMutableList()
-                        val index = updatedList.indexOfLast { it.price == "Loading..." }
+                        val ogList = viewItemModel._items.value
+                        val mutableCopy = ogList.toMutableList()
+                        val index = mutableCopy.indexOfLast { it.price == "Loading..." }
                         if(index != -1) {
-                            updatedList[index] = updatedList[index].copy(price = "error")
-                            itemsList = updatedList
+                            viewItemModel.updatePrice(mutableCopy[index].name, "error")
                         }
                     }
                     else -> {}
                 }
             }
+            val _itemList by viewItemModel._items.collectAsState()
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                items(itemsList) {
+                items(_itemList) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -183,5 +184,4 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
         }
     }
 }
-
 data class PartyItem(val name: String, val price: String)

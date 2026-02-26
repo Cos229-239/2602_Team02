@@ -31,10 +31,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.wepartyapp.ui.EventViewModel
 
 // Invite Friends Screen
 @Composable
-fun InviteFriendsScreenUI(navController: NavController) {
+fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventViewModel) {
     var urlLink by remember() {
         mutableStateOf("")
     }
@@ -55,7 +56,7 @@ fun InviteFriendsScreenUI(navController: NavController) {
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {navController.navigate(CreateEventRoutes.addItems)}) {                   //back to add items btn
+                IconButton(onClick = {navController.popBackStack()}) {                   //back to add items btn
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,

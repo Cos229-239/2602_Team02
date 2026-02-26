@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
@@ -23,16 +24,19 @@ import androidx.compose.ui.unit.sp
 @Preview
 @Composable
 fun EventDetailsScreenUI() {
-    var eventName by remember {
+    var eventName by rememberSaveable {
         mutableStateOf("")
     }
-    var summaryDetails by remember {
+    var eventSummary by rememberSaveable() {
         mutableStateOf("")
     }
-    var whenDetails by remember {
+    var eventDate by rememberSaveable() {
         mutableStateOf("")
     }
-    var whereDetails by remember {
+    var eventTime by rememberSaveable() {
+        mutableStateOf("")
+    }
+    var eventAddress by rememberSaveable() {
         mutableStateOf("")
     }
     Column(
@@ -65,13 +69,13 @@ fun EventDetailsScreenUI() {
         ) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
-                value = summaryDetails,
-                onValueChange = { summaryDetails = it }
+                value = eventSummary,
+                onValueChange = { eventSummary = it }
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
         Text(
-            text = "When:",
+            text = "Date:",
             fontSize = 20.sp,
             textDecoration = TextDecoration.Underline
         )
@@ -80,13 +84,13 @@ fun EventDetailsScreenUI() {
         ) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
-                value = whenDetails,
-                onValueChange = { whenDetails = it }
+                value = eventDate,
+                onValueChange = { eventDate = it }
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
         Text(
-            text = "Where:",
+            text = "Time:",
             fontSize = 20.sp,
             textDecoration = TextDecoration.Underline
         )
@@ -95,8 +99,23 @@ fun EventDetailsScreenUI() {
         ) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
-                value = whereDetails,
-                onValueChange = { whereDetails = it }
+                value = eventTime,
+                onValueChange = { eventTime = it }
+            )
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(
+            text = "Address:",
+            fontSize = 20.sp,
+            textDecoration = TextDecoration.Underline
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            OutlinedTextField(
+                modifier = Modifier.weight(1f),
+                value = eventAddress,
+                onValueChange = { eventAddress = it }
             )
         }
     }
