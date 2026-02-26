@@ -1,5 +1,7 @@
 package com.example.wepartyapp.ui.create_event
 
+import android.app.Activity // <-- Added
+import android.content.Intent // <-- Added
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,10 +30,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext // <-- Added
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.wepartyapp.ui.EventViewModel
+import com.example.wepartyapp.ui.home.MainActivity // <-- Added
 
 // Invite Friends Screen
 @Composable
@@ -39,6 +43,14 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
     var urlLink by remember() {
         mutableStateOf("")
     }
+
+    val context = LocalContext.current // <-- Grab context for the Intent
+
+    // --- Form Validation ---
+    val isFormComplete = viewItemModel.eventName.isNotBlank() &&
+            viewItemModel.eventDate.isNotBlank() &&
+            viewItemModel.eventTime.isNotBlank() &&
+            viewItemModel.eventAddress.isNotBlank()
 
     Box(
         modifier = Modifier
@@ -51,12 +63,14 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+            Spacer(modifier = Modifier.height(40.dp)) // <-- Pushes the whole screen down
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {navController.popBackStack()}) {                   //back to add items btn
+                IconButton(onClick = {navController.popBackStack()}) { //back to add items btn
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,
@@ -125,14 +139,30 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                 )
             }
         }
+
+        // --- Complete Button ---
         Button(
-            onClick = {/*EXECUTABLE CODE*/},
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
+            onClick = {
+                viewItemModel.saveEventData()
+                // Explicitly return to Main Activity and kill this one
+                val intent = Intent(context, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                context.startActivity(intent)
+                (context as? Activity)?.finish()
+            },
+            enabled = isFormComplete, // Button is disabled if required fields are empty
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFA8989),
+                disabledContainerColor = Color.LightGray // Turns gray when disabled!
+            ),
             modifier = Modifier
-                .align(Alignment.BottomCenter)
+                .align(Alignment.BottomEnd)
                 .padding(16.dp)
         ) {
-            Text(text = "Complete Event", color = Color.Black)
+            Text(
+                text = "Complete Event",
+                color = if (isFormComplete) Color.Black else Color.DarkGray
+            )
         }
     }
 }
