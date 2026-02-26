@@ -42,6 +42,7 @@ class CreateEventActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val itemPriceViewModel = ViewModelProvider(this)[ItemPriceViewModel::class.java]
+        val viewItemModel = ViewModelProvider(this)[EventViewModel::class.java]
 
         setContent {
             val navController = rememberNavController()
@@ -50,16 +51,13 @@ class CreateEventActivity : ComponentActivity() {
                 composable(CreateEventRoutes.mainScreen) {
                     MainScreen()
                 }
-                composable(CreateEventRoutes.createEvent) { backStackEntry ->
-                    val viewItemModel: EventViewModel = viewModel(backStackEntry)
+                composable(CreateEventRoutes.createEvent) {
                     CreateEventScreenUI(navController, viewItemModel)
                 }
-                composable(CreateEventRoutes.addItems) { backStackEntry ->
-                    val viewItemModel: EventViewModel = viewModel(backStackEntry)
+                composable(CreateEventRoutes.addItems) {
                     AddItemsScreenUI(navController, itemPriceViewModel, viewItemModel)
                 }
-                composable(CreateEventRoutes.inviteFriends) { backStackEntry ->
-                    val viewItemModel: EventViewModel = viewModel(backStackEntry)
+                composable(CreateEventRoutes.inviteFriends) {
                     InviteFriendsScreenUI(navController, viewItemModel)
                 }
             }

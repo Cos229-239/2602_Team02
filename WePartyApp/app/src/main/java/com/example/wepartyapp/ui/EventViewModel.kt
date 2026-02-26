@@ -86,11 +86,15 @@ class EventViewModel : ViewModel() {
     }
 
     fun saveEventData(name: String, time: String, address: String, date: String) {
+        val itemMap = hashMapOf(
+            "items_list" to _itemsList.value
+        )
         val eventMap = hashMapOf(
             "name" to name,
             "time" to time,
             "address" to address,
-            "date" to date
+            "date" to date,
+            "item list" to itemMap
         )
         db.collection("events").add(eventMap)
     }
