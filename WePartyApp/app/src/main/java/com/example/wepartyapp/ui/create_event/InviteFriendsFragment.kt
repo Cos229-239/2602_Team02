@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -31,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext // <-- Added
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -55,7 +57,8 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFFE9EA)),
+            .background(Color(0xFFFFE9EA))
+            .navigationBarsPadding(),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -97,6 +100,7 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(                                                           //pg title
                     text = "Invite Friends",
+                    fontWeight = FontWeight.SemiBold,
                     fontSize = 30.sp
                 )
             }
@@ -110,6 +114,7 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                     text = "Sharing Link",
                     fontSize = 20.sp
                 )
+                Spacer(modifier = Modifier.height(10.dp))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -126,14 +131,14 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(                                                           //pg icon
+                Icon(
                     imageVector = Icons.Default.AccountBox,
                     contentDescription = null,
                     Modifier.size(30.dp),
                     tint = Color(0xFFFA8989)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(                                                           //pg title
+                Text(
                     text = "Copy",
                     fontSize = 18.sp,
                 )
