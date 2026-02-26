@@ -115,7 +115,7 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
-            EventDetailsScreenUI()
+            EventDetailsScreenUI(viewItemModel)
         }
         Button(
             onClick = {navController.navigate(CreateEventRoutes.addItems)},

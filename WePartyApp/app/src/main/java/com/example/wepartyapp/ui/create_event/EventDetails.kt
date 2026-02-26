@@ -9,36 +9,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.wepartyapp.ui.EventViewModel
 
 // Event Details Screen
-@Preview
 @Composable
-fun EventDetailsScreenUI() {
-    var eventName by rememberSaveable {
-        mutableStateOf("")
-    }
-    var eventSummary by rememberSaveable() {
-        mutableStateOf("")
-    }
-    var eventDate by rememberSaveable() {
-        mutableStateOf("")
-    }
-    var eventTime by rememberSaveable() {
-        mutableStateOf("")
-    }
-    var eventAddress by rememberSaveable() {
-        mutableStateOf("")
-    }
+fun EventDetailsScreenUI(viewItemModel: EventViewModel) {
+    // We removed the local rememberSaveable variables.
+    // Now everything types directly into the EventViewModel so it survives navigation.
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -54,8 +36,8 @@ fun EventDetailsScreenUI() {
         ) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
-                value = eventName,
-                onValueChange = { eventName = it }
+                value = viewItemModel.eventName,
+                onValueChange = { viewItemModel.eventName = it }
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
@@ -69,8 +51,8 @@ fun EventDetailsScreenUI() {
         ) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
-                value = eventSummary,
-                onValueChange = { eventSummary = it }
+                value = viewItemModel.eventSummary,
+                onValueChange = { viewItemModel.eventSummary = it }
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
@@ -84,8 +66,8 @@ fun EventDetailsScreenUI() {
         ) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
-                value = eventDate,
-                onValueChange = { eventDate = it }
+                value = viewItemModel.eventDate,
+                onValueChange = { viewItemModel.eventDate = it }
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
@@ -99,8 +81,8 @@ fun EventDetailsScreenUI() {
         ) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
-                value = eventTime,
-                onValueChange = { eventTime = it }
+                value = viewItemModel.eventTime,
+                onValueChange = { viewItemModel.eventTime = it }
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
@@ -114,8 +96,8 @@ fun EventDetailsScreenUI() {
         ) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
-                value = eventAddress,
-                onValueChange = { eventAddress = it }
+                value = viewItemModel.eventAddress,
+                onValueChange = { viewItemModel.eventAddress = it }
             )
         }
     }

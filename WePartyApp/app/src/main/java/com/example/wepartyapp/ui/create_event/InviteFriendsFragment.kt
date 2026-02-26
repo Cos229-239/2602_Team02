@@ -126,13 +126,12 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
             }
         }
         Button(
-            onClick = {/*EXECUTABLE CODE*/},
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
+            onClick = {
+                viewItemModel.saveEventData()
+                navController.navigate(CreateEventRoutes.mainScreen) // Or wherever it goes next
+            }
         ) {
-            Text(text = "Complete Event", color = Color.Black)
+            Text("Complete Event")
         }
     }
 }
