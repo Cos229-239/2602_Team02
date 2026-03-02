@@ -116,7 +116,7 @@ fun MainScreen() {
                 0 -> HomeScreenUI(viewModel = eventViewModel, onNotificationsClick = { selectedTab = 8 })
                 1 -> CalendarScreenUI(viewModel = eventViewModel) // <-- Passed the ViewModel to fix the error!
                 // 2 -> Create Event Activity Launched In Navigation Bar
-                3 -> ConsolidatedShoppingListScreenUI()
+                3 -> ConsolidatedShoppingListScreenUI(viewModel = eventViewModel)   //LM
 //                4 -> EventsUI()
                 5 -> DietaryPreferencesScreenUI( onBack = { selectedTab = 6 } )
                 6 -> ProfileScreenUI(
