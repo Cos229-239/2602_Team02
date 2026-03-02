@@ -57,6 +57,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid// <-- Added for La
 import androidx.compose.foundation.lazy.grid.items // <-- Added for LazyGrid Layout
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.graphics.Shape
+import com.example.wepartyapp.ui.event_dashboard.EventInboxScreen
 import java.time.format.DateTimeFormatter // <-- Added for formatting dates
 
 class MainActivity : ComponentActivity() {
@@ -117,7 +118,7 @@ fun MainScreen() {
                 1 -> CalendarScreenUI(viewModel = eventViewModel) // <-- Passed the ViewModel to fix the error!
                 // 2 -> Create Event Activity Launched In Navigation Bar
                 3 -> ConsolidatedShoppingListScreenUI()
-//                4 -> EventsUI()
+                4 -> EventInboxScreen(viewModel = eventViewModel)
                 5 -> DietaryPreferencesScreenUI( onBack = { selectedTab = 6 } )
                 6 -> ProfileScreenUI(
                     onEditDietaryClick = { selectedTab = 5 },
