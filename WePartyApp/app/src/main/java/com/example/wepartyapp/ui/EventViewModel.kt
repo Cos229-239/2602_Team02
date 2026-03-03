@@ -140,10 +140,12 @@ class EventViewModel : ViewModel() {
                     val id = document.id
                     val title = document.getString("title") ?: "Alert"
                     val message = document.getString("message") ?: ""
-                    val time = document.getString("time") ?: "Just now"
                     val timestamp = document.getLong("timestamp") ?: 0L
 
-                    alerts.add(PartyNotification(id, title, message, time, timestamp))
+                    // --- New: Calculate the real time difference ---
+                    val calculatedTime = formatNotificationTime(timestamp)
+
+                    alerts.add(PartyNotification(id, title, message, calculatedTime, timestamp))
                 }
                 _notificationsList.value = alerts
             }
@@ -247,7 +249,7 @@ class EventViewModel : ViewModel() {
         val notificationMap = hashMapOf(
             "title" to title,
             "message" to message,
-            "time" to "Just now",
+            "time" to "Just now", // This still gets saved to Firebase, but we ignore it when downloading
             "timestamp" to System.currentTimeMillis() // This ensures the newest alerts stay at the top
         )
 
@@ -270,5 +272,29 @@ class EventViewModel : ViewModel() {
                     document.reference.delete()
                 }
             }
+    }
+
+    // --- Dynamic Time Formatter ---
+    private fun formatNotificationTime(timestamp: Long): String {
+        if (timestamp == 0L) return "Just now"
+
+        val now = System.currentTimeMillis()
+        val diffMillis = now - timestamp
+
+        val diffMinutes = diffMillis / (60 * 1000)
+        val diffHours = diffMinutes / 60
+        val diffDays = diffHours / 24
+
+        return when {
+            diffMinutes < 5 -> "Just now"
+            diffMinutes < 60 -> "$diffMinutes minutes ago"
+            diffHours < 24 -> if (diffHours == 1L) "1 hour ago" else "$diffHours hours ago"
+            diffDays == 1L -> "Yesterday"
+            else -> {
+                // If it's older than yesterday, show the date (e.g., "Oct. 31, 2026")
+                val sdf = java.text.SimpleDateFormat("MMM. d, yyyy", java.util.Locale.getDefault())
+                sdf.format(java.util.Date(timestamp))
+            }
+        }
     }
 }
