@@ -58,7 +58,7 @@
             android:name=".ui.event_dashboard.ConsolidatedShoppingListActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.chat.ChatRoomActivity"
+            android:name=".ui.event_dashboard.ChatRoomActivity"
             android:exported="false" />
 
         <service
