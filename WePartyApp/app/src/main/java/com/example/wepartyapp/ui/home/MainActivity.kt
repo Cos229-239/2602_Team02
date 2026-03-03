@@ -63,6 +63,11 @@ import java.time.format.DateTimeFormatter // <-- Added for formatting dates
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // --- Added This: Catch the hidden message from ChatRoomActivity ---
+        // If there is no message, it defaults to 0 (Home)
+        val startTab = intent.getIntExtra("TARGET_TAB", 0)
+
         setContent {
             // --- Status Bar Fix ---
             // This grabs the phone's window and tells it to use Dark Icons (for light backgrounds)
@@ -74,17 +79,19 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            MainScreen()
+            // --- Added This: Pass the starting tab to the screen ---
+            MainScreen(initialTab = startTab)
         }
     }
 }
 
 
 @Composable
-fun MainScreen() {
+fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab parameter
 
     val context = LocalContext.current
-    var selectedTab by remember { mutableIntStateOf(0) }
+    // --- Added This: Use the passed tab instead of hardcoding 0 ---
+    var selectedTab by remember { mutableIntStateOf(initialTab) }
     val eventViewModel: EventViewModel = viewModel() // <-- Instantiated the ViewModel here
 
     Scaffold(

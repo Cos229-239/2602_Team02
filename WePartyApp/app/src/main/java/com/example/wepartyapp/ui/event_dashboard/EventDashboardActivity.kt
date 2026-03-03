@@ -1,6 +1,8 @@
 package com.example.wepartyapp.ui.event_dashboard
 
+import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,25 +16,37 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.EventViewModel
 import com.example.wepartyapp.ui.PartyEvent
-import com.example.wepartyapp.ui.chat.ChatRoomActivity
+import com.example.wepartyapp.ui.create_event.CreateEventActivity
 import com.google.firebase.auth.FirebaseAuth
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -42,6 +56,14 @@ class EventDashboardActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val view = LocalView.current
+            if (!view.isInEditMode) {
+                SideEffect {
+                    val window = (view.context as Activity).window
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+                }
+            }
+
             val viewModel: EventViewModel = viewModel()
             EventInboxScreen(viewModel)
         }
@@ -55,6 +77,7 @@ fun EventInboxScreen(viewModel: EventViewModel) {
     val today = LocalDate.now()
     val auth = FirebaseAuth.getInstance()
     val currentUserId = auth.currentUser?.uid
+    val context = LocalContext.current
 
     // Filter for current and future events and sort chronologically
     val sortedEvents = events
@@ -62,42 +85,6 @@ fun EventInboxScreen(viewModel: EventViewModel) {
         .sortedBy { it.date }
 
     Scaffold(
-        topBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFB65C5C))
-                    .border(1.dp, Color.Black)
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                // Profile placeholder
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(Color.White)
-                        .border(1.dp, Color.Black, CircleShape)
-                        .align(Alignment.CenterStart)
-                )
-                
-                // Logo
-                Image(
-                    painter = painterResource(id = R.drawable.app_logo),
-                    contentDescription = "Logo",
-                    modifier = Modifier
-                        .height(50.dp)
-                        .align(Alignment.Center)
-                )
-
-                // Menu Icon
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "Menu",
-                    tint = Color.White,
-                    modifier = Modifier.size(30.dp).align(Alignment.CenterEnd)
-                )
-            }
-        },
         containerColor = Color(0xFFFFE9EA)
     ) { padding ->
         Column(
@@ -163,19 +150,24 @@ fun InboxItem(event: PartyEvent, currentUserId: String?) {
                 )
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    val snippet = if (event.lastMessage.isNullOrBlank()) "Start a chat..." else event.lastMessage
+                    val rawSnippet = event.lastMessage ?: "Start a chat..."
+                    val cleanSnippet = rawSnippet.replace("\n", " ").trim()
+
                     Text(
-                        text = if (snippet.length > 20) snippet.take(20) + "..." else snippet,
+                        text = cleanSnippet,
                         fontSize = 14.sp,
-                        color = Color.Black.copy(alpha = 0.7f)
+                        color = Color.DarkGray,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
                     )
-                    
+
                     if (!event.lastMessage.isNullOrBlank() && event.lastMessageTime != null) {
-                        Text("  •  ", fontSize = 14.sp)
                         Text(
-                            text = formatTimestamp(event.lastMessageTime),
+                            text = "  •  ${formatTimestamp(event.lastMessageTime)}",
                             fontSize = 14.sp,
-                            color = Color.Black.copy(alpha = 0.7f)
+                            color = Color.DarkGray,
+                            maxLines = 1
                         )
                     }
                 }
@@ -197,4 +189,222 @@ fun formatTimestamp(timestamp: Long): String {
     val date = Date(timestamp)
     val sdf = java.text.SimpleDateFormat("h:mm a", Locale.getDefault())
     return sdf.format(date).lowercase()
+}
+
+// --- Chat Room Activity ---
+class ChatRoomActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val eventId = intent.getStringExtra("EVENT_ID") ?: ""
+        val eventName = intent.getStringExtra("EVENT_NAME") ?: "Event Chat"
+
+        setContent {
+            val view = LocalView.current
+            if (!view.isInEditMode) {
+                SideEffect {
+                    val window = (this as Activity).window
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+                }
+            }
+
+            val viewModel: EventViewModel = viewModel()
+            var profilePhotoUri by remember { mutableStateOf<Uri?>(null) }
+
+            LaunchedEffect(Unit) {
+                profilePhotoUri = FirebaseAuth.getInstance().currentUser?.photoUrl
+            }
+
+            Scaffold(
+                modifier = Modifier.border(3.dp, color = Color.Black),
+                topBar = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFFB65C5C))
+                            .border(3.dp, color = Color.Black)
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                    ) {
+
+                        Row(
+                            modifier = Modifier.align(Alignment.CenterStart),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color.White,
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .clickable { finish() }
+                            )
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .border(2.dp, color = Color.Black, shape = CircleShape)
+                                    .clip(CircleShape)
+                                    .background(Color.White)
+                                    .clickable { finish() },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (profilePhotoUri != null) {
+                                    AsyncImage(
+                                        model = profilePhotoUri,
+                                        contentDescription = "Profile",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.Default.Person,
+                                        contentDescription = "Profile",
+                                        tint = Color.Gray,
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        Image(
+                            painter = painterResource(id = R.drawable.app_logo),
+                            contentDescription = "Logo",
+                            modifier = Modifier
+                                .size(120.dp)
+                                .align(Alignment.Center)
+                        )
+
+                        Box(
+                            modifier = Modifier.align(Alignment.CenterEnd)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(Color.White)
+                                    .border(1.dp, Color.Black, RoundedCornerShape(10.dp))
+                                    .clickable {
+                                        val intent = Intent(this@ChatRoomActivity, com.example.wepartyapp.ui.home.MainActivity::class.java)
+                                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                        startActivity(intent)
+                                        overridePendingTransition(0, 0)
+                                        finish()
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Notifications,
+                                    contentDescription = "Notifications",
+                                    tint = Color.Black,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                        }
+                    }
+                },
+                bottomBar = {
+                    EventBottomNavigationBar(
+                        selectedTab = 4,
+                        onTabSelected = { tabId ->
+                            when (tabId) {
+                                4 -> {
+                                    finish()
+                                    overridePendingTransition(0, 0)
+                                }
+                                2 -> {
+                                    startActivity(Intent(this@ChatRoomActivity, CreateEventActivity::class.java))
+                                }
+                                else -> {
+                                    val intent = Intent(this@ChatRoomActivity, com.example.wepartyapp.ui.home.MainActivity::class.java)
+                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                    intent.putExtra("TARGET_TAB", tabId) // Send the hidden message
+                                    startActivity(intent)
+                                    overridePendingTransition(0, 0)
+                                    finish()
+                                }
+                            }
+                        }
+                    )
+                }
+            ) { paddingValues ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .background(Color(0xFFFFE9EA))
+                ) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+
+                        Text(
+                            text = eventName,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black,
+                            modifier = Modifier
+                                .padding(top = 16.dp, bottom = 4.dp)
+                                .align(Alignment.CenterHorizontally)
+                        )
+
+                        Box(modifier = Modifier.weight(1f)) {
+                            ChatFeedContent(eventId = eventId, viewModel = viewModel)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ======================================================================
+// --- Navigation Bar Components ---
+// ======================================================================
+
+@Composable
+fun EventBottomNavigationBar(
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit
+) {
+    val context = LocalContext.current
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .height(60.dp)
+            .background(Color(0xFFB65C5C))
+            .border(3.dp, Color.Black),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        EventNavigationItem(icon = Icons.Default.Home, label = "Home", selected = selectedTab == 0) { onTabSelected(0) }
+        EventNavigationItem(icon = Icons.Default.DateRange, label = "Calendar", selected = selectedTab == 1) { onTabSelected(1) }
+        EventNavigationItem(icon = Icons.Default.Add, label = "Create Event", selected = selectedTab == 2) { onTabSelected(2) }
+        EventNavigationItem(icon = Icons.Default.CheckCircle, label = "Lists", selected = selectedTab == 3) { onTabSelected(3) }
+        EventNavigationItem(icon = Icons.Default.Edit, label = "Events", selected = selectedTab == 4) { onTabSelected(4) }
+    }
+}
+
+@Composable
+fun EventNavigationItem(
+    icon: ImageVector,
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable { onClick() }
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = if (selected) Color.White else Color.Black,
+            modifier = Modifier.size(22.dp)
+        )
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            color = if (selected) Color.White else Color.Black
+        )
+    }
 }
