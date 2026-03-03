@@ -7,108 +7,138 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-// Data class to hold message data
-data class ChatMessage(val sender: String, val message: String, val isMe: Boolean)
+import com.example.wepartyapp.ui.EventViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatFeedContent() {
-    // The list of messages in the chat
-    val messages = remember {
-        mutableStateListOf(
-            ChatMessage("Ryan", "Hey everyone!", false),
-            ChatMessage("Ryan", "I picked up the Oreos and Doritos", false),
-            ChatMessage("Me", "Awesome, thanks!", true),
-            ChatMessage("Me", "Anyone grabbing the ice cream?", true),
-            ChatMessage("Jane", "I can grab the ice cream tomorrow", false),
-            ChatMessage("Suzy", "I already have the M&Ms but lets make sure to check off items we have", false),
-            ChatMessage("Me", "Ok, sounds good", true)
-        )
+fun ChatFeedContent(eventId: String, viewModel: EventViewModel) {
+    val messages by viewModel.messages.collectAsState()
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    var textInput by remember { mutableStateOf("") }
+
+    // Start listening to messages for this specific event
+    LaunchedEffect(eventId) {
+        viewModel.listenToMessages(eventId)
     }
 
-    // State to hold whatever the user is currently typing in the text box
-    var currentMessage by remember { mutableStateOf("") }
-
+    // The main chat container
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .border(1.dp, Color.Black) // Border around the chat area
-            .background(Color.White) // Inside of chat is white
+            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 8.dp)
+            .background(Color.White)
+            .border(1.dp, Color.Black)
+            .padding(12.dp)
     ) {
-        // LazyColumn for scrolling messages. weight(1f) tells it to take up all available space
-        // EXCEPT the space needed for the text box at the bottom
+        // Messages list
         LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .padding(8.dp)
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(messages) { msg ->
-                ChatBubble(msg)
-                Spacer(modifier = Modifier.height(8.dp))
+                ChatBubble(message = msg, isCurrentUser = msg.senderId == currentUserId)
             }
         }
 
-        // --- MESSAGE INPUT ROW ---
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Input field area
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             OutlinedTextField(
-                value = currentMessage,
-                onValueChange = { currentMessage = it }, // Updates the state as you type
-                placeholder = { Text("Type your message...") },
-                modifier = Modifier.weight(1f), // Takes up available width
-                shape = RoundedCornerShape(12.dp)
+                value = textInput,
+                onValueChange = { textInput = it },
+                modifier = Modifier
+                    .weight(1f)
+                    .background(Color.White, RoundedCornerShape(8.dp)),
+                placeholder = { Text("Type your message...", color = Color.DarkGray) },
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Black,
+                    unfocusedBorderColor = Color.Black,
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                )
             )
+            
+            Spacer(modifier = Modifier.width(8.dp))
+            
             IconButton(
                 onClick = {
-                    // Logic to send a message
-                    if (currentMessage.isNotBlank()) {
-                        messages.add(ChatMessage("Me", currentMessage, true))
-                        currentMessage = "" // Clear the text box after sending
+                    if (textInput.isNotBlank()) {
+                        viewModel.sendMessage(eventId, textInput)
+                        textInput = ""
                     }
-                }
-            ) {
-                Icon(Icons.Default.Send, contentDescription = "Send")
-            }
-        }
-    }
-}
-
-// Reusable component for drawing the individual message bubbles
-@Composable
-fun ChatBubble(msg: ChatMessage) {
-    // If it's my message, push to the end (right). Otherwise, start (left).
-    val alignment = if (msg.isMe) Alignment.CenterEnd else Alignment.CenterStart
-    val bgColor = if (msg.isMe) ButtonPink else Color(0xFFF1F1F1) // Pink for me, gray for others
-
-    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = alignment) {
-        Column(
-            horizontalAlignment = if (msg.isMe) Alignment.End else Alignment.Start
-        ) {
-            // Only show the sender's name if it's not "Me"
-            if (!msg.isMe) {
-                Text(text = msg.sender, fontSize = 10.sp, color = Color.Gray)
-            }
-            Box(
+                },
                 modifier = Modifier
-                    .background(bgColor, RoundedCornerShape(16.dp))
-                    .border(1.dp, Color.Black, RoundedCornerShape(16.dp))
-                    .padding(12.dp)
+                    .size(48.dp)
             ) {
-                Text(text = msg.message, color = Color.Black)
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = "Send",
+                    tint = Color.Black,
+                    modifier = Modifier.size(28.dp)
+                )
             }
         }
     }
 }
+
+@Composable
+fun ChatBubble(message: ChatMessage, isCurrentUser: Boolean) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = if (isCurrentUser) Alignment.End else Alignment.Start
+    ) {
+        // Only show sender name for other people
+        if (!isCurrentUser) {
+            Text(
+                text = message.senderName,
+                fontSize = 12.sp,
+                color = Color.Black,
+                modifier = Modifier.padding(start = 12.dp, bottom = 2.dp)
+            )
+        }
+
+        // The Bubble itself
+        Box(
+            modifier = Modifier
+                .widthIn(max = 280.dp)
+                // Pill shape background
+                .background(
+                    color = if (isCurrentUser) Color(0xFFFA8989) else Color(0xFFF1F1F1),
+                    shape = RoundedCornerShape(50)
+                )
+                // Pill shape black border
+                .border(1.dp, Color.Black, RoundedCornerShape(50))
+                .padding(horizontal = 16.dp, vertical = 10.dp)
+        ) {
+            Text(
+                text = message.text,
+                color = Color.Black,
+                fontSize = 15.sp
+            )
+        }
+    }
+}
+
+data class ChatMessage(
+    val id: String = "",
+    val senderId: String = "",
+    val senderName: String = "",
+    val text: String = "",
+    val timestamp: Long = 0L
+)

@@ -57,11 +57,17 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid// <-- Added for La
 import androidx.compose.foundation.lazy.grid.items // <-- Added for LazyGrid Layout
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.graphics.Shape
+import com.example.wepartyapp.ui.event_dashboard.EventInboxScreen
 import java.time.format.DateTimeFormatter // <-- Added for formatting dates
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // --- Added This: Catch the hidden message from ChatRoomActivity ---
+        // If there is no message, it defaults to 0 (Home)
+        val startTab = intent.getIntExtra("TARGET_TAB", 0)
+
         setContent {
             // --- Status Bar Fix ---
             // This grabs the phone's window and tells it to use Dark Icons (for light backgrounds)
@@ -73,17 +79,19 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            MainScreen()
+            // --- Added This: Pass the starting tab to the screen ---
+            MainScreen(initialTab = startTab)
         }
     }
 }
 
 
 @Composable
-fun MainScreen() {
+fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab parameter
 
     val context = LocalContext.current
-    var selectedTab by remember { mutableIntStateOf(0) }
+    // --- Added This: Use the passed tab instead of hardcoding 0 ---
+    var selectedTab by remember { mutableIntStateOf(initialTab) }
     val eventViewModel: EventViewModel = viewModel() // <-- Instantiated the ViewModel here
 
     Scaffold(
@@ -116,6 +124,8 @@ fun MainScreen() {
                 0 -> HomeScreenUI(viewModel = eventViewModel, onNotificationsClick = { selectedTab = 8 })
                 1 -> CalendarScreenUI(viewModel = eventViewModel) // <-- Passed the ViewModel to fix the error!
                 // 2 -> Create Event Activity Launched In Navigation Bar
+                3 -> ConsolidatedShoppingListScreenUI()
+                4 -> EventInboxScreen(viewModel = eventViewModel)
                 3 -> ConsolidatedShoppingListScreenUI(viewModel = eventViewModel)   //LM
 //                4 -> EventsUI()
                 5 -> DietaryPreferencesScreenUI( onBack = { selectedTab = 6 } )

@@ -7,7 +7,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.wepartyapp.ui.create_event.PartyItem
+import com.example.wepartyapp.ui.event_dashboard.ChatMessage
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,15 +29,20 @@ data class PartyNotification(
 
 // 1. Create a blueprint for an event
 data class PartyEvent(
+    val id: String = "", // Added ID to uniquely identify events for chat
     val name: String,
     val time: String,
     val address: String,
-    val date: LocalDate?
+    val date: LocalDate?,
+    val lastMessage: String? = null,
+    val lastMessageTime: Long? = null,
+    val lastSenderId: String? = null
 )
 
 class EventViewModel : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
     // 2. Holds a list of events
     private val _events = MutableLiveData<List<PartyEvent>>(emptyList())
@@ -44,7 +52,9 @@ class EventViewModel : ViewModel() {
     private val _notificationsList = MutableStateFlow<List<PartyNotification>>(emptyList())
     val notificationsList: StateFlow<List<PartyNotification>> = _notificationsList.asStateFlow()
 
-    // --- Lesly read new comments ---
+    // --- Chat State ---
+    private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
+    val messages: StateFlow<List<ChatMessage>> = _messages.asStateFlow()
 
     // We cache the text fields here so they survive navigation between screens
     var eventName by mutableStateOf("")
@@ -81,7 +91,7 @@ class EventViewModel : ViewModel() {
 
     private fun fetchEventsFromFirebase() {
         db.collection("events").addSnapshotListener { snapshot, error ->
-            if (error != null || snapshot == null || snapshot.isEmpty) {
+            if (error != null || snapshot == null) {
                 return@addSnapshotListener
             }
 
@@ -89,10 +99,14 @@ class EventViewModel : ViewModel() {
 
             // 3. Loop through every event in the database
             for (document in snapshot.documents) {
+                val id = document.id
                 val name = document.getString("name") ?: "Unknown Event"
                 val time = document.getString("time") ?: "TBD"
                 val address = document.getString("address") ?: "TBD"
                 val dateString = document.getString("date")
+                val lastMsg = document.getString("lastMessage")
+                val lastMsgTime = document.getLong("lastMessageTime")
+                val lastSender = document.getString("lastSenderId")
 
                 var date: LocalDate? = null
                 if (!dateString.isNullOrEmpty()) {
@@ -104,7 +118,7 @@ class EventViewModel : ViewModel() {
                 }
 
                 // Add it to our temporary list
-                eventList.add(PartyEvent(name, time, address, date))
+                eventList.add(PartyEvent(id, name, time, address, date, lastMsg, lastMsgTime, lastSender))
             }
 
             // 4. Update the UI with the full list
@@ -135,6 +149,48 @@ class EventViewModel : ViewModel() {
             }
     }
 
+    // --- Chat Functions ---
+
+    fun listenToMessages(eventId: String) {
+        db.collection("events").document(eventId).collection("messages")
+            .orderBy("timestamp", Query.Direction.ASCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) return@addSnapshotListener
+                val msgs = snapshot.documents.map { doc ->
+                    ChatMessage(
+                        id = doc.id,
+                        senderId = doc.getString("senderId") ?: "",
+                        senderName = doc.getString("senderName") ?: "Anonymous",
+                        text = doc.getString("text") ?: "",
+                        timestamp = doc.getLong("timestamp") ?: 0L
+                    )
+                }
+                _messages.value = msgs
+            }
+    }
+
+    fun sendMessage(eventId: String, text: String) {
+        val user = auth.currentUser ?: return
+        val messageData = hashMapOf(
+            "senderId" to user.uid,
+            "senderName" to (user.displayName ?: "User"),
+            "text" to text,
+            "timestamp" to System.currentTimeMillis()
+        )
+
+        db.collection("events").document(eventId).collection("messages").add(messageData)
+            .addOnSuccessListener {
+                // Update last message in the event document for the inbox snippet
+                db.collection("events").document(eventId).update(
+                    mapOf(
+                        "lastMessage" to text,
+                        "lastMessageTime" to messageData["timestamp"],
+                        "lastSenderId" to user.uid
+                    )
+                )
+            }
+    }
+
     // Firebase push function (No parameters needed anymore, it pulls directly from the ViewModel cache)
     fun saveEventData() {
         // 1. Convert our custom PartyItem list into a simple map so Firebase doesn't crash
@@ -149,7 +205,10 @@ class EventViewModel : ViewModel() {
             "time" to eventTime,
             "address" to eventAddress,
             "date" to eventDate,
-            "items" to mappedItems // <-- Safely mapped and easy to pull down later
+            "items" to mappedItems, // <-- Safely mapped and easy to pull down later
+            "lastMessage" to null,
+            "lastMessageTime" to null,
+            "lastSenderId" to null
         )
 
         // 3. Push to Firebase

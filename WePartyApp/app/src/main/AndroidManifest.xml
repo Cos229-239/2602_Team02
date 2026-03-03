@@ -57,6 +57,9 @@
         <activity
             android:name=".ui.event_dashboard.ConsolidatedShoppingListActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.event_dashboard.ChatRoomActivity"
+            android:exported="false" />
 
         <service
             android:name=".service.MyFirebaseMessagingService"
