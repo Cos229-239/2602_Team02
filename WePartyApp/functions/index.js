@@ -1,32 +1,70 @@
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const admin = require("firebase-admin");
+
+// Initialize the Firebase Admin SDK
 admin.initializeApp();
 
-// This function wakes up every time a new document is added to your "notifications" collection!
-exports.sendPartyAlert = onDocumentCreated("notifications/{notificationId}", async (event) => {
-    // Grab the data your Android app just saved
-    const notificationData = event.data.data();
+// Notice we changed the trigger to "events" so we can read the guest list
+exports.sendTargetedPartyAlert = onDocumentCreated("events/{eventId}", async (event) => {
+    // Get the data from the newly created event document
+    const partyData = event.data.data();
 
-    if (!notificationData) {
-        return null; // Safety check
+    // 1. Get the Host and the Guest List
+    const hostId = partyData.hostId;
+    const guests = partyData.invitedGuests || [];
+
+    // 2. Combine them into one "Allowed" list of User IDs
+    const allowedUsers = [];
+    if (hostId) allowedUsers.push(hostId);
+    allowedUsers.push(...guests);
+
+    // If no one is invited and no host is listed, stop the function here.
+    if (allowedUsers.length === 0) {
+        console.log("No users attached to this event. Aborting notification.");
+        return null;
     }
 
-    // Build the payload for the push notification
+    const tokens = [];
+
+    // 3. Loop through the allowed users and fetch their FCM Tokens from the 'users' collection
+    for (const userId of allowedUsers) {
+        try {
+            const userDoc = await admin.firestore().collection("users").doc(userId).get();
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                // If the user has a token saved, add it to our delivery list
+                if (userData.fcmToken) {
+                    tokens.push(userData.fcmToken);
+                }
+            }
+        } catch (error) {
+            console.error(`Error fetching data for user ${userId}:`, error);
+        }
+    }
+
+    // If we didn't find any valid device tokens, stop here.
+    if (tokens.length === 0) {
+        console.log("No valid device tokens found for the users in this event.");
+        return null;
+    }
+
+    // 4. Build the Notification Payload
     const payload = {
         notification: {
-            title: notificationData.title || "New Party Alert!",
-            body: notificationData.message || "Open WeParty to see details.",
+            title: "New Party Alert!",
+            body: `${partyData.name} is happening! Tap to see details.`
         },
-        topic: "party_alerts" // This blasts it to everyone who flipped your switch!
+        tokens: tokens // <-- This targets only the specific devices in the array.
     };
 
+    // 5. Send the targeted Multicast message
     try {
-        // Send the push notification
-        const response = await admin.messaging().send(payload);
-        console.log("Successfully sent push notification:", response);
-        return null;
+        const response = await admin.messaging().sendEachForMulticast(payload);
+        console.log(`Successfully sent ${response.successCount} notifications.`);
+        if (response.failureCount > 0) {
+            console.log(`Failed to send ${response.failureCount} notifications.`);
+        }
     } catch (error) {
-        console.error("Error sending push notification:", error);
-        return null;
+        console.error("Error sending targeted notifications:", error);
     }
 });

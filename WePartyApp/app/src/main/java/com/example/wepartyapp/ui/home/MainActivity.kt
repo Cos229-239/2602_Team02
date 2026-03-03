@@ -1,9 +1,11 @@
 package com.example.wepartyapp.ui.home
 
 import android.app.Activity // <-- Added for status bar
+import android.content.Context // <-- Added for saving notification count
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log // <-- Added for FCM Token logging
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -58,11 +60,17 @@ import androidx.compose.foundation.lazy.grid.items // <-- Added for LazyGrid Lay
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.graphics.Shape
 import com.example.wepartyapp.ui.event_dashboard.EventInboxScreen
+import com.google.firebase.firestore.FirebaseFirestore // <-- Added for FCM Token
+import com.google.firebase.firestore.SetOptions // <-- Added for FCM Token
+import com.google.firebase.messaging.FirebaseMessaging // <-- Added for FCM Token
 import java.time.format.DateTimeFormatter // <-- Added for formatting dates
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // --- Added This: Update the user's FCM Token in Firestore immediately upon loading ---
+        updateDeviceToken()
 
         // --- Added This: Catch the hidden message from ChatRoomActivity ---
         // If there is no message, it defaults to 0 (Home)
@@ -90,18 +98,53 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab parameter
 
     val context = LocalContext.current
+
+    // --- Added This: Setup Shared Preferences to remember seen notifications after app closes ---
+    val prefs = remember { context.getSharedPreferences("notif_prefs", Context.MODE_PRIVATE) }
+
     // --- Added This: Use the passed tab instead of hardcoding 0 ---
     var selectedTab by remember { mutableIntStateOf(initialTab) }
     val eventViewModel: EventViewModel = viewModel() // <-- Instantiated the ViewModel here
+
+    // --- Pull down the alerts to get the live count ---
+    val notifications by eventViewModel.notificationsList.collectAsState()
+
+    // --- New: Track how many notifications the user has already seen ---
+    // Updated: Now initializes from SharedPreferences instead of 0
+    var viewedNotificationCount by remember {
+        mutableIntStateOf(prefs.getInt("viewed_count", 0))
+    }
+
+    // Calculate only the new notifications for the red badge
+    val unreadCount = if (notifications.size > viewedNotificationCount) {
+        notifications.size - viewedNotificationCount
+    } else {
+        0
+    }
+
+    // Automatically clear the badge if they are already on the notifications screen when a new one comes in
+    LaunchedEffect(selectedTab, notifications.size) {
+        if (selectedTab == 8) {
+            viewedNotificationCount = notifications.size
+            // Save to storage immediately
+            prefs.edit().putInt("viewed_count", viewedNotificationCount).apply()
+        }
+    }
 
     Scaffold(
         modifier = Modifier.border(3.dp, color = Color.Black),
         topBar = {
             Header(
                 selectedTab = selectedTab, // <-- Passed the tab so Header knows when to refresh!
+                notificationCount = unreadCount, // <-- New: Only pass the unread count to the badge
                 onNavigateToDietary = { selectedTab = 5 },
                 onNavigateToProfile = { selectedTab = 6 },
-                onNotificationClick = { selectedTab = 8 }
+                onNotificationClick = {
+                    viewedNotificationCount = notifications.size // <-- New: Mark all as read when clicked
+                    // Save to storage
+                    prefs.edit().putInt("viewed_count", viewedNotificationCount).apply()
+                    selectedTab = 8
+                }
             )
         },
         bottomBar = {
@@ -121,7 +164,12 @@ fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab p
         ) {
             when (selectedTab) {
                 // *Add Screens In Here With Corresponding Tabs*
-                0 -> HomeScreenUI(viewModel = eventViewModel, onNotificationsClick = { selectedTab = 8 })
+                0 -> HomeScreenUI(viewModel = eventViewModel, onNotificationsClick = {
+                    viewedNotificationCount = notifications.size // Mark read if clicked from Home screen shortcut too
+                    // Save to storage
+                    prefs.edit().putInt("viewed_count", viewedNotificationCount).apply()
+                    selectedTab = 8
+                })
                 1 -> CalendarScreenUI(viewModel = eventViewModel) // <-- Passed the ViewModel to fix the error!
                 // 2 -> Create Event Activity Launched In Navigation Bar
                 3 -> ConsolidatedShoppingListScreenUI(viewModel = eventViewModel)   //LM
@@ -145,6 +193,7 @@ fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab p
 @Composable
 fun Header(
     selectedTab: Int, // <-- Added parameter
+    notificationCount: Int, // <-- New Parameter to receive the unread count
     onNavigateToDietary: () -> Unit,
     onNavigateToProfile: () -> Unit,
     onNotificationClick: () -> Unit,
@@ -222,15 +271,37 @@ fun Header(
                         color = Color.Black,
                         shape = RoundedCornerShape(10.dp)
                     )
-                    .clickable { onNotificationClick() },
-                contentAlignment = Alignment.Center
+                    .clickable { onNotificationClick() }
             ) {
+                // 1. The Bell Icon (Centered)
                 Icon(
                     imageVector = Icons.Default.Notifications,
                     contentDescription = "Notifications",
                     tint = Color.Black,
-                    modifier = Modifier.size(22.dp) // icon size inside the square
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(22.dp)
                 )
+
+                // 2. The Text Message Badge (Top Right)
+                if (notificationCount > 0) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(top = 4.dp, end = 4.dp) // Pushes it slightly off the exact edge
+                            .size(16.dp)
+                            .background(Color(0xFFE57373), CircleShape) // Uses your app's red theme
+                            .border(1.dp, Color.Black, CircleShape), // Thin black outline makes it pop
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (notificationCount > 9) "9+" else notificationCount.toString(),
+                            color = Color.White,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             }
 
 
@@ -537,3 +608,39 @@ fun EventCard(title: String, date: String, time: String, onDeleteClick: () -> Un
 //        }
 //    }
 //}
+
+// --- Added This: Function to update the FCM Token in Firestore ---
+fun updateDeviceToken() {
+    // 1. Check who is currently logged in
+    val currentUser = FirebaseAuth.getInstance().currentUser
+
+    // If nobody is logged in, stop the function right here
+    if (currentUser == null) return
+
+    // 2. Ask Firebase for this specific device's token
+    FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+        if (!task.isSuccessful) {
+            Log.w("FCM", "Fetching FCM registration token failed", task.exception)
+            return@addOnCompleteListener
+        }
+
+        val token = task.result
+        val db = FirebaseFirestore.getInstance()
+
+        // 3. Package the token up
+        val tokenData = hashMapOf(
+            "fcmToken" to token
+        )
+
+        // 4. Save it to Firestore using the user's exact UID
+        // We use SetOptions.merge() so it updates the token without deleting their other profile info
+        db.collection("users").document(currentUser.uid)
+            .set(tokenData, SetOptions.merge())
+            .addOnSuccessListener {
+                Log.d("FCM", "Token successfully updated for user: ${currentUser.uid}")
+            }
+            .addOnFailureListener { e ->
+                Log.w("FCM", "Error updating token", e)
+            }
+    }
+}

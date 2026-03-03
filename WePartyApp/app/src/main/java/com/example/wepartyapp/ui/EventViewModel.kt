@@ -36,7 +36,10 @@ data class PartyEvent(
     val date: LocalDate?,
     val lastMessage: String? = null,
     val lastMessageTime: Long? = null,
-    val lastSenderId: String? = null
+    val lastSenderId: String? = null,
+    // --- Add These Two New Fields ---
+    val hostId: String = "",
+    val invitedGuests: List<String> = emptyList()
 )
 
 class EventViewModel : ViewModel() {
@@ -108,6 +111,10 @@ class EventViewModel : ViewModel() {
                 val lastMsgTime = document.getLong("lastMessageTime")
                 val lastSender = document.getString("lastSenderId")
 
+                // --- New: Read the new fields from Firestore ---
+                val fetchedHostId = document.getString("hostId") ?: ""
+                val fetchedGuests = document.get("invitedGuests") as? List<String> ?: emptyList()
+
                 var date: LocalDate? = null
                 if (!dateString.isNullOrEmpty()) {
                     try {
@@ -118,7 +125,8 @@ class EventViewModel : ViewModel() {
                 }
 
                 // Add it to our temporary list
-                eventList.add(PartyEvent(id, name, time, address, date, lastMsg, lastMsgTime, lastSender))
+                // --- New: Pass the new fields into the PartyEvent creation ---
+                eventList.add(PartyEvent(id, name, time, address, date, lastMsg, lastMsgTime, lastSender, fetchedHostId, fetchedGuests))
             }
 
             // 4. Update the UI with the full list
@@ -127,9 +135,17 @@ class EventViewModel : ViewModel() {
     }
 
     private fun fetchNotificationsFromFirebase() {
+        // 1. Check who is logged in
+        val currentUserId = auth.currentUser?.uid
+        if (currentUserId == null) {
+            _notificationsList.value = emptyList()
+            return
+        }
+
+        // 2. Only pull notifications where this specific user's ID is in the "allowedUsers" list
         // Listens to the "notifications" collection and sorts by newest first
         db.collection("notifications")
-            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .whereArrayContains("allowedUsers", currentUserId)
             .addSnapshotListener { snapshot, error ->
                 if (error != null || snapshot == null) {
                     return@addSnapshotListener
@@ -147,7 +163,9 @@ class EventViewModel : ViewModel() {
 
                     alerts.add(PartyNotification(id, title, message, calculatedTime, timestamp))
                 }
-                _notificationsList.value = alerts
+
+                // 3. Sort them locally from newest to oldest so we don't crash Firebase with a missing index!
+                _notificationsList.value = alerts.sortedByDescending { it.timestamp }
             }
     }
 
@@ -195,6 +213,9 @@ class EventViewModel : ViewModel() {
 
     // Firebase push function (No parameters needed anymore, it pulls directly from the ViewModel cache)
     fun saveEventData() {
+        // --- New: Grab the logged-in user's ID ---
+        val currentUserId = auth.currentUser?.uid ?: ""
+
         // 1. Convert our custom PartyItem list into a simple map so Firebase doesn't crash
         val mappedItems = _itemsList.value.map {
             mapOf("name" to it.name, "price" to it.price)
@@ -210,7 +231,10 @@ class EventViewModel : ViewModel() {
             "items" to mappedItems, // <-- Safely mapped and easy to pull down later
             "lastMessage" to null,
             "lastMessageTime" to null,
-            "lastSenderId" to null
+            "lastSenderId" to null,
+            // --- Add The New Fields ---
+            "hostId" to currentUserId,
+            "invitedGuests" to emptyList<String>() // Starts empty until the host invites people
         )
 
         // 3. Push to Firebase
@@ -229,9 +253,16 @@ class EventViewModel : ViewModel() {
             }
 
             // --- Send an alert to the notifications feed ---
+            // 1. Create the list of people allowed to see this alert
+            val allowedUsers = mutableListOf<String>()
+            if (currentUserId.isNotEmpty()) allowedUsers.add(currentUserId)
+            // (When Lesly finishes the Guest List UI, we will add the invited guests to this list too)
+
+            // 2. Send the notification securely
             sendAppNotification(
                 title = "New Party Alert!",
-                message = "$eventName is happening on $displayDate. Tap to see details!"
+                message = "$eventName is happening on $displayDate. Tap to see details!",
+                allowedUsers = allowedUsers // <-- Pass the secure list here
             )
 
             // 4. Clear the cache so the next event starts completely fresh
@@ -245,12 +276,13 @@ class EventViewModel : ViewModel() {
     }
 
     // --- Creates an Alert in the Notifications Database ---
-    private fun sendAppNotification(title: String, message: String) {
+    private fun sendAppNotification(title: String, message: String, allowedUsers: List<String>) {
         val notificationMap = hashMapOf(
             "title" to title,
             "message" to message,
             "time" to "Just now", // This still gets saved to Firebase, but we ignore it when downloading
-            "timestamp" to System.currentTimeMillis() // This ensures the newest alerts stay at the top
+            "timestamp" to System.currentTimeMillis(), // This ensures the newest alerts stay at the top
+            "allowedUsers" to allowedUsers // <-- The new security container
         )
 
         db.collection("notifications").add(notificationMap)
