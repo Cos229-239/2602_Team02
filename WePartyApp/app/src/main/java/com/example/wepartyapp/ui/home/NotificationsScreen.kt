@@ -23,14 +23,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import com.google.firebase.messaging.FirebaseMessaging // <-- Added FCM Import
-import com.example.wepartyapp.ui.EventViewModel // <-- Added ViewModel Import
-import com.example.wepartyapp.ui.PartyNotification // <-- Added Data Class Import
-
-// The "Container" for notification data (Moved to EventViewModel as PartyNotification)
+import com.google.firebase.messaging.FirebaseMessaging
+import com.example.wepartyapp.ui.EventViewModel
+import com.example.wepartyapp.ui.PartyNotification
+import kotlinx.coroutines.delay // <-- Added for the timer loop
 
 @Composable
-fun NotificationsScreenUI(viewModel: EventViewModel, onBack: () -> Unit) { // <-- Added ViewModel Parameter
+fun NotificationsScreenUI(viewModel: EventViewModel, onBack: () -> Unit) {
     val context = LocalContext.current
 
     // Observe the Real list of notifications from Firestore
@@ -45,7 +44,7 @@ fun NotificationsScreenUI(viewModel: EventViewModel, onBack: () -> Unit) { // <-
                     Manifest.permission.POST_NOTIFICATIONS
                 ) == PackageManager.PERMISSION_GRANTED
             } else {
-                true // Android 12 and below automatically grant this at install
+                true
             }
         )
     }
@@ -53,7 +52,7 @@ fun NotificationsScreenUI(viewModel: EventViewModel, onBack: () -> Unit) { // <-
     // 2. State for the UI Toggle Switch
     var isPushEnabled by remember { mutableStateOf(hasNotificationPermission) }
 
-    // 3. The Launcher that actually pops up the system permission dialog
+    // 3. The Launcher
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -61,10 +60,9 @@ fun NotificationsScreenUI(viewModel: EventViewModel, onBack: () -> Unit) { // <-
         isPushEnabled = isGranted
         if (isGranted) {
             Toast.makeText(context, "Notifications Enabled!", Toast.LENGTH_SHORT).show()
-            // Hooked up FCM Subscription for when they accept the permission popup
             FirebaseMessaging.getInstance().subscribeToTopic("party_alerts")
         } else {
-            Toast.makeText(context, "Permission Denied. You can enable them in your phone settings.", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Permission Denied.", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -169,6 +167,7 @@ fun NotificationsScreenUI(viewModel: EventViewModel, onBack: () -> Unit) { // <-
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(realNotifications) { notification ->
+                    // Pass the whole notification so we can use the timestamp
                     NotificationCard(notification)
                 }
             }
@@ -176,9 +175,19 @@ fun NotificationsScreenUI(viewModel: EventViewModel, onBack: () -> Unit) { // <-
     }
 }
 
-// The Reusable Card UI
 @Composable
 fun NotificationCard(notification: PartyNotification) {
+    // 1. Create a local state for the relative time string
+    var timeAgo by remember { mutableStateOf(notification.time) }
+
+    // 2. This Effect runs a timer that recalculates the time every 60 seconds
+    LaunchedEffect(notification.timestamp) {
+        while (true) {
+            timeAgo = formatTimestampRelative(notification.timestamp)
+            delay(60_000) // Wait 60 seconds before updating again
+        }
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -190,10 +199,34 @@ fun NotificationCard(notification: PartyNotification) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(text = notification.title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
-                Text(text = notification.time, fontSize = 12.sp, color = Color.Gray)
+                // Now uses the dynamic timeAgo state
+                Text(text = timeAgo, fontSize = 12.sp, color = Color.Gray)
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(text = notification.message, fontSize = 14.sp, color = Color.DarkGray)
+        }
+    }
+}
+
+// Helper function to calculate time difference on the fly
+fun formatTimestampRelative(timestamp: Long): String {
+    if (timestamp == 0L) return "Just now"
+
+    val now = System.currentTimeMillis()
+    val diffMillis = now - timestamp
+
+    val diffMinutes = diffMillis / (60 * 1000)
+    val diffHours = diffMinutes / 60
+    val diffDays = diffHours / 24
+
+    return when {
+        diffMinutes < 1 -> "Just now"
+        diffMinutes < 60 -> "$diffMinutes mins ago"
+        diffHours < 24 -> if (diffHours == 1L) "1 hour ago" else "$diffHours hours ago"
+        diffDays == 1L -> "Yesterday"
+        else -> {
+            val sdf = java.text.SimpleDateFormat("MMM. d", java.util.Locale.getDefault())
+            sdf.format(java.util.Date(timestamp))
         }
     }
 }
