@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.wepartyapp.ui.EventItems
 import com.example.wepartyapp.ui.EventViewModel
 import kotlin.getValue
 
@@ -90,7 +91,7 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
                     .fillMaxWidth()
             ) {
                 items(events) { event ->
-                    EventDetails(eventName = event.name)
+                    EventDetails(eventName = event.name, eventItemsList = event.eventItems)
                     Spacer(modifier = Modifier.height(20.dp))
                 }
             }
@@ -99,7 +100,7 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
 }
 
 @Composable
-fun EventDetails(eventName: String) {
+fun EventDetails(eventName: String, eventItemsList: List<EventItems>) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -115,7 +116,15 @@ fun EventDetails(eventName: String) {
                 fontSize = 20.sp,
                 textDecoration = TextDecoration.Underline
             )
-            //event items
+            Spacer(modifier = Modifier.height(10.dp))
+            Column() {
+                for (item in eventItemsList) {
+                    Text(
+                        text = item.name,
+                        fontSize = 18.sp
+                    )
+                }
+            }
         }
         Button(
             onClick = {},

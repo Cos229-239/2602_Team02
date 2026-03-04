@@ -36,7 +36,13 @@ data class PartyEvent(
     val date: LocalDate?,
     val lastMessage: String? = null,
     val lastMessageTime: Long? = null,
-    val lastSenderId: String? = null
+    val lastSenderId: String? = null,
+    val eventItems: List<EventItems> = emptyList()
+)
+
+data class EventItems(                  //data class of the map structure within the firestore array
+    val name: String,
+    val price: String
 )
 
 class EventViewModel : ViewModel() {
@@ -117,8 +123,16 @@ class EventViewModel : ViewModel() {
                     }
                 }
 
+                val arrayOfItems = document.get("items") as? List<Map<String, String>>      //getting the array of maps
+                val eventItems = arrayOfItems?.map { map ->                                 //List<Map> to List<EventItems>
+                    EventItems(
+                        name = map["name"] as? String ?: "",
+                        price = map["price"] as? String ?: ""
+                    )
+                } ?: emptyList()
+
                 // Add it to our temporary list
-                eventList.add(PartyEvent(id, name, time, address, date, lastMsg, lastMsgTime, lastSender))
+                eventList.add(PartyEvent(id, name, time, address, date, lastMsg, lastMsgTime, lastSender, eventItems))
             }
 
             // 4. Update the UI with the full list
