@@ -303,68 +303,8 @@ fun Header(
                     }
                 }
             }
-
-
-//            IconButton(
-//                onClick = { expanded = true }
-//            ) {
-//                Icon(
-//                    modifier = Modifier.size(50.dp),
-//                    imageVector = Icons.Default.Menu,
-//                    contentDescription = "Settings",
-//                    tint = Color.White
-//                )
-//            }
-//
-//            DropdownMenu(
-//                expanded = expanded,
-//                onDismissRequest = { expanded = false }
-//            ) {
-//
-//                DropdownMenuItem(
-//                    text = { Text("Profile") },
-//                    onClick = {
-//                        expanded = false
-//                        onNavigateToProfile()
-//                    }
-//                )
-//
-//                DropdownMenuItem(
-//                    text = { Text("Dietary Preferences") },
-//                    onClick = {
-//                        expanded = false
-//                        // Add Screen Navigation Here (Dietary Preferences)
-//                        onNavigateToDietary()
-//                    }
-//                )
-//
-//                // --- ANDY'S TEMPORARY DASHBOARD BUTTON MOVED HERE ---
-//                DropdownMenuItem(
-//                    text = { Text("Event Dashboard") },
-//                    onClick = {
-//                        expanded = false
-//                        val intent = Intent(context, com.example.wepartyapp.ui.event_dashboard.EventDashboardActivity::class.java)
-//                        context.startActivity(intent)
-//                    }
-//                )
-//
-//                DropdownMenuItem(
-//                    text = { Text("Logout", color = Color.Red) },
-//                    onClick = {
-//                        expanded = false
-//
-//                        FirebaseAuth.getInstance().signOut()
-//                        val intent = Intent(context, LoginActivity::class.java)
-//                        intent.flags =
-//                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-//                        context.startActivity(intent)
-//                    }
-//                )
-//            }
         }
     }
-
-
 }
 
 @Composable
@@ -372,13 +312,17 @@ fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
 
     val events by viewModel.events.observeAsState(emptyList())
     val today = java.time.LocalDate.now()
+    val ninetyDaysFromNow = today.plusDays(90)
 
     // --- Date Formatter ---
     // This exact pattern turns "2026-02-26" into "Feb. 26, 2026"
     val dateFormatter = DateTimeFormatter.ofPattern("MMM. d, yyyy")
 
     val upcomingEvents = events
-        .filter { event -> event.date?.let { it >= today } ?: false }
+        .filter { event ->
+            val date = event.date
+            date != null && date >= today && date <= ninetyDaysFromNow
+        }
         .sortedBy { it.date }
 
 
@@ -405,7 +349,7 @@ fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
 
         // - Events -
         Text(
-            text = "Upcoming Events",
+            text = "Upcoming Events - (90 Days)",
             style = MaterialTheme.typography.headlineMedium
         )
 
