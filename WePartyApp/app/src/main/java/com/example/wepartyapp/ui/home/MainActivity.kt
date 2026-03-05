@@ -58,6 +58,7 @@ import androidx.compose.foundation.lazy.grid.GridCells // <-- Added for LazyGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid// <-- Added for LazyGrid Layout
 import androidx.compose.foundation.lazy.grid.items // <-- Added for LazyGrid Layout
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Shape
 import com.example.wepartyapp.ui.event_dashboard.EventInboxScreen
 import com.google.firebase.firestore.FirebaseFirestore // <-- Added for FCM Token
@@ -135,6 +136,7 @@ fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab p
     }
 
     Scaffold(
+        containerColor = Color(0xFFFFE9EA),
         modifier = Modifier.border(3.dp, color = Color.Black),
         topBar = {
             Header(
@@ -353,7 +355,9 @@ fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
         // - Events -
         Text(
             text = "Upcoming Events - (90 Days)",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium,
+            fontSize = 25.sp,
+            fontWeight = FontWeight.Bold,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -397,9 +401,12 @@ fun NavigationBar(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding() // <-- Added this to bump the bar above system navigation buttons
+            .padding(horizontal = 12.dp, vertical = 8.dp)
             .height(60.dp)
+            .shadow(8.dp, RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(20.dp))
             .background(Color(0xFFB65C5C))
-            .border(3.dp, Color.Black),
+            .border(3.dp, Color.Black, RoundedCornerShape(20.dp)),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -505,8 +512,10 @@ fun EventCard(title: String, date: String, time: String, onDeleteClick: () -> Un
         modifier = Modifier
             .width(160.dp)
             .height(120.dp)
+            .border(1.dp, Color.Black, shape = RoundedCornerShape(12.dp))
             .clickable { onCardClick() },
         shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFE57373),
         )
     ) {
