@@ -64,6 +64,9 @@ import com.google.firebase.firestore.FirebaseFirestore // <-- Added for FCM Toke
 import com.google.firebase.firestore.SetOptions // <-- Added for FCM Token
 import com.google.firebase.messaging.FirebaseMessaging // <-- Added for FCM Token
 import java.time.format.DateTimeFormatter // <-- Added for formatting dates
+import com.example.wepartyapp.ui.event_dashboard.ChatRoomActivity // <-- Added for EventCard Navigation
+
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -309,7 +312,7 @@ fun Header(
 
 @Composable
 fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
-
+    val context = LocalContext.current
     val events by viewModel.events.observeAsState(emptyList())
     val today = java.time.LocalDate.now()
     val ninetyDaysFromNow = today.plusDays(90)
@@ -366,7 +369,15 @@ fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
                     title = event.name,
                     date = event.date?.format(dateFormatter) ?: "No Date", // <-- Applied format here too
                     time = event.time, // <-- Added time here
-                    onDeleteClick = { viewModel.deleteEvent(event) } // <-- Triggers Firebase delete
+                    onDeleteClick = { viewModel.deleteEvent(event) }, // <-- Triggers Firebase delete
+                    onCardClick = {
+                        val intent = Intent(context, ChatRoomActivity::class.java)
+                        intent.putExtra("EVENT_ID", event.id)
+                        intent.putExtra("EVENT_NAME", event.name)
+
+                        context.startActivity(intent)
+
+                    }
                 )
             }
         }
@@ -461,15 +472,15 @@ fun NavigationItem(
 
 // --- Updated Event Card ---
 @Composable
-fun EventCard(title: String, date: String, time: String, onDeleteClick: () -> Unit) {
+fun EventCard(title: String, date: String, time: String, onDeleteClick: () -> Unit, onCardClick: () -> Unit ) {
 
     Card(
         modifier = Modifier
             .width(160.dp)
-            .height(120.dp),
+            .height(120.dp)
+            .clickable { onCardClick() },
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFE57373)
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFE57373),
         )
     ) {
         // We use a Box here so the Delete button can sit completely independent in the corner
