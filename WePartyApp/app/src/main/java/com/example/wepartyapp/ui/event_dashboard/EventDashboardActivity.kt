@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -222,7 +223,15 @@ class ChatRoomActivity : ComponentActivity() {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFFB65C5C))
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color(0xFFC96B6B),
+                                        Color(0xFFB65C5C),
+                                        Color(0xFF8E3F3F)
+                                    )
+                                )
+                            )
                             .border(3.dp, color = Color.Black)
                             .padding(horizontal = 16.dp, vertical = 12.dp)
                     ) {
@@ -376,7 +385,15 @@ fun EventBottomNavigationBar(
             .height(60.dp)
             .shadow(8.dp, RoundedCornerShape(20.dp))
             .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xFFB65C5C))
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFC96B6B),
+                        Color(0xFFB65C5C),
+                        Color(0xFF8E3F3F)
+                    )
+                )
+            )
             .border(3.dp, Color.Black, RoundedCornerShape(20.dp)),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
