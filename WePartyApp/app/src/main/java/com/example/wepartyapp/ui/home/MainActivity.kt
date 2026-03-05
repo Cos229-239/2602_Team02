@@ -474,6 +474,33 @@ fun NavigationItem(
 @Composable
 fun EventCard(title: String, date: String, time: String, onDeleteClick: () -> Unit, onCardClick: () -> Unit ) {
 
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    // Delete confirmation popup
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Event") },
+            text = { Text("Are you sure you want to delete this event? This cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDeleteClick()
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDeleteDialog = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
     Card(
         modifier = Modifier
             .width(160.dp)
@@ -501,7 +528,7 @@ fun EventCard(title: String, date: String, time: String, onDeleteClick: () -> Un
 
             // The Delete Button
             IconButton(
-                onClick = onDeleteClick,
+                onClick = { showDeleteDialog = true },
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(4.dp)
