@@ -1,5 +1,6 @@
 package com.example.wepartyapp.ui.event_dashboard
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,10 +30,19 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.wepartyapp.ui.EventItems
 import com.example.wepartyapp.ui.EventViewModel
+import com.example.wepartyapp.ui.create_event.AddItemsScreenUI
+import com.example.wepartyapp.ui.create_event.CreateEventRoutes
+import com.example.wepartyapp.ui.create_event.CreateEventScreenUI
+import com.example.wepartyapp.ui.create_event.InviteFriendsScreenUI
+import com.example.wepartyapp.ui.home.MainScreen
+import java.time.LocalDate
 import kotlin.getValue
 
 class ConsolidatedShoppingListActivity : ComponentActivity() {
@@ -51,6 +61,11 @@ class ConsolidatedShoppingListActivity : ComponentActivity() {
 fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
 
     val events by viewModel.events.observeAsState(emptyList())
+    val today = LocalDate.now()
+
+    val sortedEvents = events
+        .filter { it.date == null || it.date >= today }
+        .sortedBy { it.date }
 
     Box(
         modifier = Modifier
@@ -63,7 +78,6 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            //Spacer(modifier = Modifier.height(40.dp))           //pushes screen all the way down
             Column(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -89,8 +103,8 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                items(events) { event ->
-                    EventDetails(eventName = event.name)
+                items(sortedEvents) { event ->
+                    EventDetails(eventName = event.name, eventItemsList = event.eventItems)
                     Spacer(modifier = Modifier.height(20.dp))
                 }
             }
@@ -99,7 +113,8 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
 }
 
 @Composable
-fun EventDetails(eventName: String) {
+fun EventDetails(eventName: String, eventItemsList: List<EventItems>) {
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -115,10 +130,21 @@ fun EventDetails(eventName: String) {
                 fontSize = 20.sp,
                 textDecoration = TextDecoration.Underline
             )
-            //event items
+            Spacer(modifier = Modifier.height(10.dp))
+            Column() {
+                for (item in eventItemsList) {
+                    Text(
+                        text = item.name,
+                        fontSize = 18.sp
+                    )
+                }
+            }
         }
         Button(
-            onClick = {},
+            onClick = {
+                val intent = Intent(context, EditItemActivity::class.java)
+                    context.startActivity(intent)
+                      },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
             modifier = Modifier
                 .align(Alignment.TopEnd)

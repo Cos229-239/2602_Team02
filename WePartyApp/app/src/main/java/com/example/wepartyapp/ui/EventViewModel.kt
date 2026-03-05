@@ -40,6 +40,12 @@ data class PartyEvent(
     // --- Add These Two New Fields ---
     val hostId: String = "",
     val invitedGuests: List<String> = emptyList()
+    val eventItems: List<EventItems> = emptyList()
+)
+
+data class EventItems(                  //data class of the map structure within the firestore array
+    val name: String,
+    val price: String
 )
 
 class EventViewModel : ViewModel() {
@@ -124,9 +130,17 @@ class EventViewModel : ViewModel() {
                     }
                 }
 
+                val arrayOfItems = document.get("items") as? List<Map<String, String>>      //getting the array of maps
+                val eventItems = arrayOfItems?.map { map ->                                 //List<Map> to List<EventItems>
+                    EventItems(
+                        name = map["name"] as? String ?: "",
+                        price = map["price"] as? String ?: ""
+                    )
+                } ?: emptyList()
+
                 // Add it to our temporary list
                 // --- New: Pass the new fields into the PartyEvent creation ---
-                eventList.add(PartyEvent(id, name, time, address, date, lastMsg, lastMsgTime, lastSender, fetchedHostId, fetchedGuests))
+                eventList.add(PartyEvent(id, name, time, address, date, lastMsg, lastMsgTime, lastSender, fetchedHostId, fetchedGuests, eventItems))
             }
 
             // 4. Update the UI with the full list
