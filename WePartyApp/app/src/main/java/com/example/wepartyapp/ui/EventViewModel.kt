@@ -39,7 +39,7 @@ data class PartyEvent(
     val lastSenderId: String? = null,
     // --- Add These Two New Fields ---
     val hostId: String = "",
-    val invitedGuests: List<String> = emptyList()
+    val invitedGuests: List<String> = emptyList(),
     val eventItems: List<EventItems> = emptyList()
 )
 
