@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,7 +34,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -50,43 +50,53 @@ import com.example.wepartyapp.ui.ItemPriceViewModel
 import com.example.wepartyapp.ui.api.NetworkResponse
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.view.WindowCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.wepartyapp.ui.PartyItem
 import com.example.wepartyapp.ui.home.MainActivity
+import java.time.LocalDate
+import kotlin.getValue
 
 class EditItemActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent {
-            // --- Status Bar Fix ---
-            // This grabs the phone's window and tells it to use Dark Icons (for light backgrounds)
-            val view = LocalView.current
-            if (!view.isInEditMode) {
-                SideEffect {
-                    val window = (view.context as Activity).window
-                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
-                        true
-                }
-            }
+        val eventID = intent.getStringExtra("Event_ID") ?: ""
 
-            EditItemsScreen()
+        setContent {
+            val eventViewModel: EventViewModel by viewModels()
+            val priceViewModel: ItemPriceViewModel = viewModel()
+            EditItemsScreen(eventID = eventID, viewPriceModel = priceViewModel, viewItemModel = eventViewModel)
 
         }
     }
 }
-@Preview
+
 @Composable
-fun EditItemsScreen() {//(navController: NavController, viewModel: ItemPriceViewModel, viewItemModel: EventViewModel) {
+fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewItemModel: EventViewModel) {
     val context = LocalContext.current // <-- Grab context for the Intent
 
     var item by remember {                                                  //start with an empty string
         mutableStateOf("")
     }
 
-    //val priceResult = viewModel.priceResult.observeAsState()
+    val priceResult = viewPriceModel.priceResult.observeAsState()
+
+    val events by viewItemModel.events.observeAsState(emptyList())
+    val today = LocalDate.now()
+
+    val sortedEvents = events
+        .filter { it.date == null || it.date >= today }
+        .sortedBy { it.date }
+    //loop through the events and find the event id that matches, that is the event selected to edit from the CSL
+    for (selectedEvent in sortedEvents) {
+        if (selectedEvent.id == eventID) {
+            val selectedEventList = selectedEvent.eventItems    //copy the list of partyItems from event view model to a local val
+            for (partyItem in selectedEventList) {
+                viewItemModel.addItems(PartyItem(name = partyItem.name, price = partyItem.price))   //update the private val list in event view model
+            }
+        }
+    }
 
     Box(                                                                    //outer most layer
         modifier = Modifier
@@ -159,10 +169,9 @@ fun EditItemsScreen() {//(navController: NavController, viewModel: ItemPriceView
                 Button(
                     onClick = {
                         if (item.isNotBlank()) {
-                            //viewItemModel.addItems(PartyItem(name = item, price = "Loading..."))
-                            //viewModel.getData(item)                              //trigger api before resetting item string
-                            item =
-                                ""                                            //resetting item to an empty string
+                            viewItemModel.addItems(PartyItem(name = item, price = "Loading..."))
+                            viewPriceModel.getData(item)                              //trigger api before resetting item string
+                            item = ""                                            //resetting item to an empty string
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
@@ -171,7 +180,7 @@ fun EditItemsScreen() {//(navController: NavController, viewModel: ItemPriceView
                 }
             }
             //LaunchedEffect is used to run suspendable side effects - coroutine
-            /*LaunchedEffect(priceResult.value) {
+            LaunchedEffect(priceResult.value) {
                 when (val result = priceResult.value) {
                     is NetworkResponse.Success -> {
                         val exactPrice = result.data // The ViewModel now hands us the exact string directly
@@ -193,9 +202,9 @@ fun EditItemsScreen() {//(navController: NavController, viewModel: ItemPriceView
                     }
                     else -> {}
                 }
-            }*/
-            //val _itemList by viewItemModel._items.collectAsState()
-            /*LazyColumn(
+            }
+            val _itemList by viewItemModel._items.collectAsState()
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
@@ -212,10 +221,15 @@ fun EditItemsScreen() {//(navController: NavController, viewModel: ItemPriceView
                     Divider()
                 }
             }
-        }*/
         }
         Button(
-            onClick = {},
+            onClick = {
+                viewItemModel.updateEventItems(eventID)
+                val intent = Intent(context, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                context.startActivity(intent)
+                (context as? Activity)?.finish()
+            },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -225,4 +239,3 @@ fun EditItemsScreen() {//(navController: NavController, viewModel: ItemPriceView
         }
     }
 }
-//data class PartyItem(val name: String, val price: String)

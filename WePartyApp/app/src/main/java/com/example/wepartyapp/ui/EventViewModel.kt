@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.wepartyapp.ui.create_event.PartyItem
 import com.example.wepartyapp.ui.event_dashboard.ChatMessage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -40,10 +39,10 @@ data class PartyEvent(
     // --- Add These Two New Fields ---
     val hostId: String = "",
     val invitedGuests: List<String> = emptyList(),
-    val eventItems: List<EventItems> = emptyList()
+    val eventItems: List<PartyItem> = emptyList()
 )
 
-data class EventItems(                  //data class of the map structure within the firestore array
+data class PartyItem(                  //data class of the map structure within the firestore array
     val name: String,
     val price: String
 )
@@ -132,7 +131,7 @@ class EventViewModel : ViewModel() {
 
                 val arrayOfItems = document.get("items") as? List<Map<String, String>>      //getting the array of maps
                 val eventItems = arrayOfItems?.map { map ->                                 //List<Map> to List<EventItems>
-                    EventItems(
+                    PartyItem(
                         name = map["name"] as? String ?: "",
                         price = map["price"] as? String ?: ""
                     )
@@ -288,6 +287,17 @@ class EventViewModel : ViewModel() {
             _itemsList.value = emptyList()
         }
     }
+
+    //updating an events items list
+    fun updateEventItems(eventID: String) {
+        //convert our custom PartyItem list into a simple map so Firebase doesn't crash
+        val mappedItems = _itemsList.value.map {
+            mapOf("name" to it.name, "price" to it.price)
+        }
+        //update the items field from the event using the eventid parameter
+        db.collection("events").document(eventID).update("items", mappedItems)
+    }
+
 
     // --- Creates an Alert in the Notifications Database ---
     private fun sendAppNotification(title: String, message: String, allowedUsers: List<String>) {
