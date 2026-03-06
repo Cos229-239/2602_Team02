@@ -89,11 +89,19 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
         .filter { it.date == null || it.date >= today }
         .sortedBy { it.date }
     //loop through the events and find the event id that matches, that is the event selected to edit from the CSL
-    for (selectedEvent in sortedEvents) {
-        if (selectedEvent.id == eventID) {
-            val selectedEventList = selectedEvent.eventItems    //copy the list of partyItems from event view model to a local val
-            for (partyItem in selectedEventList) {
-                viewItemModel.addItems(PartyItem(name = partyItem.name, price = partyItem.price))   //update the private val list in event view model
+    LaunchedEffect(sortedEvents) {
+        for (selectedEvent in sortedEvents) {
+            if (selectedEvent.id == eventID) {
+                val selectedEventList =
+                    selectedEvent.eventItems    //copy the list of partyItems from event view model to a local val
+                for (partyItem in selectedEventList) {
+                    viewItemModel.addItems(
+                        PartyItem(
+                            name = partyItem.name,
+                            price = partyItem.price
+                        )
+                    )   //update the private val list in event view model
+                }
             }
         }
     }
