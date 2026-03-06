@@ -1,5 +1,6 @@
 package com.example.wepartyapp.ui.event_dashboard
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -30,12 +31,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.SideEffect
 import com.example.wepartyapp.R
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.wepartyapp.ui.EventViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import java.time.format.DateTimeFormatter
 
 
@@ -43,11 +47,24 @@ class EventInfoActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
-        val eventId = intent.getStringExtra("EVENT_ID") ?: ""
-
         setContent {
-            EventInfoScreenUI(onBackClick = { finish() }, eventId = eventId)
+            // --- Status Bar Fix ---
+            // This grabs the phone's window and tells it to use Dark Icons (for light backgrounds)
+            val view = LocalView.current
+            if (!view.isInEditMode) {
+                SideEffect {
+                    val window = (view.context as Activity).window
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
+                        true
+                }
+            }
+
+
+            val eventId = intent.getStringExtra("EVENT_ID") ?: ""
+
+            setContent {
+                EventInfoScreenUI(onBackClick = { finish() }, eventId = eventId)
+            }
         }
     }
 }
@@ -82,6 +99,7 @@ fun EventInfoScreenUI(
             .padding(16.dp)
 
     ) {
+        Spacer(modifier = Modifier.height(40.dp)) // <-- Pushes the whole screen down!
 
         Row(
             verticalAlignment = Alignment.CenterVertically
