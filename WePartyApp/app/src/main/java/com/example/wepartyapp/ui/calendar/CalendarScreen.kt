@@ -61,10 +61,11 @@ fun CalendarScreenUI(viewModel: EventViewModel) {
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
 
     // 2. Check if the currently selected date matches ANY event in our list
-    val selectedEvent = events.find { it.date == selectedDate }
-    val isEventDay = selectedEvent != null
+    // --- Upgrade: Filter for ALL events on the selected day ---
+    val dailyEvents = events.filter { it.date == selectedDate }
 
     val monthTitleFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.US)
+    val selectedDateFormatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.US)
 
     Column(
         modifier = Modifier
@@ -76,34 +77,32 @@ fun CalendarScreenUI(viewModel: EventViewModel) {
         verticalArrangement = Arrangement.Top // Changed to Top so items don't float weirdly when scrolling
     ) {
 
-        // 1. LOGO
+        // 1. LOGO (Now Smaller)
         Image(
             painter = painterResource(id = R.drawable.app_logo),
             contentDescription = "WeParty Logo",
             modifier = Modifier
                 .fillMaxWidth()
-                .height(220.dp),
+                .height(140.dp), // <-- Reduced from 220.dp
             contentScale = ContentScale.Fit
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-        // 2. EVENT NAME (Pulls from the selectedEvent)
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.alpha(if (isEventDay) 1f else 0f)
+        // 2. TODAY BUTTON
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
         ) {
-            Text(text = "Event Name:", fontSize = 16.sp, color = Color.Black)
-            Text(
-                text = selectedEvent?.name ?: "",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                modifier = Modifier.padding(top = 4.dp)
-            )
+            TextButton(
+                onClick = {
+                    currentMonth = YearMonth.now()
+                    selectedDate = LocalDate.now()
+                }
+            ) {
+                Text("Back to Today", color = Color(0xFFFF4081), fontWeight = FontWeight.Bold)
+            }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         // 3. CALENDAR CARD
         Card(
@@ -150,38 +149,96 @@ fun CalendarScreenUI(viewModel: EventViewModel) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 4. FOOTER INFO (Pulls from selectedEvent)
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+        // 4. DAILY EVENTS SECTION
+        Text(
+            text = "Events on ${selectedDate.format(selectedDateFormatter)}",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
             modifier = Modifier
-                .alpha(if (isEventDay) 1f else 0f)
-                .padding(bottom = 24.dp) // Added more padding to the bottom
-        ) {
+                .align(Alignment.Start)
+                .padding(start = 4.dp, bottom = 12.dp)
+        )
+
+        // --- Upgrade: Show multiple cards OR an empty state ---
+        if (dailyEvents.isNotEmpty()) {
+            dailyEvents.forEach { event ->
+                EventDetailsCard(
+                    eventName = event.name,
+                    eventTime = event.time,
+                    eventAddress = event.address,
+                    context = context
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+        } else {
+            // Empty State Card
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.7f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp)
+                ) {
+                    Text(
+                        text = "No events scheduled for today!",
+                        fontSize = 16.sp,
+                        color = Color.DarkGray,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp)) // Bottom padding so it doesn't hug the screen edge
+    }
+}
+
+// --- New: A clean Card UI to hold the event info ---
+@Composable
+fun EventDetailsCard(eventName: String, eventTime: String, eventAddress: String, context: android.content.Context) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = eventName,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            Spacer(modifier = Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "Where: ", fontSize = 16.sp, color = Color.Black)
+                Text(text = "Time: ", fontSize = 16.sp, color = Color.Gray, fontWeight = FontWeight.Medium)
+                Text(text = eventTime, fontSize = 16.sp, color = Color.Black)
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "Where: ", fontSize = 16.sp, color = Color.Gray, fontWeight = FontWeight.Medium)
                 Text(
-                    text = selectedEvent?.address ?: "",
+                    text = eventAddress,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Blue,
+                    color = Color(0xFF2979FF), // Google Blue
                     modifier = Modifier.clickable {
-                        selectedEvent?.address?.let { address ->
-                            val gmmIntentUri = Uri.parse("geo:0,0?q=${Uri.encode(address)}")
-                            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-                            mapIntent.setPackage("com.google.android.apps.maps")
-                            try {
-                                context.startActivity(mapIntent)
-                            } catch (e: Exception) {
-                                context.startActivity(Intent(Intent.ACTION_VIEW, gmmIntentUri))
-                            }
+                        val gmmIntentUri = Uri.parse("geo:0,0?q=${Uri.encode(eventAddress)}")
+                        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                        mapIntent.setPackage("com.google.android.apps.maps")
+                        try {
+                            context.startActivity(mapIntent)
+                        } catch (e: Exception) {
+                            context.startActivity(Intent(Intent.ACTION_VIEW, gmmIntentUri))
                         }
                     }
                 )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "Time: ", fontSize = 16.sp, color = Color.Black)
-                Text(text = selectedEvent?.time ?: "", fontSize = 16.sp, color = Color.Black)
             }
         }
     }
@@ -217,8 +274,8 @@ fun CalendarGrid(
                         val isEvent = eventDates.contains(date)
 
                         val backgroundColor = when {
-                            isEvent -> Color(0xFF00C853)
-                            isSelected -> Color(0xFF2979FF)
+                            isEvent -> Color(0xFF00C853) // Green for event
+                            isSelected -> Color(0xFF2979FF) // Blue for selected
                             else -> Color.Transparent
                         }
                         val textColor = if (isSelected || isEvent) Color.White else Color.Black
@@ -246,58 +303,58 @@ fun CalendarGrid(
     }
 }
 
-// Updated to be non-lazy for scrolling compatibility
-@Composable
-fun CalendarGrid(
-    currentMonth: YearMonth,
-    selectedDate: LocalDate,
-    eventDate: LocalDate?, // <-- accepts nulls
-    onDateSelected: (LocalDate) -> Unit
-) {
-    val daysInMonth = currentMonth.lengthOfMonth()
-    val firstDayOfWeek = currentMonth.atDay(1).dayOfWeek.value
-    val emptyDaysBefore = if (firstDayOfWeek == 7) 0 else firstDayOfWeek
-    val totalGridItems = emptyDaysBefore + daysInMonth
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        for (i in 0 until totalGridItems step 7) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                for (j in 0 until 7) {
-                    val index = i + j
-                    if (index < emptyDaysBefore || index >= totalGridItems) {
-                        Spacer(modifier = Modifier.weight(1f).aspectRatio(1f).padding(4.dp))
-                    } else {
-                        val dayNumber = index - emptyDaysBefore + 1
-                        val date = currentMonth.atDay(dayNumber)
-                        val isSelected = date == selectedDate
-                        val isEvent = eventDate != null && date == eventDate
-
-                        val backgroundColor = when {
-                            isEvent -> Color(0xFF00C853)
-                            isSelected -> Color(0xFF2979FF)
-                            else -> Color.Transparent
-                        }
-                        val textColor = if (isSelected || isEvent) Color.White else Color.Black
-
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .weight(1f)
-                                .aspectRatio(1f)
-                                .padding(4.dp)
-                                .background(color = backgroundColor, shape = CircleShape)
-                                .clickable { onDateSelected(date) }
-                        ) {
-                            Text(
-                                text = dayNumber.toString(),
-                                color = textColor,
-                                fontSize = 16.sp,
-                                fontWeight = if (isSelected || isEvent) FontWeight.Bold else FontWeight.Normal
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+//// Updated to be non-lazy for scrolling compatibility
+//@Composable
+//fun CalendarGrid(
+//    currentMonth: YearMonth,
+//    selectedDate: LocalDate,
+//    eventDate: LocalDate?, // <-- accepts nulls
+//    onDateSelected: (LocalDate) -> Unit
+//) {
+//    val daysInMonth = currentMonth.lengthOfMonth()
+//    val firstDayOfWeek = currentMonth.atDay(1).dayOfWeek.value
+//    val emptyDaysBefore = if (firstDayOfWeek == 7) 0 else firstDayOfWeek
+//    val totalGridItems = emptyDaysBefore + daysInMonth
+//
+//    Column(modifier = Modifier.fillMaxWidth()) {
+//        for (i in 0 until totalGridItems step 7) {
+//            Row(modifier = Modifier.fillMaxWidth()) {
+//                for (j in 0 until 7) {
+//                    val index = i + j
+//                    if (index < emptyDaysBefore || index >= totalGridItems) {
+//                        Spacer(modifier = Modifier.weight(1f).aspectRatio(1f).padding(4.dp))
+//                    } else {
+//                        val dayNumber = index - emptyDaysBefore + 1
+//                        val date = currentMonth.atDay(dayNumber)
+//                        val isSelected = date == selectedDate
+//                        val isEvent = eventDate != null && date == eventDate
+//
+//                        val backgroundColor = when {
+//                            isEvent -> Color(0xFF00C853)
+//                            isSelected -> Color(0xFF2979FF)
+//                            else -> Color.Transparent
+//                        }
+//                        val textColor = if (isSelected || isEvent) Color.White else Color.Black
+//
+//                        Box(
+//                            contentAlignment = Alignment.Center,
+//                            modifier = Modifier
+//                                .weight(1f)
+//                                .aspectRatio(1f)
+//                                .padding(4.dp)
+//                                .background(color = backgroundColor, shape = CircleShape)
+//                                .clickable { onDateSelected(date) }
+//                        ) {
+//                            Text(
+//                                text = dayNumber.toString(),
+//                                color = textColor,
+//                                fontSize = 16.sp,
+//                                fontWeight = if (isSelected || isEvent) FontWeight.Bold else FontWeight.Normal
+//                            )
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}

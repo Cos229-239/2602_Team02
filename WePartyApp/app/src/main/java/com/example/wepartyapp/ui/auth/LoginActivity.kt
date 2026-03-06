@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height // <-- Added for fixed button height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardActions // <-- Added
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator // <-- Added for loading spinner
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -79,31 +81,51 @@ class LoginActivity : ComponentActivity() {
                 }
             }
 
+            // --- Added: State variables to control the UI ---
+            var isLoading by remember { mutableStateOf(false) }
+            var errorMessage by remember { mutableStateOf<String?>(null) }
+
             LoginScreenUI(
+                isLoading = isLoading, // Pass state down
+                errorMessage = errorMessage, // Pass state down
                 onLoginClick = { emailInput, passwordInput ->
                     val email = emailInput.trim()
                     val password = passwordInput.trim()
 
+                    // Reset state on new attempt
+                    errorMessage = null
+
                     // Basic validation (prevents dumb "invalid" issues)
                     if (email.isEmpty() || password.isEmpty()) {
-                        Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show()
+                        errorMessage = "Please enter both email and password."
                         return@LoginScreenUI
                     }
 
                     if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                        Toast.makeText(this, "Please enter a valid email", Toast.LENGTH_SHORT).show()
+                        errorMessage = "Please enter a valid email."
                         return@LoginScreenUI
                     }
 
+                    // Lock the UI
+                    isLoading = true
+
                     auth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this) { task ->
+                            // Unlock the UI
+                            isLoading = false
+
                             if (task.isSuccessful) {
                                 startActivity(Intent(this, MainActivity::class.java))
                                 finish()
                             } else {
-                                // Show Firebase's real message if available
-                                val msg = task.exception?.localizedMessage ?: "Authentication failed."
-                                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+                                // --- Added: Human-readable error translations ---
+                                val exceptionMsg = task.exception?.message ?: ""
+                                errorMessage = when {
+                                    exceptionMsg.contains("INVALID_LOGIN_CREDENTIALS") -> "Incorrect email or password. Please try again."
+                                    exceptionMsg.contains("network error", ignoreCase = true) -> "Network error. Please check your connection."
+                                    exceptionMsg.contains("blocked", ignoreCase = true) -> "Account temporarily disabled due to too many failed attempts."
+                                    else -> "Authentication failed. Please try again."
+                                }
                             }
                         }
                 },
@@ -120,6 +142,8 @@ class LoginActivity : ComponentActivity() {
 
 @Composable
 fun LoginScreenUI(
+    isLoading: Boolean, // <-- Added
+    errorMessage: String?, // <-- Added
     onLoginClick: (String, String) -> Unit,
     onNavigateToSignUp: () -> Unit,
     onNavigateToForgotPassword: () -> Unit
@@ -194,7 +218,7 @@ fun LoginScreenUI(
             keyboardActions = KeyboardActions(
                 onDone = {
                     focusManager.clearFocus() // Hide keyboard
-                    onLoginClick(email, password)
+                    if (!isLoading) onLoginClick(email, password) // Only click if not already loading
                 }
             ),
             modifier = Modifier
@@ -220,12 +244,35 @@ fun LoginScreenUI(
                 .clickable { onNavigateToForgotPassword() }
         )
 
+        // --- Added: In-UI Error Message Display ---
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                color = Color.Red,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
+
+        // --- Updated: Button with Loading State ---
         Button(
             onClick = { onLoginClick(email, password) },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4081))
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp), // Fixed height so it doesn't jump when loading
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4081)),
+            enabled = !isLoading // Disables the button while Firebase is working
         ) {
-            Text("Log In", color = Color.White)
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text("Log In", color = Color.White)
+            }
         }
 
         Text(
