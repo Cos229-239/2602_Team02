@@ -35,8 +35,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.wepartyapp.ui.EventItems
 import com.example.wepartyapp.ui.EventViewModel
+import com.example.wepartyapp.ui.PartyItem
 import com.example.wepartyapp.ui.create_event.AddItemsScreenUI
 import com.example.wepartyapp.ui.create_event.CreateEventRoutes
 import com.example.wepartyapp.ui.create_event.CreateEventScreenUI
@@ -104,7 +104,7 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
                     .fillMaxWidth()
             ) {
                 items(sortedEvents) { event ->
-                    EventDetails(eventName = event.name, eventItemsList = event.eventItems)
+                    EventDetails(eventID = event.id, eventName = event.name, eventItemsList = event.eventItems)
                     Spacer(modifier = Modifier.height(20.dp))
                 }
             }
@@ -113,7 +113,7 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
 }
 
 @Composable
-fun EventDetails(eventName: String, eventItemsList: List<EventItems>) {
+fun EventDetails(eventID: String, eventName: String, eventItemsList: List<PartyItem>) {
     val context = LocalContext.current
     Box(
         modifier = Modifier
@@ -143,7 +143,8 @@ fun EventDetails(eventName: String, eventItemsList: List<EventItems>) {
         Button(
             onClick = {
                 val intent = Intent(context, EditItemActivity::class.java)
-                    context.startActivity(intent)
+                intent.putExtra("Event_ID", eventID)    //passing event id to be able to find the specific event in edit item screen
+                context.startActivity(intent)
                       },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
             modifier = Modifier

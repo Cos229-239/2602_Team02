@@ -43,6 +43,7 @@ import com.example.wepartyapp.ui.ItemPriceViewModel
 import com.example.wepartyapp.ui.api.NetworkResponse
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.text.font.FontWeight
+import com.example.wepartyapp.ui.PartyItem
 
 // UI for the Add Items screen
 @Composable
@@ -184,4 +185,3 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
         }
     }
 }
-data class PartyItem(val name: String, val price: String)
