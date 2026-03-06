@@ -66,7 +66,7 @@ import com.google.firebase.firestore.SetOptions // <-- Added for FCM Token
 import com.google.firebase.messaging.FirebaseMessaging // <-- Added for FCM Token
 import java.time.format.DateTimeFormatter // <-- Added for formatting dates
 import com.example.wepartyapp.ui.event_dashboard.ChatRoomActivity // <-- Added for EventCard Navigation
-
+import androidx.compose.ui.graphics.Brush
 
 
 class MainActivity : ComponentActivity() {
@@ -213,9 +213,19 @@ fun Header(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFFB65C5C))
+            .shadow(12.dp)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFC96B6B),
+                        Color(0xFFB65C5C),
+                        Color(0xFF8E3F3F)
+                    )
+                )
+            )
             .border(3.dp, color = Color.Black)
             .padding(horizontal = 16.dp, vertical = 12.dp)
+
     ) {
 
         val context = LocalContext.current
@@ -405,7 +415,15 @@ fun NavigationBar(
             .height(60.dp)
             .shadow(8.dp, RoundedCornerShape(20.dp))
             .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xFFB65C5C))
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFC96B6B),
+                        Color(0xFFB65C5C),
+                        Color(0xFF8E3F3F)
+                    )
+                )
+            )
             .border(3.dp, Color.Black, RoundedCornerShape(20.dp)),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
