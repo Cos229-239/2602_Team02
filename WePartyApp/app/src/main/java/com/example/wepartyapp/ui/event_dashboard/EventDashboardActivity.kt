@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -347,15 +348,43 @@ class ChatRoomActivity : ComponentActivity() {
                 ) {
                     Column(modifier = Modifier.fillMaxSize()) {
 
-                        Text(
-                            text = eventName,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
+                        Row(
                             modifier = Modifier
-                                .padding(top = 16.dp, bottom = 4.dp)
-                                .align(Alignment.CenterHorizontally)
-                        )
+                                .fillMaxWidth()
+                                .padding(top = 16.dp, bottom = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+
+                            Text(
+                                text = eventName,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = "Event Info",
+                                tint = Color.Black,
+                                modifier = Modifier
+                                    .size(22.dp)
+                                    .clickable {
+
+                                        val intent = Intent(
+                                            this@ChatRoomActivity,
+                                            com.example.wepartyapp.ui.event_dashboard.EventInfoActivity::class.java
+                                        )
+
+                                        intent.putExtra("EVENT_ID", eventId)
+                                        intent.putExtra("EVENT_NAME", eventName)
+
+                                        startActivity(intent)
+                                    }
+                            )
+                        }
 
                         Box(modifier = Modifier.weight(1f)) {
                             ChatFeedContent(eventId = eventId, viewModel = viewModel)
