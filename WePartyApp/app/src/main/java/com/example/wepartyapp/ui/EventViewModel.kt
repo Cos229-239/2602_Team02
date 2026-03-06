@@ -288,6 +288,17 @@ class EventViewModel : ViewModel() {
         }
     }
 
+    //updating an events items list
+    fun updateEventItems(eventID: String) {
+        //convert our custom PartyItem list into a simple map so Firebase doesn't crash
+        val mappedItems = _itemsList.value.map {
+            mapOf("name" to it.name, "price" to it.price)
+        }
+        //update the items field from the event using the eventid parameter
+        db.collection("events").document(eventID).update("items", mappedItems)
+    }
+
+
     // --- Creates an Alert in the Notifications Database ---
     private fun sendAppNotification(title: String, message: String, allowedUsers: List<String>) {
         val notificationMap = hashMapOf(
