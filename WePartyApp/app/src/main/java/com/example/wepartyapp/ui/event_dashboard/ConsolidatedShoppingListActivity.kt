@@ -35,8 +35,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.wepartyapp.ui.EventItems
 import com.example.wepartyapp.ui.EventViewModel
+import com.example.wepartyapp.ui.PartyItem
 import com.example.wepartyapp.ui.create_event.AddItemsScreenUI
 import com.example.wepartyapp.ui.create_event.CreateEventRoutes
 import com.example.wepartyapp.ui.create_event.CreateEventScreenUI
@@ -113,7 +113,7 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
 }
 
 @Composable
-fun EventDetails(eventName: String, eventItemsList: List<EventItems>) {
+fun EventDetails(eventName: String, eventItemsList: List<PartyItem>) {
     val context = LocalContext.current
     Box(
         modifier = Modifier

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -50,23 +51,25 @@ import com.example.wepartyapp.ui.api.NetworkResponse
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wepartyapp.ui.home.MainActivity
+import kotlin.getValue
 
 class EditItemActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-
-            EditItemsScreen()
+            val eventViewModel: EventViewModel by viewModels()
+            val priceViewModel: ItemPriceViewModel = viewModel()
+            EditItemsScreen(viewPriceModel = priceViewModel, viewItemModel = eventViewModel)
 
         }
     }
 }
-@Preview
+
 @Composable
-fun EditItemsScreen() {//(navController: NavController, viewModel: ItemPriceViewModel, viewItemModel: EventViewModel) {
+fun EditItemsScreen(viewPriceModel: ItemPriceViewModel, viewItemModel: EventViewModel) {
     val context = LocalContext.current // <-- Grab context for the Intent
 
     var item by remember {                                                  //start with an empty string
@@ -181,8 +184,8 @@ fun EditItemsScreen() {//(navController: NavController, viewModel: ItemPriceView
                     else -> {}
                 }
             }*/
-            //val _itemList by viewItemModel._items.collectAsState()
-            /*LazyColumn(
+            /*val _itemList by viewItemModel._items.collectAsState()
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
@@ -198,8 +201,7 @@ fun EditItemsScreen() {//(navController: NavController, viewModel: ItemPriceView
                     }
                     Divider()
                 }
-            }
-        }*/
+            }*/
         }
         Button(
             onClick = {},
@@ -212,4 +214,3 @@ fun EditItemsScreen() {//(navController: NavController, viewModel: ItemPriceView
         }
     }
 }
-//data class PartyItem(val name: String, val price: String)
