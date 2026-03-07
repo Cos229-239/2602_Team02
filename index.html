@@ -12,11 +12,15 @@
     .sidebar a{display:block;color:rgba(255,255,255,0.9);text-decoration:none;padding:0.4rem 1rem;font-size:0.9rem;}
     .sidebar a:hover{background:rgba(255,255,255,0.1);color:#fff;}
     .sidebar a.active{background:var(--accent);color:#fff;}
-    .logo-link{display:block;padding:0.75rem 1rem;border-bottom:1px solid rgba(255,255,255,0.2);}
-    .sidebar-logo{width:48px;height:48px;display:block;}
-    .nav-cycle{font-weight:700;font-size:1.1rem;margin-top:0.5rem;}
-    .nav-week{font-weight:600;margin-top:0.25rem;}
-    .nav-team{padding-left:1.25rem;font-size:0.85rem;}
+    .sidebar-brand{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1rem;border-bottom:1px solid rgba(255,255,255,0.2);}
+    .logo-link{flex-shrink:0;}
+    .sidebar-logo{width:40px;height:40px;display:block;}
+    .brand-text{display:flex;flex-direction:column;line-height:1.2;}
+    .brand-org{font-weight:700;font-size:0.85rem;}
+    .brand-cycle{font-size:0.75rem;opacity:0.9;}
+    .nav-week-group{margin-bottom:0.75rem;}
+    .nav-week{display:block;font-weight:600;font-size:1.05rem;margin-top:0.25rem;padding:0.35rem 1rem;}
+    .nav-team{display:block;padding-left:1.25rem;font-size:0.78rem;padding:0.2rem 1rem 0.2rem 1.5rem;}
     .content{flex:1;margin-left:200px;padding:1.5rem;max-width:900px;}
     h1{border-bottom:1px solid #ddd;padding-bottom:0.3em;}
     ul{list-style:none;padding:0;}
@@ -28,16 +32,30 @@
 <body>
 <div class="app">
 <nav class="sidebar">
+<div class="sidebar-brand">
 <a href="index.html" class="logo-link"><img src="logo.png" alt="Logo" class="sidebar-logo"></a>
-<a href="index.html" class="nav-cycle">2602</a>
+<div class="brand-text"><span class="brand-org">Cos229-239</span><span class="brand-cycle">2602</span></div>
+</div>
+<div class="nav-week-group">
 <a href="W05.html" class="nav-week">Week 05</a>
+<a href="W05_2602_Team01.html" class="nav-team">Team 01</a>
 <a href="W05_2602_Team02.html" class="nav-team">Team 02</a>
+</div>
+<div class="nav-week-group">
 <a href="W06.html" class="nav-week">Week 06</a>
+<a href="W06_2602_Team01.html" class="nav-team">Team 01</a>
 <a href="W06_2602_Team02.html" class="nav-team">Team 02</a>
+</div>
+<div class="nav-week-group">
 <a href="W07.html" class="nav-week">Week 07</a>
+<a href="W07_2602_Team01.html" class="nav-team">Team 01</a>
 <a href="W07_2602_Team02.html" class="nav-team">Team 02</a>
+</div>
+<div class="nav-week-group">
 <a href="W08.html" class="nav-week">Week 08</a>
+<a href="W08_2602_Team01.html" class="nav-team">Team 01</a>
 <a href="W08_2602_Team02.html" class="nav-team">Team 02</a>
+</div>
 </nav>
 <main class="content">
   <h1>Meeting Snapshots — Cycle 2602</h1>
