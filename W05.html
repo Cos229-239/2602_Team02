@@ -8,16 +8,16 @@
     :root{--bg:#f6f8fa;--text:#1f2328;--accent:#0969da;}
     body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:0;background:var(--bg);color:var(--text);line-height:1.5;}
     .app{display:flex;min-height:100vh;}
-    .sidebar{width:200px;min-width:200px;background:var(--text);color:#fff;padding:1rem 0;flex-shrink:0;}
+    .sidebar{position:fixed;left:0;top:0;width:200px;height:100vh;overflow-y:auto;background:var(--text);color:#fff;padding:1rem 0;}
     .sidebar a{display:block;color:rgba(255,255,255,0.9);text-decoration:none;padding:0.4rem 1rem;font-size:0.9rem;}
     .sidebar a:hover{background:rgba(255,255,255,0.1);color:#fff;}
     .sidebar a.active{background:var(--accent);color:#fff;}
     .logo-link{display:block;padding:0.75rem 1rem;border-bottom:1px solid rgba(255,255,255,0.2);}
     .sidebar-logo{width:48px;height:48px;display:block;}
-    .nav-week-group{margin-top:0.5rem;}
-    .nav-week{font-weight:600;}
-    .nav-teams{list-style:none;margin:0.25rem 0 0 0;padding:0 0 0 0.75rem;font-size:0.85rem;}
-    .content{flex:1;padding:1.5rem;max-width:900px;}
+    .nav-cycle{font-weight:700;font-size:1.1rem;margin-top:0.5rem;}
+    .nav-week{font-weight:600;margin-top:0.25rem;}
+    .nav-team{padding-left:1.25rem;font-size:0.85rem;}
+    .content{flex:1;margin-left:200px;padding:1.5rem;max-width:900px;}
     h1{border-bottom:1px solid #ddd;padding-bottom:0.3em;}
     ul{list-style:none;padding:0;}
     li{margin:0.75rem 0;}
