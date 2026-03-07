@@ -34,6 +34,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -50,9 +51,12 @@ import com.example.wepartyapp.ui.ItemPriceViewModel
 import com.example.wepartyapp.ui.api.NetworkResponse
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wepartyapp.ui.PartyItem
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.view.WindowCompat
 import com.example.wepartyapp.ui.home.MainActivity
 import java.time.LocalDate
 import kotlin.getValue
@@ -64,10 +68,19 @@ class EditItemActivity : ComponentActivity() {
         val eventID = intent.getStringExtra("Event_ID") ?: ""
 
         setContent {
+            // --- Status Bar Fix ---
+            // This grabs the phone's window and tells it to use Dark Icons (for light backgrounds)
+            val view = LocalView.current
+            if (!view.isInEditMode) {
+                SideEffect {
+                    val window = (view.context as Activity).window
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
+                        true
+                }
+            }
             val eventViewModel: EventViewModel by viewModels()
             val priceViewModel: ItemPriceViewModel = viewModel()
             EditItemsScreen(eventID = eventID, viewPriceModel = priceViewModel, viewItemModel = eventViewModel)
-
         }
     }
 }
@@ -89,11 +102,19 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
         .filter { it.date == null || it.date >= today }
         .sortedBy { it.date }
     //loop through the events and find the event id that matches, that is the event selected to edit from the CSL
-    for (selectedEvent in sortedEvents) {
-        if (selectedEvent.id == eventID) {
-            val selectedEventList = selectedEvent.eventItems    //copy the list of partyItems from event view model to a local val
-            for (partyItem in selectedEventList) {
-                viewItemModel.addItems(PartyItem(name = partyItem.name, price = partyItem.price))   //update the private val list in event view model
+    LaunchedEffect(sortedEvents) {
+        for (selectedEvent in sortedEvents) {
+            if (selectedEvent.id == eventID) {
+                val selectedEventList =
+                    selectedEvent.eventItems    //copy the list of partyItems from event view model to a local val
+                for (partyItem in selectedEventList) {
+                    viewItemModel.addItems(
+                        PartyItem(
+                            name = partyItem.name,
+                            price = partyItem.price
+                        )
+                    )   //update the private val list in event view model
+                }
             }
         }
     }
