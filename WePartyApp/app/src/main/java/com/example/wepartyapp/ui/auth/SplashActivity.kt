@@ -28,6 +28,7 @@ import androidx.compose.runtime.DisposableEffect // <-- Added to handle sound li
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember // <-- Added for remembering the MediaPlayer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -80,10 +81,10 @@ class SplashActivity : ComponentActivity() {
 fun SplashScreenUI(onTimeout: () -> Unit) {
     val context = LocalContext.current // <-- Needed to load the sound file
 
-    // --- Play Sound On Launch ---
-    DisposableEffect(Unit) {
-        val mediaPlayer = MediaPlayer.create(context, R.raw.intro)
+    // --- Upgrade: Remember the MediaPlayer so the timer can talk to it ---
+    val mediaPlayer = remember { MediaPlayer.create(context, R.raw.intro3) }
 
+    DisposableEffect(Unit) {
         mediaPlayer?.start() // Play the sound immediately
 
         // When the splash screen finishes and closes, release the audio memory
@@ -92,7 +93,13 @@ fun SplashScreenUI(onTimeout: () -> Unit) {
         }
     }
     LaunchedEffect(key1 = true) {
-        delay(4500)
+        delay(3900)
+
+        // --- Upgrade: Explicitly kill the audio before routing ---
+        if (mediaPlayer?.isPlaying == true) {
+            mediaPlayer.stop()
+        }
+
         onTimeout()
     }
 
