@@ -346,50 +346,7 @@ class ChatRoomActivity : ComponentActivity() {
                         .padding(paddingValues)
                         .background(Color(0xFFFFE9EA))
                 ) {
-                    Column(modifier = Modifier.fillMaxSize()) {
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 16.dp, bottom = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-
-                            Text(
-                                text = eventName,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black
-                            )
-
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = "Event Info",
-                                tint = Color.Black,
-                                modifier = Modifier
-                                    .size(22.dp)
-                                    .clickable {
-
-                                        val intent = Intent(
-                                            this@ChatRoomActivity,
-                                            com.example.wepartyapp.ui.event_dashboard.EventInfoActivity::class.java
-                                        )
-
-                                        intent.putExtra("EVENT_ID", eventId)
-                                        intent.putExtra("EVENT_NAME", eventName)
-
-                                        startActivity(intent)
-                                    }
-                            )
-                        }
-
-                        Box(modifier = Modifier.weight(1f)) {
-                            ChatFeedContent(eventId = eventId, viewModel = viewModel)
-                        }
-                    }
+                    ChatFeedContent(eventId = eventId, viewModel = viewModel)
                 }
             }
         }

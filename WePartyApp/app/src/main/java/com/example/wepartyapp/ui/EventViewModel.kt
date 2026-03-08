@@ -36,15 +36,16 @@ data class PartyEvent(
     val lastMessage: String? = null,
     val lastMessageTime: Long? = null,
     val lastSenderId: String? = null,
-    // --- Add These Two New Fields ---
     val hostId: String = "",
     val invitedGuests: List<String> = emptyList(),
     val eventItems: List<PartyItem> = emptyList()
 )
 
-data class PartyItem(                  //data class of the map structure within the firestore array
+data class PartyItem(
     val name: String,
-    val price: String
+    val price: String,
+    val boughtBy: String? = null,
+    val boughtByName: String? = null
 )
 
 class EventViewModel : ViewModel() {
@@ -79,6 +80,12 @@ class EventViewModel : ViewModel() {
     fun addItems(item: PartyItem) {
         _itemsList.update { currentList -> currentList + item }
     }
+
+    //-clears the PartyItem list-
+    fun clearItems() {
+        _itemsList.value = emptyList()
+    }
+
     //-updates the price of a PartyItem in the list-
     fun updatePrice(itemName: String, updatedPrice: String) {
         _itemsList.update { currentList ->
@@ -116,7 +123,6 @@ class EventViewModel : ViewModel() {
                 val lastMsgTime = document.getLong("lastMessageTime")
                 val lastSender = document.getString("lastSenderId")
 
-                // --- New: Read the new fields from Firestore ---
                 val fetchedHostId = document.getString("hostId") ?: ""
                 val fetchedGuests = document.get("invitedGuests") as? List<String> ?: emptyList()
 
@@ -129,16 +135,19 @@ class EventViewModel : ViewModel() {
                     }
                 }
 
-                val arrayOfItems = document.get("items") as? List<Map<String, String>>      //getting the array of maps
-                val eventItems = arrayOfItems?.map { map ->                                 //List<Map> to List<EventItems>
+                // Getting the array of maps from Firestore
+                val arrayOfItems = document.get("items") as? List<Map<String, Any>>
+                // Map the Firestore data to our local PartyItem model
+                val eventItems = arrayOfItems?.map { map ->
                     PartyItem(
                         name = map["name"] as? String ?: "",
-                        price = map["price"] as? String ?: ""
+                        price = map["price"] as? String ?: "",
+                        boughtBy = map["boughtBy"] as? String,
+                        boughtByName = map["boughtByName"] as? String
                     )
                 } ?: emptyList()
 
-                // Add it to our temporary list
-                // --- New: Pass the new fields into the PartyEvent creation ---
+                // Add the event with its items and chat metadata to our local list
                 eventList.add(PartyEvent(id, name, time, address, date, lastMsg, lastMsgTime, lastSender, fetchedHostId, fetchedGuests, eventItems))
             }
 
@@ -148,15 +157,13 @@ class EventViewModel : ViewModel() {
     }
 
     private fun fetchNotificationsFromFirebase() {
-        // 1. Check who is logged in
+        // Only pull notifications where this specific user's ID is in the "allowedUsers" list
         val currentUserId = auth.currentUser?.uid
         if (currentUserId == null) {
             _notificationsList.value = emptyList()
             return
         }
 
-        // 2. Only pull notifications where this specific user's ID is in the "allowedUsers" list
-        // Listens to the "notifications" collection and sorts by newest first
         db.collection("notifications")
             .whereArrayContains("allowedUsers", currentUserId)
             .addSnapshotListener { snapshot, error ->
@@ -170,20 +177,20 @@ class EventViewModel : ViewModel() {
                     val title = document.getString("title") ?: "Alert"
                     val message = document.getString("message") ?: ""
                     val timestamp = document.getLong("timestamp") ?: 0L
-
-                    // --- New: Calculate the real time difference ---
+                    
+                    // Calculate the real time difference (e.g. "5 minutes ago")
                     val calculatedTime = formatNotificationTime(timestamp)
 
                     alerts.add(PartyNotification(id, title, message, calculatedTime, timestamp))
                 }
-
-                // 3. Sort them locally from newest to oldest so we don't crash Firebase with a missing index!
+                // Sort notifications by newest first
                 _notificationsList.value = alerts.sortedByDescending { it.timestamp }
             }
     }
 
     // --- Chat Functions ---
 
+    // Sets up a real-time listener for messages within a specific event
     fun listenToMessages(eventId: String) {
         db.collection("events").document(eventId).collection("messages")
             .orderBy("timestamp", Query.Direction.ASCENDING)
@@ -202,6 +209,7 @@ class EventViewModel : ViewModel() {
             }
     }
 
+    // Sends a new message and updates the event's "last message" snippet
     fun sendMessage(eventId: String, text: String) {
         val user = auth.currentUser ?: return
         val messageData = hashMapOf(
@@ -213,7 +221,7 @@ class EventViewModel : ViewModel() {
 
         db.collection("events").document(eventId).collection("messages").add(messageData)
             .addOnSuccessListener {
-                // Update last message in the event document for the inbox snippet
+                // Sync the last message back to the event document for the inbox preview
                 db.collection("events").document(eventId).update(
                     mapOf(
                         "lastMessage" to text,
@@ -224,36 +232,31 @@ class EventViewModel : ViewModel() {
             }
     }
 
-    // Firebase push function (No parameters needed anymore, it pulls directly from the ViewModel cache)
+    // Pushes the locally cached event data to Firestore
     fun saveEventData() {
-        // --- New: Grab the logged-in user's ID ---
         val currentUserId = auth.currentUser?.uid ?: ""
-
-        // 1. Convert our custom PartyItem list into a simple map so Firebase doesn't crash
+        
+        // Convert custom PartyItem objects to simple maps for Firestore
         val mappedItems = _itemsList.value.map {
             mapOf("name" to it.name, "price" to it.price)
         }
 
-        // 2. Package everything up into one clean map
         val eventMap = hashMapOf(
             "name" to eventName,
             "summary" to eventSummary,
             "time" to eventTime,
             "address" to eventAddress,
             "date" to eventDate,
-            "items" to mappedItems, // <-- Safely mapped and easy to pull down later
+            "items" to mappedItems,
             "lastMessage" to null,
             "lastMessageTime" to null,
             "lastSenderId" to null,
-            // --- Add The New Fields ---
             "hostId" to currentUserId,
-            "invitedGuests" to emptyList<String>() // Starts empty until the host invites people
+            "invitedGuests" to emptyList<String>()
         )
 
-        // 3. Push to Firebase
         db.collection("events").add(eventMap).addOnSuccessListener {
-
-            // --- Format Date for Notifications ---
+            // Formatting the date for the notification text
             var displayDate = eventDate
             try {
                 if (eventDate.isNotBlank()) {
@@ -261,24 +264,19 @@ class EventViewModel : ViewModel() {
                     val formatter = DateTimeFormatter.ofPattern("MMM. d, yyyy")
                     displayDate = parsedDate.format(formatter)
                 }
-            } catch (e: Exception) {
-                // If it fails for any reason, it just falls back to the original text
-            }
+            } catch (e: Exception) {}
 
-            // --- Send an alert to the notifications feed ---
-            // 1. Create the list of people allowed to see this alert
+            // Send an alert only to the host (and guests once added)
             val allowedUsers = mutableListOf<String>()
             if (currentUserId.isNotEmpty()) allowedUsers.add(currentUserId)
-            // (When Lesly finishes the Guest List UI, we will add the invited guests to this list too)
 
-            // 2. Send the notification securely
             sendAppNotification(
                 title = "New Party Alert!",
                 message = "$eventName is happening on $displayDate. Tap to see details!",
-                allowedUsers = allowedUsers // <-- Pass the secure list here
+                allowedUsers = allowedUsers
             )
 
-            // 4. Clear the cache so the next event starts completely fresh
+            // Clear the cache so the next event starts fresh
             eventName = ""
             eventSummary = ""
             eventDate = ""
@@ -288,36 +286,104 @@ class EventViewModel : ViewModel() {
         }
     }
 
-    //updating an events items list
+    // Updates the checklist items for an existing event
     fun updateEventItems(eventID: String) {
-        //convert our custom PartyItem list into a simple map so Firebase doesn't crash
         val mappedItems = _itemsList.value.map {
-            mapOf("name" to it.name, "price" to it.price)
+            mapOf(
+                "name" to it.name,
+                "price" to it.price,
+                "boughtBy" to it.boughtBy,
+                "boughtByName" to it.boughtByName
+            )
         }
-        //update the items field from the event using the eventid parameter
         db.collection("events").document(eventID).update("items", mappedItems)
     }
 
+    // Toggles the acquisition status of a party item (checks/unchecks)
+    fun toggleItemCheck(eventId: String, item: PartyItem) {
+        val user = auth.currentUser ?: return
+        val updatedItems = events.value?.find { it.id == eventId }?.eventItems?.map {
+            if (it.name == item.name) {
+                // Claim the item if no one has it yet
+                if (it.boughtBy == null) {
+                    it.copy(boughtBy = user.uid, boughtByName = user.displayName ?: "User")
+                } 
+                // Unclaim only if the current user is the one who bought it
+                else if (it.boughtBy == user.uid) {
+                    it.copy(boughtBy = null, boughtByName = null)
+                } 
+                else {
+                    it
+                }
+            } else {
+                it
+            }
+        } ?: return
 
-    // --- Creates an Alert in the Notifications Database ---
+        // Push the updated item array back to Firestore
+        val mappedItems = updatedItems.map {
+            mapOf(
+                "name" to it.name,
+                "price" to it.price,
+                "boughtBy" to it.boughtBy,
+                "boughtByName" to it.boughtByName
+            )
+        }
+        db.collection("events").document(eventId).update("items", mappedItems)
+    }
+
+    // --- Checklist Functions for Existing Events ---
+
+    // Adds a single item to an existing event in Firestore
+    fun addItemToExistingEvent(eventId: String, item: PartyItem) {
+        val event = _events.value?.find { it.id == eventId } ?: return
+        val updatedItems = event.eventItems + item
+        
+        val mappedItems = updatedItems.map {
+            mapOf(
+                "name" to it.name,
+                "price" to it.price,
+                "boughtBy" to it.boughtBy,
+                "boughtByName" to it.boughtByName
+            )
+        }
+        db.collection("events").document(eventId).update("items", mappedItems)
+    }
+
+    // Updates an item's price in Firestore (useful for live price lookup results)
+    fun updateItemPriceInFirestore(eventId: String, itemName: String, newPrice: String) {
+        val event = _events.value?.find { it.id == eventId } ?: return
+        val updatedItems = event.eventItems.map {
+            if (it.name == itemName) it.copy(price = newPrice) else it
+        }
+
+        val mappedItems = updatedItems.map {
+            mapOf(
+                "name" to it.name,
+                "price" to it.price,
+                "boughtBy" to it.boughtBy,
+                "boughtByName" to it.boughtByName
+            )
+        }
+        db.collection("events").document(eventId).update("items", mappedItems)
+    }
+
+    // Internal helper to create a secure notification entry
     private fun sendAppNotification(title: String, message: String, allowedUsers: List<String>) {
         val notificationMap = hashMapOf(
             "title" to title,
             "message" to message,
-            "time" to "Just now", // This still gets saved to Firebase, but we ignore it when downloading
-            "timestamp" to System.currentTimeMillis(), // This ensures the newest alerts stay at the top
-            "allowedUsers" to allowedUsers // <-- The new security container
+            "time" to "Just now",
+            "timestamp" to System.currentTimeMillis(),
+            "allowedUsers" to allowedUsers
         )
 
         db.collection("notifications").add(notificationMap)
     }
 
-    // --- Deletes an Event From Firebase ---
+    // Deletes an event from the Firestore database
     fun deleteEvent(event: PartyEvent) {
-        // Because the date is stored as a String in Firebase (yyyy-MM-dd), we convert it back
         val dateString = event.date?.toString() ?: ""
-
-        // Find the exact event matching the name, time, and date, then destroy it
         db.collection("events")
             .whereEqualTo("name", event.name)
             .whereEqualTo("time", event.time)
@@ -330,24 +396,20 @@ class EventViewModel : ViewModel() {
             }
     }
 
-    // --- Dynamic Time Formatter ---
+    // Helper to turn timestamps into user-friendly text like "Yesterday" or "1 hour ago"
     private fun formatNotificationTime(timestamp: Long): String {
         if (timestamp == 0L) return "Just now"
-
         val now = System.currentTimeMillis()
         val diffMillis = now - timestamp
-
         val diffMinutes = diffMillis / (60 * 1000)
         val diffHours = diffMinutes / 60
         val diffDays = diffHours / 24
-
         return when {
             diffMinutes < 5 -> "Just now"
             diffMinutes < 60 -> "$diffMinutes minutes ago"
             diffHours < 24 -> if (diffHours == 1L) "1 hour ago" else "$diffHours hours ago"
             diffDays == 1L -> "Yesterday"
             else -> {
-                // If it's older than yesterday, show the date (e.g., "Oct. 31, 2026")
                 val sdf = java.text.SimpleDateFormat("MMM. d, yyyy", java.util.Locale.getDefault())
                 sdf.format(java.util.Date(timestamp))
             }
