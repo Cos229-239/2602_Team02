@@ -1,5 +1,6 @@
 package com.example.wepartyapp.ui.create_event
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -53,6 +55,11 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
     }
 
     val priceResult = viewModel.priceResult.observeAsState()
+    val context = LocalContext.current // Added so we can show Toast messages
+
+    // --- Check if at least one item is added ---
+    val _itemList by viewItemModel._items.collectAsState()
+    val isListNotEmpty = _itemList.isNotEmpty()
 
     Box(                                                                    //outer most layer
         modifier = Modifier
@@ -149,7 +156,8 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                         val mutableCopy = ogList.toMutableList()
                         val index = mutableCopy.indexOfLast { it.price == "Loading..." }
                         if(index != -1) {
-                            viewItemModel.updatePrice(mutableCopy[index].name, "error")
+                            viewItemModel.updatePrice(mutableCopy[index].name, "Unavailable")
+                            Toast.makeText(context, "Could not fetch price for item.", Toast.LENGTH_SHORT).show()
                         }
                     }
                     else -> {}
@@ -168,20 +176,44 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(text = it.name)
-                        Text(text = it.price)
+
+                        // Styled price text based on its status
+                        Text(
+                            text = it.price,
+                            color = when (it.price) {
+                                "Unavailable" -> Color.Red
+                                "Loading..." -> Color.Gray
+                                else -> Color.Black
+                            }
+                        )
                     }
                     Divider()
                 }
             }
         }
+
+        // --- Next Button with Error Handling ---
         Button(
-            onClick = {navController.navigate(CreateEventRoutes.inviteFriends)},
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
+            onClick = {
+                if (isListNotEmpty) {
+                    navController.navigate(CreateEventRoutes.inviteFriends)
+                } else {
+                    // Graceful error handling: Tell the user they need at least one item
+                    Toast.makeText(context, "Please add at least one item to your list!", Toast.LENGTH_SHORT).show()
+                }
+            },
+            // Manually swapping colors to show a "disabled" state if list is empty
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isListNotEmpty) Color(0xFFFA8989) else Color.LightGray
+            ),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
         ) {
-            Text(text = "Next: Invite Friends", color = Color.Black)
+            Text(
+                text = "Next: Invite Friends",
+                color = if (isListNotEmpty) Color.Black else Color.DarkGray
+            )
         }
     }
 }
