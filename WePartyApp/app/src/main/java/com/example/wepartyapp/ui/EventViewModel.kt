@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.wepartyapp.ui.event_dashboard.ChatMessage
+//import com.example.wepartyapp.ui.event_dashboard.ChatMessage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -46,6 +46,15 @@ data class PartyItem(
     val price: String,
     val boughtBy: String? = null,
     val boughtByName: String? = null
+)
+
+// --- Chat Message Blueprint ---
+data class ChatMessage(
+    val id: String = "",
+    val senderId: String = "",
+    val senderName: String = "",
+    val text: String = "",
+    val timestamp: Long = 0L
 )
 
 class EventViewModel : ViewModel() {

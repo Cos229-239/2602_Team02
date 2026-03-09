@@ -27,7 +27,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.wepartyapp.ui.EventViewModel
@@ -141,10 +144,12 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
                 value = viewItemModel.eventName,
-                onValueChange = { viewItemModel.eventName = it }
+                onValueChange = { viewItemModel.eventName = it },
+                singleLine = true // Forces "Next" on keyboard instead of return
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
+
         Text(
             text = "Summary:",
             fontSize = 20.sp,
@@ -156,10 +161,13 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
                 value = viewItemModel.eventSummary,
-                onValueChange = { viewItemModel.eventSummary = it }
+                onValueChange = { viewItemModel.eventSummary = it },
+                minLines = 3, // Makes it look like a message box
+                maxLines = 5
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
+
         Text(
             text = "Date:",
             fontSize = 20.sp,
@@ -174,12 +182,14 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel) {
                     modifier = Modifier.fillMaxWidth(),
                     value = viewItemModel.eventDate,
                     onValueChange = { },
-                    readOnly = true // Prevents keyboard from popping up
+                    readOnly = true, // Prevents keyboard from popping up
+                    singleLine = true
                 )
                 Box(modifier = Modifier.matchParentSize().clickable { showDatePicker = true })
             }
         }
         Spacer(modifier = Modifier.height(20.dp))
+
         Text(
             text = "Time:",
             fontSize = 20.sp,
@@ -188,18 +198,19 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel) {
         Row(
             modifier = Modifier.fillMaxWidth()
         ) {
-            Box(modifier = Modifier.weight(1f)
-            ) {
+            Box(modifier = Modifier.weight(1f)) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = viewItemModel.eventTime,
                     onValueChange = { },
-                    readOnly = true
+                    readOnly = true,
+                    singleLine = true
                 )
                 Box(modifier = Modifier.matchParentSize().clickable { showTimePicker = true })
             }
         }
         Spacer(modifier = Modifier.height(20.dp))
+
         Text(
             text = "Address:",
             fontSize = 20.sp,
@@ -211,7 +222,8 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
                 value = viewItemModel.eventAddress,
-                onValueChange = { viewItemModel.eventAddress = it }
+                onValueChange = { viewItemModel.eventAddress = it },
+                singleLine = true
             )
         }
     }

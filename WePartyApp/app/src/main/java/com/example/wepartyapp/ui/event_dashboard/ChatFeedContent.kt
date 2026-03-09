@@ -30,6 +30,7 @@ import com.example.wepartyapp.ui.ItemPriceViewModel
 import com.example.wepartyapp.ui.PartyItem
 import com.example.wepartyapp.ui.api.NetworkResponse
 import com.google.firebase.auth.FirebaseAuth
+import com.example.wepartyapp.ui.ChatMessage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
