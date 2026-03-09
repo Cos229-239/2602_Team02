@@ -2,6 +2,7 @@ package com.example.wepartyapp.ui.create_event
 
 import android.app.Activity // <-- Added
 import android.content.Intent // <-- Added
+import android.widget.Toast // <-- Added for dynamic error popup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -148,17 +149,29 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
         // --- Complete Button ---
         Button(
             onClick = {
-                viewItemModel.saveEventData()
-                // Explicitly return to Main Activity and kill this one
-                val intent = Intent(context, MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                context.startActivity(intent)
-                (context as? Activity)?.finish()
+                if (isFormComplete) {
+                    viewItemModel.saveEventData()
+                    // Explicitly return to Main Activity and kill this one
+                    val intent = Intent(context, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    context.startActivity(intent)
+                    (context as? Activity)?.finish()
+                } else {
+                    // Figure out exactly what is missing to tell the user
+                    val missingFields = mutableListOf<String>()
+                    if (viewItemModel.eventName.isBlank()) missingFields.add("Name")
+                    if (viewItemModel.eventDate.isBlank()) missingFields.add("Date")
+                    if (viewItemModel.eventTime.isBlank()) missingFields.add("Time")
+                    if (viewItemModel.eventAddress.isBlank()) missingFields.add("Location")
+
+                    val errorMessage = "Please go back and fill out: ${missingFields.joinToString(", ")}"
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                }
             },
-            enabled = isFormComplete, // Button is disabled if required fields are empty
+            // We remove 'enabled = isFormComplete' so the button is always clickable,
+            // allowing our Toast to actually fire. Instead, we manually swap the colors below to fake the disabled look!
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFA8989),
-                disabledContainerColor = Color.LightGray // Turns gray when disabled!
+                containerColor = if (isFormComplete) Color(0xFFFA8989) else Color.LightGray
             ),
             modifier = Modifier
                 .align(Alignment.BottomEnd)

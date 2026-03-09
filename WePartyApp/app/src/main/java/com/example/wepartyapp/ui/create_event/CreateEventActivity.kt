@@ -3,6 +3,7 @@ package com.example.wepartyapp.ui.create_event
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast // <-- Added for the graceful error popup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -87,6 +88,12 @@ class CreateEventActivity : ComponentActivity() {
 fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewModel) {
     val context = LocalContext.current // <-- Grab context for the Intent
 
+    // --- Validation Logic for all 4 required fields ---
+    val isFormComplete = viewItemModel.eventName.isNotBlank() &&
+            viewItemModel.eventDate.isNotBlank() &&
+            viewItemModel.eventTime.isNotBlank() &&
+            viewItemModel.eventAddress.isNotBlank()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -148,14 +155,36 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
             // Pass the viewItemModel to EventDetailsScreenUI so it caches data
             EventDetailsScreenUI(viewItemModel)
         }
+
+        // --- Updated Button with Dynamic Toast Error Handling ---
         Button(
-            onClick = {navController.navigate(CreateEventRoutes.addItems)},
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
+            onClick = {
+                if (isFormComplete) {
+                    navController.navigate(CreateEventRoutes.addItems)
+                } else {
+                    // Identify specifically what is missing
+                    val missing = mutableListOf<String>()
+                    if (viewItemModel.eventName.isBlank()) missing.add("Name")
+                    if (viewItemModel.eventDate.isBlank()) missing.add("Date")
+                    if (viewItemModel.eventTime.isBlank()) missing.add("Time")
+                    if (viewItemModel.eventAddress.isBlank()) missing.add("Address")
+
+                    val toastMessage = "Missing: ${missing.joinToString(", ")}"
+                    Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
+                }
+            },
+            // Logic: Button remains clickable but turns gray to hint it is incomplete
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isFormComplete) Color(0xFFFA8989) else Color.LightGray
+            ),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
         ) {
-            Text(text = "Next: Add Items", color = Color.Black)
+            Text(
+                text = "Next: Add Items",
+                color = if (isFormComplete) Color.Black else Color.DarkGray
+            )
         }
     }
 }

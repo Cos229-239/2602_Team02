@@ -1,8 +1,11 @@
 package com.example.wepartyapp.ui.profile
 
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
@@ -29,13 +33,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
+import com.example.wepartyapp.ui.auth.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.storage.FirebaseStorage
-import android.content.Intent
-import androidx.compose.material.icons.filled.Edit
-import com.example.wepartyapp.ui.auth.LoginActivity
+import java.io.File
 
 @Composable
 fun ProfileScreenUI(
@@ -46,18 +50,15 @@ fun ProfileScreenUI(
     val auth = FirebaseAuth.getInstance()
     val context = LocalContext.current
 
-    // 1. Use State variables so the UI knows to redraw when these change
     var userName by remember { mutableStateOf("Party Animal") }
     var profilePhotoUri by remember { mutableStateOf<Uri?>(null) }
 
-    // 2. LaunchedEffect(Unit) forces this block to run every single time this screen is opened
     LaunchedEffect(Unit) {
         val user = auth.currentUser
         userName = user?.displayName?.takeIf { it.isNotBlank() } ?: "Party Animal"
         profilePhotoUri = user?.photoUrl
     }
 
-    // 3. Logout confirmation popup, prevents accidental logout
     var showLogoutDialog by remember { mutableStateOf(false) }
     if (showLogoutDialog) {
         AlertDialog(
@@ -71,8 +72,7 @@ fun ProfileScreenUI(
                         auth.signOut()
 
                         val intent = Intent(context, LoginActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         }
 
                         context.startActivity(intent)
@@ -82,11 +82,7 @@ fun ProfileScreenUI(
                 }
             },
             dismissButton = {
-                TextButton(
-                    onClick = { showLogoutDialog = false }
-                ) {
-                    Text("Cancel")
-                }
+                TextButton(onClick = { showLogoutDialog = false }) { Text("Cancel") }
             }
         )
     }
@@ -180,9 +176,7 @@ fun ProfileScreenUI(
                 icon = Icons.Default.Close,
                 title = "Log out",
                 subtitle = "Sign out of your account",
-                onClick = {
-                    showLogoutDialog = true
-                }
+                onClick = { showLogoutDialog = true }
             )
         }
     }
@@ -200,7 +194,11 @@ fun ProfileSettingsScreenUI(onBack: () -> Unit) {
     var selectedImageUri by remember { mutableStateOf<Uri?>(currentUser?.photoUrl) }
     var isUploading by remember { mutableStateOf(false) }
 
-    // Launcher to open the phone's photo gallery
+    // --- New: States for the Camera/Gallery Dialog ---
+    var showImageSourceDialog by remember { mutableStateOf(false) }
+    var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
+
+    // 1. Gallery Launcher
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -209,7 +207,43 @@ fun ProfileSettingsScreenUI(onBack: () -> Unit) {
         }
     }
 
-    // Helper function to update the Auth profile once we have the final image URI
+    // 2. Camera Launcher
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            // If the camera successfully took the photo, update the UI with the temp file
+            selectedImageUri = tempCameraUri
+        }
+    }
+
+    // --- New: The Selection Dialog ---
+    if (showImageSourceDialog) {
+        AlertDialog(
+            onDismissRequest = { showImageSourceDialog = false },
+            title = { Text("Profile Picture") },
+            text = { Text("Where would you like to get your photo?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showImageSourceDialog = false
+                    photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                }) {
+                    Text("Gallery")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showImageSourceDialog = false
+                    // Create a secure temporary file, then launch the camera to fill it
+                    tempCameraUri = context.createTempImageUri()
+                    tempCameraUri?.let { cameraLauncher.launch(it) }
+                }) {
+                    Text("Camera")
+                }
+            }
+        )
+    }
+
     val saveProfileData = { finalPhotoUri: Uri? ->
         val profileUpdates = UserProfileChangeRequest.Builder()
             .setDisplayName(nickname)
@@ -254,9 +288,8 @@ fun ProfileSettingsScreenUI(onBack: () -> Unit) {
                 .background(Color.White)
                 .border(3.dp, Color(0xFFB65C5C), CircleShape)
                 .clickable(enabled = !isUploading) {
-                    photoPickerLauncher.launch(
-                        androidx.activity.result.PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
+                    // Trigger the dialog instead of instantly opening the gallery
+                    showImageSourceDialog = true
                 },
             contentAlignment = Alignment.Center
         ) {
@@ -301,10 +334,10 @@ fun ProfileSettingsScreenUI(onBack: () -> Unit) {
 
                 if (selectedImageUri != null && selectedImageUri.toString().startsWith("content://")) {
 
+                    // --- Secure Firebase Path Updated Here ---
                     val storageRef = FirebaseStorage.getInstance().reference
-                        .child("profile_pictures/${currentUser?.uid}.jpg")
+                        .child("users/${currentUser?.uid}/profile_pic.jpg")
 
-                    // 3. Using putStream securely bypasses Android 13+ gallery permissions so it doesn't crash
                     val inputStream = context.contentResolver.openInputStream(selectedImageUri!!)
 
                     if (inputStream != null) {
@@ -370,28 +403,23 @@ fun ProfileMenuRow(
                     .background(Color.White.copy(alpha = 0.3f)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = title,
-                    tint = Color.White
-                )
+                Icon(imageVector = icon, contentDescription = title, tint = Color.White)
             }
-
             Spacer(modifier = Modifier.width(16.dp))
-
             Column {
-                Text(
-                    text = title,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-                Text(
-                    text = subtitle,
-                    fontSize = 14.sp,
-                    color = Color.DarkGray
-                )
+                Text(text = title, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                Text(text = subtitle, fontSize = 14.sp, color = Color.DarkGray)
             }
         }
     }
+}
+
+// --- New: Helper function to securely generate a temporary file for the camera ---
+fun Context.createTempImageUri(): Uri {
+    val tempFile = File(this.cacheDir, "camera_capture_${System.currentTimeMillis()}.jpg")
+    return FileProvider.getUriForFile(
+        this,
+        "${this.packageName}.provider",
+        tempFile
+    )
 }
