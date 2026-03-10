@@ -24,7 +24,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;m
 .nav-teams{list-style:none;margin:0.25rem 0 0 0;padding:0 0 0 0.75rem;font-size:0.85rem;}
 .nav-teams li{margin:0.1rem 0;}
 .content{flex:1;margin-left:200px;padding:1.5rem;max-width:900px;}
-.report-header{background:var(--text);color:#fff;padding:1rem 1.25rem;margin:0 0 0.5rem 0;font-size:0.95rem;border-radius:0 0 8px 0;}
+.report-header{background:var(--text);color:#fff;padding:1rem 1.25rem;margin:0 0 0.5rem 0;font-size:0.95rem;border-radius:0 0 8px 0;display:flex;justify-content:space-between;align-items:center;}
 .report-subheader{font-size:0.85rem;color:var(--muted);margin:0 0 0.15rem 0;}
 .section{margin:1.5rem 0;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
 .section-git{border-left:4px solid #0969da;}
@@ -43,8 +43,7 @@ th{background:var(--bg);font-weight:600;}
 code{background:#24292f;color:#f0f6fc;padding:0.2em 0.5em;border-radius:4px;font-size:0.88em;font-family:ui-monospace,monospace;}
 .members-list{list-style:none;padding:0;margin:0;}
 .members-list li{padding:0.25rem 0;border-bottom:1px solid var(--border);}
-.member-detail summary{cursor:pointer;list-style:none;user-select:none;}
-.member-detail summary::-webkit-details-marker{display:none;}
+.member-detail summary{cursor:pointer;user-select:none;}
 .member-detail-body{margin-top:0.25rem;font-size:0.85rem;color:var(--muted);}
 .members-list li:last-child{border-bottom:none;}
 .quick-ref{margin:0.5rem 0 1.25rem 0;padding:0.5rem 0;font-size:0.9rem;color:var(--muted);}
@@ -88,15 +87,15 @@ code{background:#24292f;color:#f0f6fc;padding:0.2em 0.5em;border-radius:4px;font
 </div>
 </nav>
 <main class="content">
-<div class="report-header">MEETING SNAPSHOT - Cycle 2602 - Week 5</div>
-<div class="report-subheader">Generated: 03-10-2026 - 05:19</div>
+<div class="report-header"><span>MEETING SNAPSHOT - Cycle 2602 - Week 5</span></div>
+<div class="report-subheader">Generated: 03-10-2026 - 05:37</div>
 <div class="report-subheader">Report period: 2026-03-02 to 2026-03-08</div>
 <h1 style="margin-top:0;">2602_Team02</h1>
 <div class="section"><h2>Members</h2><div class="section-inner">
 <ul class="members-list">
 <li><details class="member-detail"><summary>Rodney F. — GIT, Trello, Discord</summary><div class="member-detail-body"><div><strong>GIT:</strong> Active this week (see tables below).</div> <div><strong>Trello:</strong> Has actions this week.</div> <div><strong>Discord:</strong> Has standup posts this week.</div></div></details></li>
 <li><details class="member-detail"><summary>Lesly M. — GIT, Trello, Discord</summary><div class="member-detail-body"><div><strong>GIT:</strong> Active this week (see tables below).</div> <div><strong>Trello:</strong> Has actions this week.</div> <div><strong>Discord:</strong> Has standup posts this week.</div></div></details></li>
-<li><details class="member-detail"><summary>Hasani C. — <span style="color:#cf222e;font-weight:600;">GIT</span>, Trello, Discord</summary><div class="member-detail-body"><div><strong>GIT:</strong> Hasani C. has no GIT activity this week.</div> <div><strong>Trello:</strong> Has actions this week.</div> <div><strong>Discord:</strong> Has standup posts this week.</div></div></details></li>
+<li><details class="member-detail"><summary>Hasani C. — <span style="color:#cf222e;font-weight:600;">GIT</span>, Trello, Discord</summary><div class="member-detail-body"><div style="color:#cf222e;"><strong>GIT:</strong> Hasani C. has no GIT activity this week.</div> <div><strong>Trello:</strong> Has actions this week.</div> <div><strong>Discord:</strong> Has standup posts this week.</div></div></details></li>
 <li><details class="member-detail"><summary>Maret M. — GIT, Trello, Discord</summary><div class="member-detail-body"><div><strong>GIT:</strong> Active this week (see tables below).</div> <div><strong>Trello:</strong> Has actions this week.</div> <div><strong>Discord:</strong> Has standup posts this week.</div></div></details></li>
 <li><details class="member-detail"><summary>Andy T. — GIT, Trello, Discord</summary><div class="member-detail-body"><div><strong>GIT:</strong> Active this week (see tables below).</div> <div><strong>Trello:</strong> Has actions this week.</div> <div><strong>Discord:</strong> Has standup posts this week.</div></div></details></li>
 </ul>
@@ -271,16 +270,16 @@ Status: HEALTHY
 </div></details>
 <details class="section section-discord section-collapsible" open><summary><h2>DISCORD — Standup Posts This Week</h2><span class="section-team-id">2602_Team02</span></summary><div class="section-inner">
 <table><thead><tr><th>Person</th><th>Posts</th><th>Dates</th><th>Summary</th></tr></thead><tbody>
-<tr><td>Andy T.</td><td>6</td><td>Mar 2, Mar 3, Mar 5, Mar 7, Mar 8</td><td>Implemented UI and functionalities for events inbox and messaging. Researched notifications and messaging scripts. Completed event dashboard script with persistent group messaging.</td></tr>
-<tr><td>Lesly M.</td><td>5</td><td>Mar 3, Mar 4, Mar 5, Mar 6</td><td>Worked on consolidated shopping list and edit items screen functionalities. Researched Firebase to enhance data management and updated the navigation structure.</td></tr>
-<tr><td>Rodney F.</td><td>5</td><td>Mar 3, Mar 5, Mar 7</td><td>Brainstormed ideas and resolved notification issues. Shifted focus to targeted notifications, polished front-end UI, and added error handling.</td></tr>
-<tr><td>Maret M.</td><td>3</td><td>Mar 5, Mar 6</td><td>Collaborated on project planning and worked on home screen and event info screen UI enhancements.</td></tr>
-<tr><td>Hasani C.</td><td>2</td><td>Mar 5</td><td>Improved login UX by adding a loading state and preventing duplicate attempts. Continued testing the authentication flow.</td></tr>
+<tr><td>Andy T.</td><td>6</td><td>Mar 2, Mar 3, Mar 5, Mar 7, Mar 8</td><td>Implemented the UI for the events inbox and messaging features. Researched Firebase notifications and created a personal branch to work on item checklist functionality while addressing blockers relate</td></tr>
+<tr><td>Lesly M.</td><td>5</td><td>Mar 3, Mar 4, Mar 5, Mar 6</td><td>Collaborated with teammates on expectations, began developing the consolidated shopping list feature, and implemented the edit screen functionality, while managing navigation issues.</td></tr>
+<tr><td>Rodney F.</td><td>5</td><td>Mar 3, Mar 5, Mar 7</td><td>Worked on FCM push notifications and enhanced app features such as error handling and UI polishing, while managing workload outside the project.</td></tr>
+<tr><td>Maret M.</td><td>3</td><td>Mar 5, Mar 6</td><td>Brainstormed project planning steps with the team, worked on the home screen and event info screen, and attended the build review meeting.</td></tr>
+<tr><td>Hasani C.</td><td>2</td><td>Mar 5</td><td>Improved login UX with new loading states and error handling, then cleaned up the login implementation to enhance reliability.</td></tr>
 </tbody></table>
 </div></details>
 <div class="section"><h2>ISSUES / ALERTS</h2><div class="section-inner">
 <ul class="issues-list">
-<li>Hasani C. has no GIT activity this week.</li>
+<li>Hasani C. <span style="color:#cf222e;font-weight:600;">has no GIT activity this week</span>.</li>
 </ul>
 </div></div>
 </main></div></body></html>
