@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.SideEffect
 import com.example.wepartyapp.R
 import androidx.compose.ui.res.painterResource
@@ -85,12 +86,12 @@ fun EventInfoScreenUI(
     val maybe = listOf("Alex")
     val declined = listOf("David")
 
-    val claimedItems = listOf("Heart Pillows", "Beatbox")
-    val unclaimedItems = listOf("Choc Fountain")
-    val extraItems = listOf("Chocolates")
+    val claimedItems = currentEvent?.eventItems?.filter { it.boughtBy != null } ?: emptyList()
+    val unclaimedItems = currentEvent?.eventItems?.filter { it.boughtBy == null } ?: emptyList()
+
 
     val attendingCount = going.size
-    val itemCount = claimedItems.size + unclaimedItems.size + extraItems.size
+    val itemCount = claimedItems.size + unclaimedItems.size
 
     Column(
         modifier = Modifier
@@ -173,8 +174,47 @@ fun EventInfoScreenUI(
         ) {
             Text("Attending: $attendingCount", fontWeight = FontWeight.Bold)
             Text("Items: $itemCount", fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.width(1.dp))
         }
 
         Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ){
+
+            Column() {
+
+                Text("test text")
+
+
+            }
+
+            Spacer(modifier = Modifier.width(1.dp))
+
+            Column(verticalArrangement = Arrangement.SpaceBetween) {
+                // Claimed Items
+                Text("Claimed (${claimedItems.size})", fontWeight = FontWeight.Bold)
+
+                claimedItems.forEach {
+                    Text("☑ ${it.name}")
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Unclaimed Items
+                Text("Unclaimed (${unclaimedItems.size})", fontWeight = FontWeight.Bold)
+
+                unclaimedItems.forEach {
+                    Text("☐ ${it.name}")
+                }
+
+            }
+
+            Spacer(modifier = Modifier.width(15.dp))
+
+        }
+
     }
 }
