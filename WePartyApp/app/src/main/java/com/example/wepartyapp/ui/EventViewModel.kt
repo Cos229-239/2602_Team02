@@ -31,6 +31,7 @@ data class PartyEvent(
     val id: String = "", // Added ID to uniquely identify events for chat
     val name: String,
     val time: String,
+    val summary: String = "",
     val address: String,
     val date: LocalDate?,
     val lastMessage: String? = null,
@@ -126,6 +127,7 @@ class EventViewModel : ViewModel() {
                 val id = document.id
                 val name = document.getString("name") ?: "Unknown Event"
                 val time = document.getString("time") ?: "TBD"
+                val summary = document.getString("summary") ?: ""
                 val address = document.getString("address") ?: "TBD"
                 val dateString = document.getString("date")
                 val lastMsg = document.getString("lastMessage")
@@ -157,7 +159,7 @@ class EventViewModel : ViewModel() {
                 } ?: emptyList()
 
                 // Add the event with its items and chat metadata to our local list
-                eventList.add(PartyEvent(id, name, time, address, date, lastMsg, lastMsgTime, lastSender, fetchedHostId, fetchedGuests, eventItems))
+                eventList.add(PartyEvent(id, name, time, summary, address, date, lastMsg, lastMsgTime, lastSender, fetchedHostId, fetchedGuests, eventItems))
             }
 
             // 4. Update the UI with the full list

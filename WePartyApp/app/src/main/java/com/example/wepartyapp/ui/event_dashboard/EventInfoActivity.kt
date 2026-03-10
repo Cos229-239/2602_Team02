@@ -130,7 +130,7 @@ fun EventInfoScreenUI(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "-" + currentEvent?.name + "-",
+            text = "- " + currentEvent?.name + " -",
             fontSize = 26.sp,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -162,7 +162,7 @@ fun EventInfoScreenUI(
                 .background(Color.White)
                 .padding(12.dp)
         ) {
-            Text("Summary: ")
+            Text(currentEvent?.summary ?: "", fontSize = 14.sp)
         }
 
         Spacer(modifier = Modifier.height(40.dp))
