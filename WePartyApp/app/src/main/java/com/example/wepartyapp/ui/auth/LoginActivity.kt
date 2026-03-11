@@ -62,20 +62,23 @@ class LoginActivity : ComponentActivity() {
         setContent {
             LoginScreenUI(
                 onLoginClick = { email, password ->
-                    if (email.isEmpty() || password.isEmpty()) {
-                        Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show()
+                    // Make sure neither field is blank before calling Firebase
+                    if (email.isBlank() || password.isBlank()) {
+                        Toast.makeText(this, "Please fill in both fields", Toast.LENGTH_SHORT).show()
                         return@LoginScreenUI
                     }
 
-                    auth.signInWithEmailAndPassword(email, password)
+                    // Trim email in case user added extra spaces
+                    auth.signInWithEmailAndPassword(email.trim(), password)
                         .addOnCompleteListener(this) { task ->
                             if (task.isSuccessful) {
                                 // Success
                                 startActivity(Intent(this, MainActivity::class.java))
                                 finish()
                             } else {
-                                // Fail
-                                Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show()
+                                // Show actual error from Firebase instead of generic message
+                                val errorMsg = task.exception?.message ?: "Authentication failed."
+                                Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
                             }
                         }
                 },
@@ -129,6 +132,7 @@ fun LoginScreenUI(
             onValueChange = { email = it },
             placeholder = { Text("Email") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
@@ -148,6 +152,7 @@ fun LoginScreenUI(
             placeholder = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(), // Hides characters with dots
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 24.dp),
