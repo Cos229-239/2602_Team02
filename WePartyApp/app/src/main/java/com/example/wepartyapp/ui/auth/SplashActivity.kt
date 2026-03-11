@@ -1,6 +1,8 @@
 package com.example.wepartyapp.ui.auth
 
+import android.app.Activity // <-- Added
 import android.content.Intent
+import android.media.MediaPlayer // <-- Added for audio
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,28 +24,53 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect // <-- Added to handle sound lifecycle
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember // <-- Added for remembering the MediaPlayer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext // <-- Added to load the raw file
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import com.example.wepartyapp.R
+import com.example.wepartyapp.ui.home.MainActivity
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
 class SplashActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            // --- Status Bar Fix ---
+            val view = LocalView.current
+            if (!view.isInEditMode) {
+                SideEffect {
+                    val window = (view.context as Activity).window
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+                }
+            }
+
             SplashScreenUI(
                 onTimeout = {
-                    startActivity(Intent(this, LoginActivity::class.java))
-                    finish()
+                    val currentUser = FirebaseAuth.getInstance().currentUser
+
+                    if (currentUser != null) {
+                        // If they are already logged in, send them straight to the Dashboard
+                        startActivity(Intent(this, MainActivity::class.java))
+                    } else {
+                        // If they are not logged in, send them to the Login Screen
+                        startActivity(Intent(this, LoginActivity::class.java))
+                    }
+                    finish() // Close the splash screen so they can't hit the back button to return to it
                 }
             )
         }
@@ -52,8 +79,27 @@ class SplashActivity : ComponentActivity() {
 
 @Composable
 fun SplashScreenUI(onTimeout: () -> Unit) {
+    val context = LocalContext.current // <-- Needed to load the sound file
+
+    // --- Upgrade: Remember the MediaPlayer so the timer can talk to it ---
+    val mediaPlayer = remember { MediaPlayer.create(context, R.raw.intro3) }
+
+    DisposableEffect(Unit) {
+        mediaPlayer?.start() // Play the sound immediately
+
+        // When the splash screen finishes and closes, release the audio memory
+        onDispose {
+            mediaPlayer?.release()
+        }
+    }
     LaunchedEffect(key1 = true) {
-        delay(3000)
+        delay(3900)
+
+        // --- Upgrade: Explicitly kill the audio before routing ---
+        if (mediaPlayer?.isPlaying == true) {
+            mediaPlayer.stop()
+        }
+
         onTimeout()
     }
 

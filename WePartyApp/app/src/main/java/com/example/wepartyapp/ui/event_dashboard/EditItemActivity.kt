@@ -1,7 +1,13 @@
-package com.example.wepartyapp.ui.create_event
+package com.example.wepartyapp.ui.event_dashboard
 
-import android.widget.Toast
+import android.app.Activity
+import android.content.Intent
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +34,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -36,7 +43,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -44,22 +50,74 @@ import com.example.wepartyapp.ui.EventViewModel
 import com.example.wepartyapp.ui.ItemPriceViewModel
 import com.example.wepartyapp.ui.api.NetworkResponse
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wepartyapp.ui.PartyItem
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.view.WindowCompat
+import com.example.wepartyapp.ui.home.MainActivity
+import java.time.LocalDate
+import kotlin.getValue
 
-// UI for the Add Items screen
+class EditItemActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val eventID = intent.getStringExtra("Event_ID") ?: ""
+
+        setContent {
+            // --- Status Bar Fix ---
+            // This grabs the phone's window and tells it to use Dark Icons (for light backgrounds)
+            val view = LocalView.current
+            if (!view.isInEditMode) {
+                SideEffect {
+                    val window = (view.context as Activity).window
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
+                        true
+                }
+            }
+            val eventViewModel: EventViewModel by viewModels()
+            val priceViewModel: ItemPriceViewModel = viewModel()
+            EditItemsScreen(eventID = eventID, viewPriceModel = priceViewModel, viewItemModel = eventViewModel)
+        }
+    }
+}
+
 @Composable
-fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel, viewItemModel: EventViewModel) {
+fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewItemModel: EventViewModel) {
+    val context = LocalContext.current // <-- Grab context for the Intent
+
     var item by remember {                                                  //start with an empty string
         mutableStateOf("")
     }
 
-    val priceResult = viewModel.priceResult.observeAsState()
-    val context = LocalContext.current // Added so we can show Toast messages
+    val priceResult = viewPriceModel.priceResult.observeAsState()
 
-    // --- Check if at least one item is added ---
-    val _itemList by viewItemModel._items.collectAsState()
-    val isListNotEmpty = _itemList.isNotEmpty()
+    val events by viewItemModel.events.observeAsState(emptyList())
+    val today = LocalDate.now()
+
+    val sortedEvents = events
+        .filter { it.date == null || it.date >= today }
+        .sortedBy { it.date }
+    //loop through the events and find the event id that matches, that is the event selected to edit from the CSL
+    LaunchedEffect(sortedEvents) {
+        for (selectedEvent in sortedEvents) {
+            if (selectedEvent.id == eventID) {
+                val selectedEventList =
+                    selectedEvent.eventItems    //copy the list of partyItems from event view model to a local val
+                for (partyItem in selectedEventList) {
+                    viewItemModel.addItems(
+                        PartyItem(
+                            name = partyItem.name,
+                            price = partyItem.price
+                        )
+                    )   //update the private val list in event view model
+                }
+            }
+        }
+    }
 
     Box(                                                                    //outer most layer
         modifier = Modifier
@@ -74,13 +132,17 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                 .padding(16.dp)
         ) {
             Spacer(modifier = Modifier.height(40.dp)) // <-- Pushes the whole screen down!
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = { navController.popBackStack() }) {           //back to events btn
+                IconButton(onClick = {
+                    val intent = Intent(context, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    context.startActivity(intent)
+                    (context as? Activity)?.finish()
+                }) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,
@@ -88,11 +150,10 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                     )
                 }
                 Text(
-                    text = "Create Event",
-                    fontSize = 20.sp
+                    text = "Consolidated Shopping List",
+                    fontSize = 15.sp
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
             Column(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -106,7 +167,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(                                                           //pg title
-                    text = "Add Items",
+                    text = "Edit Items",
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 30.sp
                 )
@@ -123,16 +184,17 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                         item = text
                     },
                     modifier = Modifier.weight(1f),
-                    label = {Text(text = "Item")}
+                    label = { Text(text = "Item") }
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
                     onClick = {
                         if (item.isNotBlank()) {
                             viewItemModel.addItems(PartyItem(name = item, price = "Loading..."))
-                            viewModel.getData(item)                              //trigger api before resetting item string
+                            viewPriceModel.getData(item)                              //trigger api before resetting item string
                             item = ""                                            //resetting item to an empty string
-                        } },
+                        }
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
                 ) {
                     Text(text = "Add", color = Color.Black)
@@ -156,8 +218,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                         val mutableCopy = ogList.toMutableList()
                         val index = mutableCopy.indexOfLast { it.price == "Loading..." }
                         if(index != -1) {
-                            viewItemModel.updatePrice(mutableCopy[index].name, "Unavailable")
-                            Toast.makeText(context, "Could not fetch price for item.", Toast.LENGTH_SHORT).show()
+                            viewItemModel.updatePrice(mutableCopy[index].name, "error")
                         }
                     }
                     else -> {}
@@ -176,44 +237,26 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(text = it.name)
-
-                        // Styled price text based on its status
-                        Text(
-                            text = it.price,
-                            color = when (it.price) {
-                                "Unavailable" -> Color.Red
-                                "Loading..." -> Color.Gray
-                                else -> Color.Black
-                            }
-                        )
+                        Text(text = it.price)
                     }
                     Divider()
                 }
             }
         }
-
-        // --- Next Button with Error Handling ---
         Button(
             onClick = {
-                if (isListNotEmpty) {
-                    navController.navigate(CreateEventRoutes.inviteFriends)
-                } else {
-                    // Graceful error handling: Tell the user they need at least one item
-                    Toast.makeText(context, "Please add at least one item to your list!", Toast.LENGTH_SHORT).show()
-                }
+                viewItemModel.updateEventItems(eventID)
+                val intent = Intent(context, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                context.startActivity(intent)
+                (context as? Activity)?.finish()
             },
-            // Manually swapping colors to show a "disabled" state if list is empty
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isListNotEmpty) Color(0xFFFA8989) else Color.LightGray
-            ),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
             modifier = Modifier
-                .align(Alignment.BottomEnd)
+                .align(Alignment.BottomCenter)
                 .padding(16.dp)
         ) {
-            Text(
-                text = "Next: Invite Friends",
-                color = if (isListNotEmpty) Color.Black else Color.DarkGray
-            )
+            Text(text = "Save", color = Color.Black)
         }
     }
 }
