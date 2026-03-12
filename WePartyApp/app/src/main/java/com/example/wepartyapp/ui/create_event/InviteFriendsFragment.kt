@@ -48,7 +48,10 @@ import com.example.wepartyapp.ui.home.MainActivity // <-- Added
 // Invite Friends Screen
 @Composable
 fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventViewModel) {
-    var urlLink = "wepartyapp://open/event_dashboard"
+
+    // --- Updated for FlowLinks Deep Linking ---
+    val uniqueEventId = viewItemModel.eventId ?: "temp-id"
+    var urlLink = "https://wepartyapp-8a3a7-flowlinks.web.app/$uniqueEventId"
 
     val context = LocalContext.current // <-- Grab context for the Intent
 
