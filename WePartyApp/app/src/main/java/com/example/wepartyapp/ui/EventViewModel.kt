@@ -75,6 +75,7 @@ class EventViewModel : ViewModel() {
     val messages: StateFlow<List<ChatMessage>> = _messages.asStateFlow()
 
     // We cache the text fields here so they survive navigation between screens
+    var eventId by mutableStateOf("") // Holds the pre-generated ID for FlowLinks
     var eventName by mutableStateOf("")
     var eventSummary by mutableStateOf("")
     var eventDate by mutableStateOf("")
@@ -109,6 +110,9 @@ class EventViewModel : ViewModel() {
     }
 
     init {
+        // Pre-generate a Firebase ID for the very first event draft
+        eventId = db.collection("events").document().id
+
         fetchEventsFromFirebase()
         fetchNotificationsFromFirebase() // <-- Starts listening for alerts immediately
     }
@@ -264,7 +268,8 @@ class EventViewModel : ViewModel() {
             "invitedGuests" to emptyList<String>()
         )
 
-        db.collection("events").add(eventMap).addOnSuccessListener {
+        // Use .document(eventId).set() instead of .add() to guarantee the ID matches the deep link
+        db.collection("events").document(eventId).set(eventMap).addOnSuccessListener {
             // Formatting the date for the notification text
             var displayDate = eventDate
             try {
@@ -292,6 +297,9 @@ class EventViewModel : ViewModel() {
             eventTime = ""
             eventAddress = ""
             _itemsList.value = emptyList()
+
+            // Generate a fresh ID for the next party they create
+            eventId = db.collection("events").document().id
         }
     }
 

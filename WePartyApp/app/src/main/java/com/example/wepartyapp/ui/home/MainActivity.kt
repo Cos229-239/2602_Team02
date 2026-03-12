@@ -76,6 +76,23 @@ class MainActivity : ComponentActivity() {
         // --- Added This: Update the user's FCM Token in Firestore immediately upon loading ---
         updateDeviceToken()
 
+        // --- FlowLinks Deep Link Router ---
+        // Check if SplashActivity saved an event ID from a FlowLinks invite link
+        val prefs = getSharedPreferences("WePartyPrefs", Context.MODE_PRIVATE)
+        val pendingEventId = prefs.getString("PENDING_INVITE_EVENT_ID", null)
+
+        if (pendingEventId != null) {
+            // 1. Instantly delete it so it doesn't trigger again next time the app opens
+            prefs.edit().remove("PENDING_INVITE_EVENT_ID").apply()
+
+            // 2. Route the user directly into the party they were invited to
+            val inviteIntent = Intent(this, ChatRoomActivity::class.java).apply {
+                putExtra("EVENT_ID", pendingEventId)
+                putExtra("EVENT_NAME", "Party Invite") // Fallback name until the database loads it
+            }
+            startActivity(inviteIntent)
+        }
+
         // --- Added This: Catch the hidden message from ChatRoomActivity ---
         // If there is no message, it defaults to 0 (Home)
         val startTab = intent.getIntExtra("TARGET_TAB", 0)
@@ -570,53 +587,6 @@ fun EventCard(title: String, date: String, time: String, onDeleteClick: () -> Un
         }
     }
 }
-
-// 2. The Main Scaffold with Bottom Navigation
-//@Composable
-//fun MainScreen() {
-//    // 0 = Home, 1 = Calendar, 2 = Profile
-//    var selectedTab by remember { mutableIntStateOf(0) }
-//
-//    Scaffold(
-//        bottomBar = {
-//            NavigationBar(containerColor = Color.White) {
-//                // Home Tab
-//                NavigationBarItem(
-//                    icon = { Icon(Icons.Default.Home, contentDescription = null) },
-//                    label = { Text("Home") },
-//                    selected = selectedTab == 0,
-//                    onClick = { selectedTab = 0 },
-//                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Color(0xFFFF4081))
-//                )
-//                // Calendar Tab
-//                NavigationBarItem(
-//                    icon = { Icon(Icons.Default.DateRange, contentDescription = null) },
-//                    label = { Text("Calendar") },
-//                    selected = selectedTab == 1,
-//                    onClick = { selectedTab = 1 },
-//                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Color(0xFFFF4081))
-//                )
-//                // Profile Tab
-//                NavigationBarItem(
-//                    icon = { Icon(Icons.Default.Person, contentDescription = null) },
-//                    label = { Text("Profile") },
-//                    selected = selectedTab == 2,
-//                    onClick = { selectedTab = 2 },
-//                    colors = NavigationBarItemDefaults.colors(selectedIconColor = Color(0xFFFF4081))
-//                )
-//            }
-//        }
-//    ) { paddingValues ->
-//        // This Box handles switching screens
-//        Box(modifier = Modifier.padding(paddingValues)) {
-//            when (selectedTab) {
-//                0 -> HomeScreenUI()
-//                1 -> CalendarScreenUI()
-//                2 -> ProfileScreenUI()
-//            }
-//        }
-//    }
-//}
 
 // --- Added This: Function to update the FCM Token in Firestore ---
 fun updateDeviceToken() {
