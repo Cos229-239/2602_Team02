@@ -16,6 +16,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.IconButton
 
 // The blueprint for our real notifications
 data class PartyNotification(
@@ -31,6 +35,7 @@ data class PartyEvent(
     val id: String = "", // Added ID to uniquely identify events for chat
     val name: String,
     val time: String,
+    val summary: String = "",
     val address: String,
     val date: LocalDate?,
     val lastMessage: String? = null,
@@ -38,6 +43,12 @@ data class PartyEvent(
     val lastSenderId: String? = null,
     val hostId: String = "",
     val invitedGuests: List<String> = emptyList(),
+
+    // - Guest Attendance -
+    val attending: List<String> = emptyList(),
+    val maybe: List<String> = emptyList(),
+    val declined: List<String> = emptyList(),
+
     val eventItems: List<PartyItem> = emptyList()
 )
 
@@ -130,6 +141,7 @@ class EventViewModel : ViewModel() {
                 val id = document.id
                 val name = document.getString("name") ?: "Unknown Event"
                 val time = document.getString("time") ?: "TBD"
+                val summary = document.getString("summary") ?: ""
                 val address = document.getString("address") ?: "TBD"
                 val dateString = document.getString("date")
                 val lastMsg = document.getString("lastMessage")
@@ -138,6 +150,10 @@ class EventViewModel : ViewModel() {
 
                 val fetchedHostId = document.getString("hostId") ?: ""
                 val fetchedGuests = document.get("invitedGuests") as? List<String> ?: emptyList()
+
+                val attending = document.get("attending") as? List<String> ?: emptyList()
+                val maybe = document.get("maybe") as? List<String> ?: emptyList()
+                val declined = document.get("declined") as? List<String> ?: emptyList()
 
                 var date: LocalDate? = null
                 if (!dateString.isNullOrEmpty()) {
@@ -161,7 +177,25 @@ class EventViewModel : ViewModel() {
                 } ?: emptyList()
 
                 // Add the event with its items and chat metadata to our local list
-                eventList.add(PartyEvent(id, name, time, address, date, lastMsg, lastMsgTime, lastSender, fetchedHostId, fetchedGuests, eventItems))
+                eventList.add(
+                    PartyEvent(
+                        id,
+                        name,
+                        time,
+                        summary,
+                        address,
+                        date,
+                        lastMsg,
+                        lastMsgTime,
+                        lastSender,
+                        fetchedHostId,
+                        fetchedGuests,
+                        attending,
+                        maybe,
+                        declined,
+                        eventItems
+                    )
+                )
             }
 
             // 4. Update the UI with the full list
@@ -265,7 +299,10 @@ class EventViewModel : ViewModel() {
             "lastMessageTime" to null,
             "lastSenderId" to null,
             "hostId" to currentUserId,
-            "invitedGuests" to emptyList<String>()
+            "invitedGuests" to emptyList<String>(),
+            "attending" to emptyList<String>(),
+            "maybe" to emptyList<String>(),
+            "declined" to emptyList<String>()
         )
 
         // Use .document(eventId).set() instead of .add() to guarantee the ID matches the deep link
@@ -314,6 +351,36 @@ class EventViewModel : ViewModel() {
             )
         }
         db.collection("events").document(eventID).update("items", mappedItems)
+    }
+
+    fun updateAttendance(eventId: String, status: String) {
+
+        val user = auth.currentUser ?: return
+        val userName = if (user.displayName.isNullOrBlank()) "User" else user.displayName!!
+
+        val event = events.value?.find { it.id == eventId } ?: return
+
+        val attending = event.attending.toMutableList()
+        val maybe = event.maybe.toMutableList()
+        val declined = event.declined.toMutableList()
+
+        attending.remove(userName)
+        maybe.remove(userName)
+        declined.remove(userName)
+
+        when (status) {
+            "attending" -> attending.add(userName)
+            "maybe" -> maybe.add(userName)
+            "declined" -> declined.add(userName)
+        }
+
+        db.collection("events").document(eventId).update(
+            mapOf(
+                "attending" to attending,
+                "maybe" to maybe,
+                "declined" to declined
+            )
+        )
     }
 
     // Toggles the acquisition status of a party item (checks/unchecks)
