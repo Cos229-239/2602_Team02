@@ -47,7 +47,16 @@
             android:exported="false" />
         <activity
             android:name=".ui.event_dashboard.EventDashboardActivity"
-            android:exported="false" />
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="wepartyapp"
+                    android:host="open"/>
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.event_dashboard.EventInfoActivity"
             android:exported="false" />
