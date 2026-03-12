@@ -3,6 +3,7 @@ package com.example.wepartyapp.ui.auth
 import android.app.Activity // <-- Added
 import android.content.Intent
 import android.media.MediaPlayer // <-- Added for audio
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -49,6 +50,10 @@ import kotlinx.coroutines.delay
 class SplashActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // --- Kick Off FlowLinks Deep Link Check ---
+        checkDeepLinks()
+
         setContent {
             // --- Status Bar Fix ---
             val view = LocalView.current
@@ -74,6 +79,24 @@ class SplashActivity : ComponentActivity() {
                 }
             )
         }
+    }
+
+    // --- FlowLinks Deep Link Catcher Logic ---
+    private fun checkDeepLinks() {
+        val directData: Uri? = intent?.data
+        if (directData != null) {
+            // Extracts "12345" from a link like https://wepartyapp-8a3a7-flowlinks.web.app/12345
+            val eventId = directData.lastPathSegment
+            saveEventIdForRouting(eventId)
+        }
+    }
+
+    private fun saveEventIdForRouting(eventId: String?) {
+        if (eventId == null) return
+
+        // Save the ID in SharedPreferences so MainActivity knows where to send them
+        val prefs = getSharedPreferences("WePartyPrefs", MODE_PRIVATE)
+        prefs.edit().putString("PENDING_INVITE_EVENT_ID", eventId).apply()
     }
 }
 
