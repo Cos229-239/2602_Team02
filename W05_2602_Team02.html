@@ -88,7 +88,7 @@ code{background:#24292f;color:#f0f6fc;padding:0.2em 0.5em;border-radius:4px;font
 </nav>
 <main class="content">
 <div class="report-header"><span>MEETING SNAPSHOT - Cycle 2602 - Week 5</span></div>
-<div class="report-subheader">Generated: 03-12-2026 - 21:37</div>
+<div class="report-subheader">Generated: 03-12-2026 - 22:00</div>
 <div class="report-subheader">Report period: 2026-03-02 to 2026-03-08</div>
 <h1 style="margin-top:0;">2602_Team02</h1>
 <div class="section"><h2>Members</h2><div class="section-inner">
@@ -111,6 +111,7 @@ code{background:#24292f;color:#f0f6fc;padding:0.2em 0.5em;border-radius:4px;font
 <tr><td style="white-space:nowrap;">Rodney F.</td><td><code>RodneyPersonal</code></td><td>Behind</td><td>TODAY</td><td>+2535/-924</td><td>0 / 7</td><td class="risk-low">LOW</td></tr>
 </tbody></table>
 <div class="quick-ref"><strong>Quick Reference:</strong> Status = Behind (pull dev), Ahead (push/merge to dev), Diverged (merge conflict risk — act soon), In Sync. Risk = HIGH → act soon.</div>
+<div style="margin:0.25rem 0 0.75rem 0;font-size:0.85rem;color:#cf222e;font-weight:600;">Forks detected for this team: Hasani C. (@4hzzz). Work on forks is HIGH merge risk — move work into the class repo (see Forks section).</div>
 <div style="margin-top:1.25rem;">
 <div class="git-detail-block">
 <strong>Andy T. (AndyPersonal) — </strong><br>
@@ -225,21 +226,22 @@ Last commit: TODAY.<br>
 </ul>
 </div>
 </div></details>
-<details class="section section-git section-collapsible" open><summary><h2>GIT — Where work was done</h2><span class="section-team-id">2602_Team02</span></summary><div class="section-inner">
-<p style="font-size:0.9rem;color:var(--muted);">Inferred from Branch Health and Files Touched. Personal = branch named after you; Dev = work likely on dev (or after merge); Main = not tracked.</p>
-<table><thead><tr><th style="white-space:nowrap;">Person</th><th>Personal</th><th>Dev</th><th>Main</th></tr></thead><tbody>
-<tr><td style="white-space:nowrap;">Rodney F.</td><td>Yes (+2535/-924)</td><td>After merge</td><td>—</td></tr>
-<tr><td style="white-space:nowrap;">Lesly M.</td><td>Yes (+2420/-713)</td><td>After merge</td><td>—</td></tr>
-<tr><td style="white-space:nowrap;">Hasani C.</td><td>No</td><td>—</td><td>—</td></tr>
-<tr><td style="white-space:nowrap;">Maret M.</td><td>Yes (+621/-207)</td><td>After merge</td><td>—</td></tr>
-<tr><td style="white-space:nowrap;">Andy T.</td><td>Yes (+1083/-615)</td><td>After merge</td><td>—</td></tr>
-</tbody></table>
-</div></details>
 <details class="section section-git section-collapsible"><summary><h2>GIT — Forks</h2><span class="section-team-id">2602_Team02</span></summary><div class="section-inner">
-<p style="font-size:0.9rem;color:var(--muted);">GitHub usernames that have a fork of this team repo.</p>
-<ul class="forks-list" style="margin:0.5rem 0;padding-left:1.25rem;">
-<li>4hzzz</li>
-</ul>
+<p style="font-size:0.9rem;color:var(--muted);">Forks of this team repo (HIGH merge risk — work is outside the class repo).</p>
+<table><thead><tr><th style="white-space:nowrap;">Name</th><th style="white-space:nowrap;">GitHub User</th><th>Notes</th></tr></thead><tbody>
+<tr><td style="white-space:nowrap;">Hasani C.</td><td style="white-space:nowrap;">@4hzzz</td><td>Fork of this team repo (HIGH merge risk). Move work into the class repo and stop using the fork.</td></tr>
+</tbody></table>
+<div style="margin-top:1rem;font-size:0.85rem;color:var(--muted);">
+<strong>How to move from a fork to the class repo:</strong>
+<ul style="margin:0.25rem 0 0.5rem 1.25rem;padding:0;">
+<li>1. Clone the <em>class</em> repo (org repo) if you have not already.</li>
+<li>2. In that clone, add your fork as a remote (for example: <code>git remote add fork &lt;your-fork-URL&gt;</code>).</li>
+<li>3. Fetch your fork (for example: <code>git fetch fork</code>).</li>
+<li>4. Create a new personal branch from <code>dev</code> in the class repo (for example: <code>git checkout -b YourNamePersonal origin/dev</code>).</li>
+<li>5. Merge the work from your fork branch into your new personal branch (for example: <code>git merge fork/&lt;your-branch&gt;</code> and resolve any conflicts).</li>
+<li>6. Push your personal branch back to the class repo (for example: <code>git push origin YourNamePersonal</code>).</li>
+<li>7. From now on, work only in the class repo (on your personal branch + dev); do not keep committing to the fork.</li>
+</ul></div>
 </div></details>
 <details class="section section-git section-collapsible" open><summary><h2>GIT — Files Touched This Week</h2><span class="section-team-id">2602_Team02</span></summary><div class="section-inner">
 <table><thead><tr><th style="white-space:nowrap;">Person</th><th style="white-space:nowrap;">Working from</th><th>Commits</th><th>+ / -</th><th>Net</th><th>Activity Sample (top 5)</th></tr></thead><tbody>
@@ -291,15 +293,17 @@ Status: HEALTHY
 </div></details>
 <details class="section section-discord section-collapsible" open><summary><h2>DISCORD — Standup Posts This Week</h2><span class="section-team-id">2602_Team02</span></summary><div class="section-inner">
 <table><thead><tr><th style="white-space:nowrap;">Person</th><th>Posts</th><th>Dates</th><th>Summary</th></tr></thead><tbody>
-<tr><td style="white-space:nowrap;">Andy T.</td><td>6</td><td>Mar 2, Mar 3, Mar 5, Mar 7, Mar 8</td><td>Focused on various aspects of the event dashboard, including UI implementation, Firebase research, and messaging script development. Blocker due to work commitments on Sunday.</td></tr>
-<tr><td style="white-space:nowrap;">Lesly M.</td><td>5</td><td>Mar 3, Mar 4, Mar 5, Mar 6</td><td>Worked on the consolidated shopping list and edit items screen functionality, successfully implementing navigation and data update features. Faced navigation issues that were later resolved.</td></tr>
-<tr><td style="white-space:nowrap;">Rodney F.</td><td>5</td><td>Mar 3, Mar 5, Mar 7</td><td>Contributed to feature brainstorming and resolved critical issues related to notifications. Engaged in polishing the UI and attended meetings to align on upcoming tasks.</td></tr>
-<tr><td style="white-space:nowrap;">Maret M.</td><td>3</td><td>Mar 5, Mar 6</td><td>Focused on refining the app's UI and began work on the Event Info Screen while participating in team planning activities. Committed to picking up new tasks from Trello.</td></tr>
-<tr><td style="white-space:nowrap;">Hasani C.</td><td>2</td><td>Mar 5</td><td>Improved the login user experience by enhancing loading states and ensuring reliability in authentication flows. Planning to extend these enhancements to other areas of the app.</td></tr>
+<tr><td style="white-space:nowrap;">Andy T.</td><td>6</td><td>Mar 2, Mar 3, Mar 5, Mar 7, Mar 8</td><td>Implemented UI features and functionality for event dashboards and messaging. Researched Firebase features and worked on personal branch setup for code management.</td></tr>
+<tr><td style="white-space:nowrap;">Lesly M.</td><td>5</td><td>Mar 3, Mar 4, Mar 5, Mar 6</td><td>Worked on the consolidated shopping list and edit item functionality, successfully implemented navigation and UI updates. Planning to improve button functionalities.</td></tr>
+<tr><td style="white-space:nowrap;">Rodney F.</td><td>5</td><td>Mar 3, Mar 5, Mar 7</td><td>Brainstormed ideas with the team and addressed issues related to notifications. Participated in polishing UI and added error handling for enhanced user experience.</td></tr>
+<tr><td style="white-space:nowrap;">Maret M.</td><td>3</td><td>Mar 5, Mar 6</td><td>Collaborated on team brainstorming and worked on home screen polish. Started developing the Event Info Screen, focusing on improved functionality.</td></tr>
+<tr><td style="white-space:nowrap;">Hasani C.</td><td>2</td><td>Mar 5</td><td>Improved login UX by refining the authentication process and ensuring reliable error handling. Continued testing and validating login functionality.</td></tr>
 </tbody></table>
 </div></details>
 <div class="section"><h2>ISSUES / ALERTS</h2><div class="section-inner">
 <ul class="issues-list">
+<li>One or more team members are working from a fork of the class repo (HIGH merge risk). See Forks section for details and next steps.</li>
+<li>Hasani C. is working from a fork of the class repo (@4hzzz) — HIGH merge risk. See Forks section for how to move into the class repo.</li>
 <li>Hasani C. <span style="color:#cf222e;">has no GIT activity this week</span>.</li>
 </ul>
 </div></div>
