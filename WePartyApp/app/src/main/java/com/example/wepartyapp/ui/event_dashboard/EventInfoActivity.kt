@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.SideEffect
 import com.example.wepartyapp.R
 import androidx.compose.ui.res.painterResource
@@ -41,6 +41,11 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import java.time.format.DateTimeFormatter
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.IconButton
 
 
 class EventInfoActivity : ComponentActivity() {
@@ -62,9 +67,10 @@ class EventInfoActivity : ComponentActivity() {
 
             val eventId = intent.getStringExtra("EVENT_ID") ?: ""
 
-            setContent {
-                EventInfoScreenUI(onBackClick = { finish() }, eventId = eventId)
-            }
+            EventInfoScreenUI(
+                onBackClick = { finish() },
+                eventId = eventId
+            )
         }
     }
 }
@@ -81,21 +87,25 @@ fun EventInfoScreenUI(
     val dateFormatter = DateTimeFormatter.ofPattern("MMM. d, yyyy")
 
     // Temporary until I can retrieve the information from firebase!
-    val going = listOf("John", "Maria")
-    val maybe = listOf("Alex")
-    val declined = listOf("David")
+    val attending = currentEvent?.attending ?: emptyList()
+    val maybe = currentEvent?.maybe ?: emptyList()
+    val declined = currentEvent?.declined ?: emptyList()
 
-    val claimedItems = listOf("Heart Pillows", "Beatbox")
-    val unclaimedItems = listOf("Choc Fountain")
-    val extraItems = listOf("Chocolates")
+    val claimedItems = currentEvent?.eventItems?.filter { it.boughtBy != null } ?: emptyList()
+    val unclaimedItems = currentEvent?.eventItems?.filter { it.boughtBy == null } ?: emptyList()
 
-    val attendingCount = going.size
-    val itemCount = claimedItems.size + unclaimedItems.size + extraItems.size
+    val attendingCount = attending.size
+    val maybeCount = maybe.size
+    val declinedCount = declined.size
+    val totalCount = attendingCount + maybeCount + declinedCount
+
+    val itemCount = claimedItems.size + unclaimedItems.size
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFFFE9EA))
+            .verticalScroll(rememberScrollState())
             .padding(16.dp)
 
     ) {
@@ -130,7 +140,7 @@ fun EventInfoScreenUI(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "-" + currentEvent?.name + "-",
+            text = "- ${currentEvent?.name ?: ""} -",
             fontSize = 26.sp,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -139,7 +149,7 @@ fun EventInfoScreenUI(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = currentEvent?.date?.format(dateFormatter) + ", " + currentEvent?.time,
+            text = "${currentEvent?.date?.format(dateFormatter) ?: ""}, ${currentEvent?.time ?: ""}",
             fontSize = 14.sp,
             modifier = Modifier.align(Alignment.CenterHorizontally),
         )
@@ -147,7 +157,7 @@ fun EventInfoScreenUI(
         Spacer(modifier = Modifier.height(2.dp))
 
         Text(
-            text = currentEvent?.address.toString(),
+            text = currentEvent?.address ?: "",
             fontSize = 14.sp,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
@@ -162,7 +172,7 @@ fun EventInfoScreenUI(
                 .background(Color.White)
                 .padding(12.dp)
         ) {
-            Text("Summary: ")
+            Text(currentEvent?.summary ?: "", fontSize = 14.sp)
         }
 
         Spacer(modifier = Modifier.height(40.dp))
@@ -171,10 +181,118 @@ fun EventInfoScreenUI(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Attending: $attendingCount", fontWeight = FontWeight.Bold)
-            Text("Items: $itemCount", fontWeight = FontWeight.Bold)
+            Text("Roll Call: $totalCount", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            Text("Items: $itemCount", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            Spacer(modifier = Modifier.width(25.dp))
         }
 
         Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(20.dp)
+        ){
+
+            Column(modifier = Modifier.weight(1f)) {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+
+                    IconButton(
+                        onClick = { viewModel.updateAttendance(eventId, "attending") },
+                        modifier = Modifier
+                            .background(Color(0xFF6C5BB7), RoundedCornerShape(50))
+                            .size(30.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "Attending",
+                            tint = Color.White
+                        )
+                    }
+
+                    IconButton(
+                        onClick = { viewModel.updateAttendance(eventId, "maybe") },
+                        modifier = Modifier
+                            .background(Color(0xFFFFB74D), RoundedCornerShape(50))
+                            .size(30.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Maybe",
+                            tint = Color.White
+                        )
+                    }
+
+                    IconButton(
+                        onClick = { viewModel.updateAttendance(eventId, "declined") },
+                        modifier = Modifier
+                            .background(Color(0xFFE57373), RoundedCornerShape(50))
+                            .size(30.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Decline",
+                            tint = Color.White
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text("Attending - $attendingCount", fontWeight = FontWeight.Bold)
+
+                attending.forEach {
+                    Text("• $it")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text("Maybe - $maybeCount", fontWeight = FontWeight.Bold)
+
+                maybe.forEach {
+                    Text("• $it")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text("Declined - $declinedCount", fontWeight = FontWeight.Bold)
+
+                declined.forEach {
+                    Text("• $it")
+                }
+
+            }
+
+            Spacer(modifier = Modifier.width(1.dp))
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Claimed Items
+                Text("Claimed (${claimedItems.size})", fontWeight = FontWeight.Bold)
+
+                claimedItems.forEach {
+                    Text("☑ ${it.name}")
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Unclaimed Items
+                Text("Unclaimed (${unclaimedItems.size})", fontWeight = FontWeight.Bold)
+
+                unclaimedItems.forEach {
+                    Text("☐ ${it.name}")
+                }
+
+            }
+
+            Spacer(modifier = Modifier.width(15.dp))
+
+        }
+
     }
 }
