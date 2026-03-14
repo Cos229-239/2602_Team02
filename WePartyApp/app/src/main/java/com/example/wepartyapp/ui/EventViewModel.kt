@@ -16,10 +16,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+/*
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.IconButton
+*/
 
 // The blueprint for our real notifications
 data class PartyNotification(
@@ -117,6 +119,13 @@ class EventViewModel : ViewModel() {
                     item
                 }
             }
+        }
+    }
+
+    //-removes a PartyItem from our local list before saving-
+    fun removeItem(item: PartyItem) {
+        _itemsList.update { currentList ->
+            currentList.filter { it.name != item.name }
         }
     }
 

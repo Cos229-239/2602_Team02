@@ -96,7 +96,8 @@ fun ChatFeedContent(eventId: String, viewModel: EventViewModel) {
 
         if (showChecklist) {
             // --- Item Checklist View ---
-            ItemChecklistUI(eventId, viewModel)
+            // Fix: Passed Modifier.weight(1f) to prevent the checklist from overflowing the screen
+            ItemChecklistUI(eventId, viewModel, modifier = Modifier.weight(1f))
         } else {
             // --- Chat Message Feed Section ---
             Column(
@@ -166,8 +167,9 @@ fun ChatFeedContent(eventId: String, viewModel: EventViewModel) {
     }
 }
 
+// Fix: Added 'modifier: Modifier = Modifier' parameter to safely size this component from the parent
 @Composable
-fun ItemChecklistUI(eventId: String, viewModel: EventViewModel) {
+fun ItemChecklistUI(eventId: String, viewModel: EventViewModel, modifier: Modifier = Modifier) {
     val events by viewModel.events.observeAsState(emptyList())
     val currentEvent = events.find { it.id == eventId }
     val items = currentEvent?.eventItems ?: emptyList()
@@ -182,7 +184,8 @@ fun ItemChecklistUI(eventId: String, viewModel: EventViewModel) {
     LaunchedEffect(priceResult.value) {
         when (val result = priceResult.value) {
             is NetworkResponse.Success -> {
-                val exactPrice = result.data
+                // Fix: Added a safe fallback string just in case 'result.data' is unexpectedly null
+                val exactPrice = result.data?.toString() ?: "Not Found"
                 // Find the item that was just added with "Loading..." price
                 val itemToUpdate = items.find { it.price == "Loading..." }
                 if (itemToUpdate != null) {
@@ -201,8 +204,7 @@ fun ItemChecklistUI(eventId: String, viewModel: EventViewModel) {
 
     // --- Main Checklist Container ---
     Column(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
             .padding(horizontal = 16.dp)
             .background(Color(0xFFFFE9EA), RoundedCornerShape(12.dp)) // Pink background
             .border(1.dp, Color.Black, RoundedCornerShape(12.dp))

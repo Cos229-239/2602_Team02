@@ -34,16 +34,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+//import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wepartyapp.ui.EventViewModel
 import com.example.wepartyapp.ui.PartyItem
-import com.example.wepartyapp.ui.create_event.AddItemsScreenUI
-import com.example.wepartyapp.ui.create_event.CreateEventRoutes
-import com.example.wepartyapp.ui.create_event.CreateEventScreenUI
-import com.example.wepartyapp.ui.create_event.InviteFriendsScreenUI
-import com.example.wepartyapp.ui.home.MainScreen
+//import com.example.wepartyapp.ui.create_event.AddItemsScreenUI
+//import com.example.wepartyapp.ui.create_event.CreateEventRoutes
+//import com.example.wepartyapp.ui.create_event.CreateEventScreenUI
+//import com.example.wepartyapp.ui.create_event.InviteFriendsScreenUI
+//import com.example.wepartyapp.ui.home.MainScreen
 import java.time.LocalDate
-import kotlin.getValue
+//import kotlin.getValue
 
 class ConsolidatedShoppingListActivity : ComponentActivity() {
 
@@ -57,6 +57,7 @@ class ConsolidatedShoppingListActivity : ComponentActivity() {
         }
     }
 }
+
 @Composable
 fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
 
@@ -145,7 +146,7 @@ fun EventDetails(eventID: String, eventName: String, eventItemsList: List<PartyI
                 val intent = Intent(context, EditItemActivity::class.java)
                 intent.putExtra("Event_ID", eventID)    //passing event id to be able to find the specific event in edit item screen
                 context.startActivity(intent)
-                      },
+            },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
             modifier = Modifier
                 .align(Alignment.TopEnd)

@@ -47,7 +47,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.IconButton
 
-
 class EventInfoActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,7 +85,7 @@ fun EventInfoScreenUI(
 
     val dateFormatter = DateTimeFormatter.ofPattern("MMM. d, yyyy")
 
-    // Temporary until I can retrieve the information from firebase!
+    // Values pulled directly from ViewModel/Firestore
     val attending = currentEvent?.attending ?: emptyList()
     val maybe = currentEvent?.maybe ?: emptyList()
     val declined = currentEvent?.declined ?: emptyList()
@@ -148,8 +147,11 @@ fun EventInfoScreenUI(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // FIX: Added safe null-handling for the date format block to prevent runtime crashes if date is null
+        val displayDate = currentEvent?.date?.let { it.format(dateFormatter) } ?: ""
+
         Text(
-            text = "${currentEvent?.date?.format(dateFormatter) ?: ""}, ${currentEvent?.time ?: ""}",
+            text = "$displayDate, ${currentEvent?.time ?: ""}",
             fontSize = 14.sp,
             modifier = Modifier.align(Alignment.CenterHorizontally),
         )
