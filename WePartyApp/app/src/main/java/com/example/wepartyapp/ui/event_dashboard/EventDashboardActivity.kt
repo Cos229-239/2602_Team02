@@ -50,10 +50,9 @@ import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.EventViewModel
 import com.example.wepartyapp.ui.PartyEvent
 import com.example.wepartyapp.ui.create_event.CreateEventActivity
-import com.example.wepartyapp.ui.home.MainActivity // <-- Kept this so we don't have to write the full path
+import com.example.wepartyapp.ui.home.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 import java.time.LocalDate
-//import java.time.format.DateTimeFormatter
 import java.util.*
 
 class EventDashboardActivity : ComponentActivity() {
@@ -122,8 +121,11 @@ fun InboxItem(event: PartyEvent, currentUserId: String?) {
     val context = LocalContext.current
     
     // Determine if unread dot should show
-    // Condition: there is a last message AND user is not the last sender
-    val showUnread = event.lastMessage != null && event.lastSenderId != currentUserId
+    // Logic: last message exists AND user is NOT the last sender AND user has not read the latest message
+    val lastReadTime = event.readByUsers[currentUserId ?: ""] ?: 0L
+    val showUnread = event.lastMessageTime != null && 
+                     event.lastMessageTime > lastReadTime && 
+                     event.lastSenderId != currentUserId
 
     Card(
         modifier = Modifier
@@ -165,7 +167,6 @@ fun InboxItem(event: PartyEvent, currentUserId: String?) {
                         modifier = Modifier.weight(1f, fill = false)
                     )
 
-                    // Fix Safe Let block to prevent Compose smart-cast compiler errors
                     if (!event.lastMessage.isNullOrBlank()) {
                         event.lastMessageTime?.let { time ->
                             Text(
@@ -216,7 +217,9 @@ class ChatRoomActivity : ComponentActivity() {
             val viewModel: EventViewModel = viewModel()
             var profilePhotoUri by remember { mutableStateOf<Uri?>(null) }
 
-            LaunchedEffect(Unit) {
+            // Mark event as read when the user opens the chat
+            LaunchedEffect(eventId) {
+                viewModel.markEventAsRead(eventId)
                 profilePhotoUri = FirebaseAuth.getInstance().currentUser?.photoUrl
             }
 
@@ -300,7 +303,6 @@ class ChatRoomActivity : ComponentActivity() {
                                     .background(Color.White)
                                     .border(1.dp, Color.Black, RoundedCornerShape(10.dp))
                                     .clickable {
-                                        // Fix: Cleaned up the Intent class target
                                         val intent = Intent(this@ChatRoomActivity, MainActivity::class.java)
                                         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                                         startActivity(intent)
@@ -332,7 +334,6 @@ class ChatRoomActivity : ComponentActivity() {
                                     startActivity(Intent(this@ChatRoomActivity, CreateEventActivity::class.java))
                                 }
                                 else -> {
-                                    // Fix: Cleaned up the Intent class target
                                     val intent = Intent(this@ChatRoomActivity, MainActivity::class.java)
                                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                     intent.putExtra("TARGET_TAB", tabId) // Send the hidden message
