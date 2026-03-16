@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.wepartyapp.ui.event_dashboard.ChatMessage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -57,8 +56,14 @@ data class PartyItem(
 )
 
 // --- Chat Message Blueprint ---
-// Moved to EventDashboardModels.kt in previous sessions, but kept here for compatibility
-// If it causes redeclaration, we should prioritize the Models file.
+// Andy Read This - Restored so the compiler knows what a ChatMessage is
+data class ChatMessage(
+    val id: String = "",
+    val senderId: String = "",
+    val senderName: String = "",
+    val text: String = "",
+    val timestamp: Long = 0L
+)
 
 class EventViewModel : ViewModel() {
 
