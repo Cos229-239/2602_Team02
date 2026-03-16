@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-//import com.example.wepartyapp.ui.event_dashboard.ChatMessage
+import com.example.wepartyapp.ui.event_dashboard.ChatMessage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -16,10 +16,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.IconButton
 
 // The blueprint for our real notifications
 data class PartyNotification(
@@ -41,6 +37,7 @@ data class PartyEvent(
     val lastMessage: String? = null,
     val lastMessageTime: Long? = null,
     val lastSenderId: String? = null,
+    val readByUsers: Map<String, Long> = emptyMap(), // Tracks when each user last read the chat
     val hostId: String = "",
     val invitedGuests: List<String> = emptyList(),
 
@@ -60,13 +57,8 @@ data class PartyItem(
 )
 
 // --- Chat Message Blueprint ---
-data class ChatMessage(
-    val id: String = "",
-    val senderId: String = "",
-    val senderName: String = "",
-    val text: String = "",
-    val timestamp: Long = 0L
-)
+// Moved to EventDashboardModels.kt in previous sessions, but kept here for compatibility
+// If it causes redeclaration, we should prioritize the Models file.
 
 class EventViewModel : ViewModel() {
 
@@ -120,6 +112,13 @@ class EventViewModel : ViewModel() {
         }
     }
 
+    //-removes a PartyItem from our local list before saving-
+    fun removeItem(item: PartyItem) {
+        _itemsList.update { currentList ->
+            currentList.filter { it.name != item.name }
+        }
+    }
+
     init {
         // Pre-generate a Firebase ID for the very first event draft
         eventId = db.collection("events").document().id
@@ -147,6 +146,10 @@ class EventViewModel : ViewModel() {
                 val lastMsg = document.getString("lastMessage")
                 val lastMsgTime = document.getLong("lastMessageTime")
                 val lastSender = document.getString("lastSenderId")
+                
+                // Read the readByUsers map safely
+                val readByUsersRaw = document.get("readByUsers") as? Map<String, Any> ?: emptyMap()
+                val readByUsers = readByUsersRaw.mapValues { it.value as? Long ?: 0L }
 
                 val fetchedHostId = document.getString("hostId") ?: ""
                 val fetchedGuests = document.get("invitedGuests") as? List<String> ?: emptyList()
@@ -188,6 +191,7 @@ class EventViewModel : ViewModel() {
                         lastMsg,
                         lastMsgTime,
                         lastSender,
+                        readByUsers,
                         fetchedHostId,
                         fetchedGuests,
                         attending,
@@ -273,10 +277,19 @@ class EventViewModel : ViewModel() {
                     mapOf(
                         "lastMessage" to text,
                         "lastMessageTime" to messageData["timestamp"],
-                        "lastSenderId" to user.uid
+                        "lastSenderId" to user.uid,
+                        "readByUsers.${user.uid}" to messageData["timestamp"] // Mark as read for sender
                     )
                 )
             }
+    }
+
+    // Marks an event's chat as read for the current user
+    fun markEventAsRead(eventId: String) {
+        val user = auth.currentUser ?: return
+        db.collection("events").document(eventId).update(
+            "readByUsers.${user.uid}", System.currentTimeMillis()
+        )
     }
 
     // Pushes the locally cached event data to Firestore
@@ -298,6 +311,7 @@ class EventViewModel : ViewModel() {
             "lastMessage" to null,
             "lastMessageTime" to null,
             "lastSenderId" to null,
+            "readByUsers" to mapOf(currentUserId to System.currentTimeMillis()), // Mark as read for creator
             "hostId" to currentUserId,
             "invitedGuests" to emptyList<String>(),
             "attending" to emptyList<String>(),
