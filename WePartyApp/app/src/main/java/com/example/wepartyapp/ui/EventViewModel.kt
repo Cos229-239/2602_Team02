@@ -359,6 +359,15 @@ class EventViewModel : ViewModel() {
         }
     }
 
+    fun updateEventInfo(eventID: String) {
+        db.collection("events").document(eventID).update("name", eventName) //testing out just the event name for now
+        db.collection("events").document(eventID).update("summary", eventSummary)
+        db.collection("events").document(eventID).update("address", eventAddress)
+        eventName = ""  //clear it out after it updates
+        eventSummary = ""
+        eventAddress = ""
+    }
+
     // Updates the checklist items for an existing event
     fun updateEventItems(eventID: String) {
         val mappedItems = _itemsList.value.map {
