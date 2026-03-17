@@ -5,9 +5,11 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,10 +24,13 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -35,11 +40,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.example.wepartyapp.R
+import com.example.wepartyapp.ui.EventViewModel
+import com.example.wepartyapp.ui.create_event.EventDetailsScreenUI
+import kotlin.getValue
 
 class EditEventActivity : ComponentActivity() {
 
@@ -59,15 +68,17 @@ class EditEventActivity : ComponentActivity() {
                 }
             }
 
-            EditEventScreen()
+            val eventViewModel: EventViewModel by viewModels()
+            EditEventScreen(eventViewModel = eventViewModel, eventName = eventName)
         }
     }
 }
-@Preview
 @Composable
-fun EditEventScreen(modifier: Modifier = Modifier) {
+fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
 
     val context = LocalContext.current
+    val events = eventViewModel.events.observeAsState(emptyList())
+    val currEvent = events.value.find { it.name == eventName }
 
     Scaffold(
         topBar = {
@@ -152,6 +163,105 @@ fun EditEventScreen(modifier: Modifier = Modifier) {
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                ) {
+                    Text(
+                        text = "Event Name:",
+                        fontSize = 20.sp,
+                        textDecoration = TextDecoration.Underline
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier.weight(1f),
+                            value = currEvent?.name ?: "",
+                            onValueChange = {  },
+                            singleLine = true // Forces "Next" on keyboard instead of return
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Text(
+                        text = "Summary:",
+                        fontSize = 20.sp,
+                        textDecoration = TextDecoration.Underline
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier.weight(1f),
+                            value = currEvent?.summary ?: "",
+                            onValueChange = {  },
+                            minLines = 3, // Makes it look like a message box
+                            maxLines = 5
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Text(
+                        text = "Date:",
+                        fontSize = 20.sp,
+                        textDecoration = TextDecoration.Underline
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        // Trick: Put a transparent clickable box over the text field to trigger the popup
+                        Box(modifier = Modifier.weight(1f)) {
+                            OutlinedTextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                value = "",
+                                onValueChange = { },
+                                readOnly = true, // Prevents keyboard from popping up
+                                singleLine = true
+                            )
+                            //Box(modifier = Modifier.matchParentSize().clickable { showDatePicker = true })
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Text(
+                        text = "Time:",
+                        fontSize = 20.sp,
+                        textDecoration = TextDecoration.Underline
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            OutlinedTextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                value = currEvent?.time ?: "",
+                                onValueChange = { },
+                                readOnly = true,
+                                singleLine = true
+                            )
+                            //Box(modifier = Modifier.matchParentSize().clickable { showTimePicker = true })
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Text(
+                        text = "Address:",
+                        fontSize = 20.sp,
+                        textDecoration = TextDecoration.Underline
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier.weight(1f),
+                            value = currEvent?.address ?: "",
+                            onValueChange = {  },
+                            singleLine = true
+                        )
+                    }
+                }
             }
         }
     }
