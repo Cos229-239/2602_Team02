@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
@@ -46,6 +45,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.IconButton
+import androidx.compose.ui.Alignment
 
 class EventInfoActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -183,24 +183,18 @@ fun EventInfoScreenUI(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Roll Call: $totalCount", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            Text("Items: $itemCount", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            Spacer(modifier = Modifier.width(25.dp))
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(20.dp)
-        ){
-
+            // Attendance/Roll Call
             Column(modifier = Modifier.weight(1f)) {
+                Text("Party: $totalCount", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+
+                    Text("Attending - $attendingCount", fontWeight = FontWeight.Bold)
 
                     IconButton(
                         onClick = { viewModel.updateAttendance(eventId, "attending") },
@@ -214,6 +208,19 @@ fun EventInfoScreenUI(
                             tint = Color.White
                         )
                     }
+                }
+                attending.forEach {
+                    Text("• $it")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Text("Maybe - $maybeCount     ", fontWeight = FontWeight.Bold)
 
                     IconButton(
                         onClick = { viewModel.updateAttendance(eventId, "maybe") },
@@ -227,6 +234,19 @@ fun EventInfoScreenUI(
                             tint = Color.White
                         )
                     }
+                }
+                maybe.forEach {
+                    Text("• $it")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Text("Declined - $declinedCount  ", fontWeight = FontWeight.Bold)
 
                     IconButton(
                         onClick = { viewModel.updateAttendance(eventId, "declined") },
@@ -241,39 +261,25 @@ fun EventInfoScreenUI(
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Text("Attending - $attendingCount", fontWeight = FontWeight.Bold)
-
-                attending.forEach {
-                    Text("• $it")
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text("Maybe - $maybeCount", fontWeight = FontWeight.Bold)
-
-                maybe.forEach {
-                    Text("• $it")
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text("Declined - $declinedCount", fontWeight = FontWeight.Bold)
-
                 declined.forEach {
                     Text("• $it")
                 }
 
             }
 
-            Spacer(modifier = Modifier.width(1.dp))
 
+            Spacer(modifier = Modifier.width(60.dp))
+
+
+            // Items Display
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
+                Text("Items: $itemCount", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+
+                Spacer(modifier = Modifier.height(10.dp))
+
                 // Claimed Items
                 Text("Claimed (${claimedItems.size})", fontWeight = FontWeight.Bold)
 
@@ -289,12 +295,7 @@ fun EventInfoScreenUI(
                 unclaimedItems.forEach {
                     Text("☐ ${it.name}")
                 }
-
             }
-
-            Spacer(modifier = Modifier.width(15.dp))
-
         }
-
     }
 }
