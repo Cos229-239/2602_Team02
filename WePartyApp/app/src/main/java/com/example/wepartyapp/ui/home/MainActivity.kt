@@ -345,6 +345,8 @@ fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
     val context = LocalContext.current
     val events by viewModel.events.observeAsState(emptyList())
     val today = java.time.LocalDate.now()
+    var selectedDays by remember { mutableStateOf(90) }
+    val upcomingDateSelected = today.plusDays(selectedDays.toLong())
     val ninetyDaysFromNow = today.plusDays(90)
 
     // --- Date Formatter ---
@@ -354,7 +356,7 @@ fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
     val upcomingEvents = events
         .filter { event ->
             val date = event.date
-            date != null && date >= today && date <= ninetyDaysFromNow
+            date != null && date >= today && date <= upcomingDateSelected
         }
         .sortedBy { it.date }
 
@@ -372,17 +374,49 @@ fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Text(
-                text = today.format(dateFormatter), // <-- Applied format here
-                style = MaterialTheme.typography.labelLarge
-            )
+            var expanded by remember { mutableStateOf(false) }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = today.format(dateFormatter), // <-- Applied format here
+                    style = MaterialTheme.typography.labelLarge
+                )
+
+                Box {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = "Filter events"
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        listOf(3, 7, 30, 90).forEach { days ->
+                            DropdownMenuItem(
+                                text = { Text("$days Days") },
+                                onClick = {
+                                    selectedDays = days
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(25.dp))
 
         // - Events -
         Text(
-            text = "Upcoming Events - (90 Days)",
+            text = "Upcoming Events - ($selectedDays Days)",
             style = MaterialTheme.typography.headlineMedium,
             fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
