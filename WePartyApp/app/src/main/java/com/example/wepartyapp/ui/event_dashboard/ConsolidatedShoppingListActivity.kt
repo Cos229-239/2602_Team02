@@ -46,7 +46,6 @@ import java.time.LocalDate
 //import kotlin.getValue
 
 class ConsolidatedShoppingListActivity : ComponentActivity() {
-
     private val eventViewModel: EventViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {

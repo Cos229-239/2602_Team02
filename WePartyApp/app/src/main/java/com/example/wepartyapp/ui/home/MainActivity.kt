@@ -67,6 +67,7 @@ import com.google.firebase.messaging.FirebaseMessaging // <-- Added for FCM Toke
 import java.time.format.DateTimeFormatter // <-- Added for formatting dates
 import com.example.wepartyapp.ui.event_dashboard.ChatRoomActivity // <-- Added for EventCard Navigation
 import androidx.compose.ui.graphics.Brush
+import com.example.wepartyapp.ui.event_dashboard.EditItemActivity
 
 
 class MainActivity : ComponentActivity() {
@@ -194,7 +195,7 @@ fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab p
                 })
                 1 -> CalendarScreenUI(viewModel = eventViewModel) // <-- Passed the ViewModel to fix the error!
                 // 2 -> Create Event Activity Launched In Navigation Bar
-                3 -> ConsolidatedShoppingListScreenUI(viewModel = eventViewModel)   //LM
+                3 -> ConsolidatedShoppingListScreenUI(viewModel = eventViewModel)
                 4 -> EventInboxScreen(viewModel = eventViewModel)
                 5 -> DietaryPreferencesScreenUI( onBack = { selectedTab = 6 } )
                 6 -> ProfileScreenUI(
@@ -550,6 +551,7 @@ fun NavigationItem(
 @Composable
 fun EventCard(title: String, date: String, time: String, onDeleteClick: () -> Unit, onCardClick: () -> Unit ) {
 
+    val context = LocalContext.current
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     // Delete confirmation popup
@@ -615,6 +617,25 @@ fun EventCard(title: String, date: String, time: String, onDeleteClick: () -> Un
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Delete Event",
+                    tint = Color.White
+                )
+            }
+
+            //Edit events button
+            IconButton(
+                onClick = {     //takes us to edit event screen
+                    val intent = Intent(context, EditEventActivity::class.java)
+                    intent.putExtra("Event_Name", title)
+                    context.startActivity(intent)
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(4.dp)
+                    .size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit Event",
                     tint = Color.White
                 )
             }

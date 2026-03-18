@@ -51,6 +51,9 @@
             android:name=".ui.home.MainActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.home.EditEventActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.create_event.CreateEventActivity"
             android:exported="false" />
         <activity

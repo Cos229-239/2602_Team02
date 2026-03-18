@@ -6,7 +6,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 //import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +34,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,13 +54,17 @@ import com.example.wepartyapp.ui.EventViewModel
 import com.example.wepartyapp.ui.ItemPriceViewModel
 import com.example.wepartyapp.ui.api.NetworkResponse
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wepartyapp.ui.PartyItem
 //import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
+import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.home.MainActivity
 import com.google.firebase.auth.FirebaseAuth // <-- Added Firebase Auth Import
 import java.time.LocalDate
@@ -125,160 +132,192 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFFFE9EA))
-            .navigationBarsPadding(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
+    Scaffold(
+        topBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(12.dp)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0xFFC96B6B),
+                                Color(0xFFB65C5C),
+                                Color(0xFF8E3F3F)
+                            )
+                        )
+                    )
+                    .border(3.dp, color = Color.Black)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.app_logo),
+                    contentDescription = "Logo",
+                    modifier = Modifier
+                        .size(120.dp)
+                        .align(Alignment.Center)
+                )
+            }
+        }
+    ) { innerpadding ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .background(Color(0xFFFFE9EA))
+                .padding(innerpadding),
+            contentAlignment = Alignment.Center
         ) {
-            Spacer(modifier = Modifier.height(40.dp))
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxSize()
+                    .padding(16.dp)
             ) {
-                IconButton(onClick = {
+               //Spacer(modifier = Modifier.height(40.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = {
+                        val intent = Intent(context, MainActivity::class.java)
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        context.startActivity(intent)
+                        (context as? Activity)?.finish()
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = null,
+                            Modifier.size(35.dp)
+                        )
+                    }
+                    Text(
+                        text = "Consolidated Shopping List",
+                        fontSize = 15.sp
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.List,
+                        contentDescription = null,
+                        Modifier.size(70.dp),
+                        tint = Color(0xFFBF6363)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = "Edit Items",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 30.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = item,
+                        onValueChange = { text ->
+                            item = text
+                        },
+                        modifier = Modifier.weight(1f),
+                        label = { Text(text = "Item") }
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Button(
+                        onClick = {
+                            if (item.isNotBlank()) {
+                                viewItemModel.addItems(PartyItem(name = item, price = "Loading..."))
+                                viewPriceModel.getData(item)
+                                item = ""
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
+                    ) {
+                        Text(text = "Add", color = Color.Black)
+                    }
+                }
+
+                LaunchedEffect(priceResult.value) {
+                    when (val result = priceResult.value) {
+                        is NetworkResponse.Success -> {
+                            val exactPrice = result.data?.toString() ?: "Not Found"
+
+                            val ogList = viewItemModel._items.value
+                            val mutableCopy = ogList.toMutableList()
+                            val index = mutableCopy.indexOfLast { it.price == "Loading..." }
+                            if (index != -1) {
+                                viewItemModel.updatePrice(mutableCopy[index].name, exactPrice)
+                            }
+                        }
+
+                        is NetworkResponse.Error -> {
+                            val ogList = viewItemModel._items.value
+                            val mutableCopy = ogList.toMutableList()
+                            val index = mutableCopy.indexOfLast { it.price == "Loading..." }
+                            if (index != -1) {
+                                viewItemModel.updatePrice(mutableCopy[index].name, "Not Found")
+                            }
+                        }
+
+                        else -> {}
+                    }
+                }
+                val _itemList by viewItemModel._items.collectAsState()
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    items(_itemList) { partyItem ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = partyItem.name, modifier = Modifier.weight(1f))
+                            Text(text = partyItem.price)
+
+                            // --- NEW: Only show the delete button if they are the host! ---
+                            if (isHost) {
+                                Spacer(modifier = Modifier.width(16.dp))
+                                IconButton(
+                                    onClick = { viewItemModel.removeItem(partyItem) },
+                                    modifier = Modifier.size(24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Delete",
+                                        tint = Color.Red
+                                    )
+                                }
+                            }
+                        }
+                        Divider()
+                    }
+                }
+            }
+            Button(
+                onClick = {
+                    viewItemModel.updateEventItems(eventID)
                     val intent = Intent(context, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                     context.startActivity(intent)
                     (context as? Activity)?.finish()
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = null,
-                        Modifier.size(35.dp)
-                    )
-                }
-                Text(
-                    text = "Consolidated Shopping List",
-                    fontSize = 15.sp
-                )
-            }
-            Column(
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
                 modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.List,
-                    contentDescription = null,
-                    Modifier.size(70.dp),
-                    tint = Color(0xFFBF6363)
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = "Edit Items",
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 30.sp
-                )
+                Text(text = "Save", color = Color.Black)
             }
-            Spacer(modifier = Modifier.height(20.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = item,
-                    onValueChange = { text ->
-                        item = text
-                    },
-                    modifier = Modifier.weight(1f),
-                    label = { Text(text = "Item") }
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Button(
-                    onClick = {
-                        if (item.isNotBlank()) {
-                            viewItemModel.addItems(PartyItem(name = item, price = "Loading..."))
-                            viewPriceModel.getData(item)
-                            item = ""
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
-                ) {
-                    Text(text = "Add", color = Color.Black)
-                }
-            }
-
-            LaunchedEffect(priceResult.value) {
-                when (val result = priceResult.value) {
-                    is NetworkResponse.Success -> {
-                        val exactPrice = result.data?.toString() ?: "Not Found"
-
-                        val ogList = viewItemModel._items.value
-                        val mutableCopy = ogList.toMutableList()
-                        val index = mutableCopy.indexOfLast { it.price == "Loading..." }
-                        if(index != -1) {
-                            viewItemModel.updatePrice(mutableCopy[index].name, exactPrice)
-                        }
-                    }
-                    is NetworkResponse.Error -> {
-                        val ogList = viewItemModel._items.value
-                        val mutableCopy = ogList.toMutableList()
-                        val index = mutableCopy.indexOfLast { it.price == "Loading..." }
-                        if(index != -1) {
-                            viewItemModel.updatePrice(mutableCopy[index].name, "Not Found")
-                        }
-                    }
-                    else -> {}
-                }
-            }
-            val _itemList by viewItemModel._items.collectAsState()
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                items(_itemList) { partyItem ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = partyItem.name, modifier = Modifier.weight(1f))
-                        Text(text = partyItem.price)
-
-                        // --- NEW: Only show the delete button if they are the host! ---
-                        if (isHost) {
-                            Spacer(modifier = Modifier.width(16.dp))
-                            IconButton(
-                                onClick = { viewItemModel.removeItem(partyItem) },
-                                modifier = Modifier.size(24.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete",
-                                    tint = Color.Red
-                                )
-                            }
-                        }
-                    }
-                    Divider()
-                }
-            }
-        }
-        Button(
-            onClick = {
-                viewItemModel.updateEventItems(eventID)
-                val intent = Intent(context, MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                context.startActivity(intent)
-                (context as? Activity)?.finish()
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
-        ) {
-            Text(text = "Save", color = Color.Black)
         }
     }
 }
