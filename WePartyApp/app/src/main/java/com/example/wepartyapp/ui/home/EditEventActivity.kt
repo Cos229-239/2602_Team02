@@ -63,8 +63,6 @@ import androidx.core.view.WindowCompat
 import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.EventViewModel
 import java.text.SimpleDateFormat
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -106,8 +104,8 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
         //saving the current event's info to our shared view model's vars to be able to display + change
         eventViewModel.eventName = currEvent?.name.toString()
         eventViewModel.eventSummary = currEvent?.summary.toString()
-        //eventViewModel.eventDate = currEvent?.date.toString()
-        //eventViewModel.eventTime = currEvent?.time.toString()
+        eventViewModel.eventDate = currEvent?.date.toString()
+        eventViewModel.eventTime = currEvent?.time.toString()
         eventViewModel.eventAddress = currEvent?.address.toString()
         eventViewModel.eventId = currEvent?.id.toString()
     }
@@ -277,6 +275,7 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
+                //next step - cleaning up code - try calling just the composable EventsDetailScreenUI to see if that works
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
