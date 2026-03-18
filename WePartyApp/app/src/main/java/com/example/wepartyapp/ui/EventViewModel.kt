@@ -360,11 +360,16 @@ class EventViewModel : ViewModel() {
     }
 
     fun updateEventInfo(eventID: String) {
-        db.collection("events").document(eventID).update("name", eventName) //testing out just the event name for now
+        db.collection("events").document(eventID).update("name", eventName)
         db.collection("events").document(eventID).update("summary", eventSummary)
+        db.collection("events").document(eventID).update("date", eventDate)     //still working on date and time in
+        db.collection("events").document(eventID).update("time", eventTime)         //editeventactivity
         db.collection("events").document(eventID).update("address", eventAddress)
-        eventName = ""  //clear it out after it updates
+        //clear fields out after the update
+        eventName = ""
         eventSummary = ""
+        eventDate = ""
+        eventTime = ""
         eventAddress = ""
     }
 

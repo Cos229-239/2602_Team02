@@ -40,6 +40,7 @@ import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -62,6 +63,8 @@ import androidx.core.view.WindowCompat
 import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.EventViewModel
 import java.text.SimpleDateFormat
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -98,13 +101,16 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
     val events = eventViewModel.events.observeAsState(emptyList())
     val currEvent = events.value.find { it.name == eventName }
 
-    //saving the current event's info to our shared view model's vars to be able to display + change
-    eventViewModel.eventName = currEvent?.name.toString()
-    eventViewModel.eventSummary = currEvent?.summary.toString()
-    eventViewModel.eventDate = currEvent?.date.toString()
-    eventViewModel.eventTime = currEvent?.time.toString()
-    eventViewModel.eventAddress = currEvent?.address.toString()
-    eventViewModel.eventId = currEvent?.id.toString()   //need to be able to update this current event in firebase
+    //helps with rerendering - text fields were reverting to og data everytime the date+time fields were clicked
+    LaunchedEffect(currEvent) {
+        //saving the current event's info to our shared view model's vars to be able to display + change
+        eventViewModel.eventName = currEvent?.name.toString()
+        eventViewModel.eventSummary = currEvent?.summary.toString()
+        //eventViewModel.eventDate = currEvent?.date.toString()
+        //eventViewModel.eventTime = currEvent?.time.toString()
+        eventViewModel.eventAddress = currEvent?.address.toString()
+        eventViewModel.eventId = currEvent?.id.toString()
+    }
 
     // --- Popup States ---
     var showDatePicker by remember { mutableStateOf(false) }
@@ -324,7 +330,7 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
                             OutlinedTextField(
                                 modifier = Modifier.fillMaxWidth(),
                                 value = eventViewModel.eventDate,
-                                onValueChange = { eventViewModel.eventDate = it },
+                                onValueChange = { },
                                 readOnly = true, // Prevents keyboard from popping up
                                 singleLine = true
                             )
@@ -345,7 +351,7 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
                             OutlinedTextField(
                                 modifier = Modifier.fillMaxWidth(),
                                 value = eventViewModel.eventTime,
-                                onValueChange = { eventViewModel.eventTime = it },
+                                onValueChange = { },
                                 readOnly = true,
                                 singleLine = true
                             )
