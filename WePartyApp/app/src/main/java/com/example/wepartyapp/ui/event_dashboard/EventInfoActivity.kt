@@ -44,6 +44,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.Alignment
 
@@ -169,7 +171,7 @@ fun EventInfoScreenUI(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp)
+                .height(200.dp)
                 .border(2.dp, color = Color.Black, RoundedCornerShape((6.dp)))
                 .background(Color.White)
                 .padding(12.dp)
@@ -187,7 +189,16 @@ fun EventInfoScreenUI(
             Column(modifier = Modifier.weight(1f)) {
                 Text("Party: $totalCount", fontWeight = FontWeight.Bold, fontSize = 20.sp)
 
+                HorizontalDivider(
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .padding(vertical = 8.dp),
+                    thickness = 1.dp,
+                    color = Color.Black
+                )
+
                 Spacer(modifier = Modifier.height(10.dp))
+
 
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -277,6 +288,14 @@ fun EventInfoScreenUI(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text("Items: $itemCount", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+
+                HorizontalDivider(
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .padding(vertical = 8.dp),
+                    thickness = 1.dp,
+                    color = Color.Black
+                )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
