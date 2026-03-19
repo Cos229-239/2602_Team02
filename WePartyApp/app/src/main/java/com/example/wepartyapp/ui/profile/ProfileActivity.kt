@@ -11,15 +11,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -36,8 +41,11 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.example.wepartyapp.ui.auth.LoginActivity
+import com.example.wepartyapp.ui.EventViewModel
+import com.example.wepartyapp.ui.FriendProfile
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.io.File
 
@@ -45,7 +53,7 @@ import java.io.File
 fun ProfileScreenUI(
     onEditDietaryClick: () -> Unit,
     onEditProfileClick: () -> Unit,
-    onEventDashboardClick: () -> Unit
+    onFriendsListClick: () -> Unit // <-- Added parameter for the friends list navigation
 ) {
     val auth = FirebaseAuth.getInstance()
     val context = LocalContext.current
@@ -154,20 +162,21 @@ fun ProfileScreenUI(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // --- Friends List Menu Item ---
             ProfileMenuRow(
-                icon = Icons.Default.List,
-                title = "Dietary Preferences",
-                subtitle = "Manage your food allergies and preferences",
-                onClick = onEditDietaryClick
+                icon = Icons.Default.Person,
+                title = "Friends List",
+                subtitle = "Manage your connections and find new friends",
+                onClick = onFriendsListClick
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             ProfileMenuRow(
-                icon = Icons.Default.Edit,
-                title = "Event Dashboard",
-                subtitle = "Claim Items, Chat with event attendees, and view Location",
-                onClick = onEventDashboardClick
+                icon = Icons.AutoMirrored.Filled.List,
+                title = "Dietary Preferences",
+                subtitle = "Manage your food allergies and preferences",
+                onClick = onEditDietaryClick
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -191,10 +200,21 @@ fun ProfileSettingsScreenUI(onBack: () -> Unit) {
 
     // State for the text field, image, and loading status
     var nickname by remember { mutableStateOf(currentUser?.displayName ?: "") }
+    var phoneNumber by remember { mutableStateOf("") }
     var selectedImageUri by remember { mutableStateOf<Uri?>(currentUser?.photoUrl) }
     var isUploading by remember { mutableStateOf(false) }
 
-    // --- New: States for the Camera/Gallery Dialog ---
+    // Fetch current phone number from Firestore when screen loads
+    LaunchedEffect(currentUser?.uid) {
+        currentUser?.uid?.let { uid ->
+            FirebaseFirestore.getInstance().collection("users").document(uid).get()
+                .addOnSuccessListener { document ->
+                    phoneNumber = document.getString("phoneNumber") ?: ""
+                }
+        }
+    }
+
+    // States for the Camera/Gallery Dialog
     var showImageSourceDialog by remember { mutableStateOf(false) }
     var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
 
@@ -252,12 +272,29 @@ fun ProfileSettingsScreenUI(onBack: () -> Unit) {
             profileUpdates.setPhotoUri(finalPhotoUri)
         }
 
+        // Update the Auth Profile first
         currentUser?.updateProfile(profileUpdates.build())?.addOnCompleteListener { task ->
-            isUploading = false
             if (task.isSuccessful) {
-                Toast.makeText(context, "Profile Updated!", Toast.LENGTH_SHORT).show()
-                onBack()
+                // Also update the name and phone number in Firestore
+                currentUser.uid.let { uid ->
+                    val dbUpdates = mapOf(
+                        "name" to nickname,
+                        "phoneNumber" to phoneNumber
+                    )
+                    FirebaseFirestore.getInstance().collection("users").document(uid)
+                        .update(dbUpdates)
+                        .addOnCompleteListener { dbTask ->
+                            isUploading = false
+                            if (dbTask.isSuccessful) {
+                                Toast.makeText(context, "Profile Updated!", Toast.LENGTH_SHORT).show()
+                                onBack()
+                            } else {
+                                Toast.makeText(context, "Update Failed: ${dbTask.exception?.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                }
             } else {
+                isUploading = false
                 Toast.makeText(context, "Update Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
             }
         }
@@ -324,6 +361,22 @@ fun ProfileSettingsScreenUI(onBack: () -> Unit) {
             )
         )
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Phone Number Input
+        OutlinedTextField(
+            value = phoneNumber,
+            onValueChange = { phoneNumber = it },
+            label = { Text("Phone Number") },
+            enabled = !isUploading,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFFB65C5C),
+                focusedLabelColor = Color(0xFFB65C5C)
+            )
+        )
+
         Spacer(modifier = Modifier.weight(1f))
 
         // Save Button
@@ -370,6 +423,251 @@ fun ProfileSettingsScreenUI(onBack: () -> Unit) {
                 CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
             } else {
                 Text("Save Changes", color = Color.White, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+// --- New: Friends List Screen ---
+@Composable
+fun FriendsListScreenUI(
+    viewModel: EventViewModel,
+    onBack: () -> Unit
+) {
+    val friendsList by viewModel.friendsList.collectAsState()
+    val friendRequests by viewModel.friendRequests.collectAsState()
+    val searchResults by viewModel.searchResults.collectAsState()
+    val suggestedFriends by viewModel.suggestedFriends.collectAsState()
+
+    // --- Safely grab the context once at the top of the Composable ---
+    val context = LocalContext.current
+
+    var searchQuery by remember { mutableStateOf("") }
+    var isSearching by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchFriends()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFFFE9EA))
+            .padding(16.dp)
+    ) {
+        // --- Header ---
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            }
+            Text(
+                text = "Friends List",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFB65C5C),
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // --- Search Bar ---
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { query ->
+                searchQuery = query
+                isSearching = query.isNotBlank()
+                if (isSearching) {
+                    // Convert to lowercase so the search is case-insensitive
+                    viewModel.searchUsers(query.trim().lowercase())
+                }
+            },
+            placeholder = { Text("Search by Email, Phone, or UserID...") },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFFB65C5C),
+                unfocusedBorderColor = Color.Gray
+            ),
+            singleLine = true
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // --- Display Area ---
+        if (isSearching) {
+            Text("Search Results", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+
+            if (searchResults.isEmpty() && searchQuery.isNotBlank()) {
+                Text("No users found.", color = Color.Gray)
+            } else {
+                LazyColumn {
+                    items(items = searchResults, key = { it.uid }) { user ->
+                        val isAlreadyFriend = friendsList.any { it.uid == user.uid }
+
+                        FriendRow(
+                            friend = user,
+                            actionIcon = if (isAlreadyFriend) null else Icons.Default.Add,
+                            onActionClick = {
+                                if (!isAlreadyFriend) {
+                                    viewModel.sendFriendRequest(user.uid)
+                                    Toast.makeText(context, "Request Sent!", Toast.LENGTH_SHORT).show()
+                                    searchQuery = ""
+                                    isSearching = false
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        } else {
+            // --- 1. Pending Requests Section ---
+            if (friendRequests.isNotEmpty()) {
+                Text("Friend Requests (${friendRequests.size})", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+                LazyColumn {
+                    items(items = friendRequests, key = { it.uid }) { requester ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFFE57373)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(requester.name.take(1).uppercase(), color = Color.White, fontWeight = FontWeight.Bold)
+                                }
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(text = requester.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+
+                                    if (requester.appUserId.isNotBlank()) {
+                                        Text(text = "@${requester.appUserId}", color = Color(0xFFB65C5C), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                                    }
+
+                                    Text(text = "Sent you a friend request", color = Color.Gray, fontSize = 12.sp)
+                                }
+                                // Decline Button
+                                IconButton(onClick = { viewModel.declineFriendRequest(requester.uid) }) {
+                                    Icon(Icons.Default.Close, contentDescription = "Decline", tint = Color.Gray)
+                                }
+                                // Accept Button
+                                IconButton(onClick = { viewModel.acceptFriendRequest(requester.uid) }) {
+                                    Icon(Icons.Default.Check, contentDescription = "Accept", tint = Color(0xFFB65C5C))
+                                }
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            // --- 2. Suggested Friends Section ---
+            if (suggestedFriends.isNotEmpty()) {
+                Text(
+                    text = "Suggested Friends",
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                LazyColumn {
+                    items(items = suggestedFriends, key = { it.uid }) { suggested ->
+                        FriendRow(
+                            friend = suggested,
+                            actionIcon = Icons.Default.Add,
+                            onActionClick = {
+                                viewModel.sendFriendRequest(suggested.uid)
+                                Toast.makeText(context, "Request Sent!", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            // --- 3. My Friends Section ---
+            Text("My Friends (${friendsList.size})", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+
+            if (friendsList.isEmpty()) {
+                Text("You haven't added any friends yet. Use the search bar above to find them by email, phone, or UserID!", color = Color.Gray)
+            } else {
+                LazyColumn {
+                    items(items = friendsList, key = { it.uid }) { friend ->
+                        FriendRow(
+                            friend = friend,
+                            actionIcon = Icons.Default.Delete,
+                            onActionClick = { viewModel.removeFriend(friend.uid) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+// --- Reusable Component for a Single Friend Row ---
+@Composable
+fun FriendRow(
+    friend: FriendProfile,
+    actionIcon: ImageVector?,
+    onActionClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Placeholder Avatar
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFE57373)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = friend.name.take(1).uppercase(),
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = friend.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+
+                if (friend.appUserId.isNotBlank()) {
+                    Text(text = "@${friend.appUserId}", color = Color(0xFFB65C5C), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                }
+
+                Text(text = friend.email, color = Color.Gray, fontSize = 12.sp)
+            }
+
+            if (actionIcon != null) {
+                IconButton(onClick = onActionClick) {
+                    Icon(
+                        imageVector = actionIcon,
+                        contentDescription = "Action",
+                        tint = if (actionIcon == Icons.Default.Delete) Color.Red else Color(0xFFB65C5C)
+                    )
+                }
             }
         }
     }

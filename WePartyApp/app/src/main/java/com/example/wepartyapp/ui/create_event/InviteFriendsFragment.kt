@@ -6,6 +6,8 @@ import android.widget.Toast // <-- Added for dynamic error popup
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,17 +17,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +63,15 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
     var urlLink = "https://wepartyapp-8a3a7-flowlinks.web.app/$uniqueEventId"
 
     val context = LocalContext.current // <-- Grab context for the Intent
+
+    // --- New: State to hold friends and selections ---
+    val friendsList by viewItemModel.friendsList.collectAsState()
+    var selectedFriendUids by remember { mutableStateOf(setOf<String>()) }
+
+    // Fetch friends when the screen opens
+    LaunchedEffect(Unit) {
+        viewItemModel.fetchFriends()
+    }
 
     // --- Form Validation ---
     val isFormComplete = viewItemModel.eventName.isNotBlank() &&
@@ -139,6 +157,71 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                     )
                 }
                 Spacer(modifier = Modifier.height(30.dp))
+
+                // --- New: In-App Friends Selection ---
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    Text(
+                        text = "Invite In-App Friends",
+                        fontSize = 20.sp
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    if (friendsList.isEmpty()) {
+                        Text("You haven't added any friends yet.", color = Color.Gray, fontSize = 14.sp)
+                    } else {
+                        // Horizontally scrolling list of friend chips
+                        LazyRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(friendsList, key = { it.uid }) { friend ->
+                                val isSelected = selectedFriendUids.contains(friend.uid)
+
+                                Surface(
+                                    modifier = Modifier.clickable {
+                                        // Toggle Selection
+                                        selectedFriendUids = if (isSelected) {
+                                            selectedFriendUids - friend.uid
+                                        } else {
+                                            selectedFriendUids + friend.uid
+                                        }
+                                    },
+                                    shape = RoundedCornerShape(16.dp),
+                                    color = if (isSelected) Color(0xFFBF6363) else Color.White,
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFBF6363))
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        if (isSelected) {
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = "Selected",
+                                                tint = Color.White,
+                                                modifier = Modifier.size(16.dp).padding(end = 4.dp)
+                                            )
+                                        }
+                                        Text(
+                                            text = friend.name,
+                                            color = if (isSelected) Color.White else Color(0xFFBF6363),
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = 14.sp
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // --- Sharing Link Section ---
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -184,6 +267,9 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
             Button(
                 onClick = {
                     if (isFormComplete) {
+                        // --- New: Pass the selected friends over to the ViewModel before saving ---
+                        viewItemModel.eventInvitedGuests = selectedFriendUids.toList()
+
                         viewItemModel.saveEventData()
                         // Explicitly return to Main Activity and kill this one
                         val intent = Intent(context, MainActivity::class.java)

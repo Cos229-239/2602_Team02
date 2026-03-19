@@ -201,13 +201,11 @@ fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab p
                 6 -> ProfileScreenUI(
                     onEditDietaryClick = { selectedTab = 5 },
                     onEditProfileClick = { selectedTab = 7 },
-                    onEventDashboardClick = {
-                        val intent = Intent(context, com.example.wepartyapp.ui.event_dashboard.EventDashboardActivity::class.java)
-                        context.startActivity(intent)
-                    }
+                    onFriendsListClick = { selectedTab = 9 }
                 )
                 7 -> com.example.wepartyapp.ui.profile.ProfileSettingsScreenUI( onBack = { selectedTab = 6 } )
                 8 -> NotificationsScreenUI( viewModel = eventViewModel, onBack = { selectedTab = 0 } ) // <-- Added Notifications Screen here
+                9 -> com.example.wepartyapp.ui.profile.FriendsListScreenUI( viewModel = eventViewModel, onBack = { selectedTab = 6 } )
             }
         }
     }
