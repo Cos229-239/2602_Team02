@@ -119,7 +119,6 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                //Spacer(modifier = Modifier.height(40.dp)) // <-- Pushes the whole screen down
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),

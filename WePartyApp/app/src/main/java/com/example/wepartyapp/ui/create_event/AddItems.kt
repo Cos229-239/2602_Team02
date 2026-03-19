@@ -56,6 +56,7 @@ import com.example.wepartyapp.ui.PartyItem
 // UI for the Add Items screen
 @Composable
 fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel, viewItemModel: EventViewModel) {
+
     var item by remember {                                                  //start with an empty string
         mutableStateOf("")
     }
@@ -107,7 +108,6 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                //Spacer(modifier = Modifier.height(40.dp)) // <-- Pushes the whole screen down!
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
