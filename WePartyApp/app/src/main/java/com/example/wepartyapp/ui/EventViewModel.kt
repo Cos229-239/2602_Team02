@@ -6,7 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -65,6 +67,14 @@ data class ChatMessage(
     val timestamp: Long = 0L
 )
 
+// --- Friend Blueprint ---
+data class FriendProfile(
+    val uid: String = "",
+    val name: String = "",
+    val email: String = "",
+    val appUserId: String = ""
+)
+
 class EventViewModel : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
@@ -82,6 +92,21 @@ class EventViewModel : ViewModel() {
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages: StateFlow<List<ChatMessage>> = _messages.asStateFlow()
 
+    // --- Friends State ---
+    private val _friendsList = MutableStateFlow<List<FriendProfile>>(emptyList())
+    val friendsList: StateFlow<List<FriendProfile>> = _friendsList.asStateFlow()
+
+    private val _searchResults = MutableStateFlow<List<FriendProfile>>(emptyList())
+    val searchResults: StateFlow<List<FriendProfile>> = _searchResults.asStateFlow()
+
+    // State to hold incoming friend requests
+    private val _friendRequests = MutableStateFlow<List<FriendProfile>>(emptyList())
+    val friendRequests: StateFlow<List<FriendProfile>> = _friendRequests.asStateFlow()
+
+    // NEW: State to hold Suggested Friends (Friends of Friends)
+    private val _suggestedFriends = MutableStateFlow<List<FriendProfile>>(emptyList())
+    val suggestedFriends: StateFlow<List<FriendProfile>> = _suggestedFriends.asStateFlow()
+
     // We cache the text fields here so they survive navigation between screens
     var eventId by mutableStateOf("") // Holds the pre-generated ID for FlowLinks
     var eventName by mutableStateOf("")
@@ -89,6 +114,7 @@ class EventViewModel : ViewModel() {
     var eventDate by mutableStateOf("")
     var eventTime by mutableStateOf("")
     var eventAddress by mutableStateOf("")
+    var eventInvitedGuests by mutableStateOf<List<String>>(emptyList())
 
     //-list of PartyItems-
     private val _itemsList = MutableStateFlow<List<PartyItem>>(emptyList())
@@ -244,6 +270,194 @@ class EventViewModel : ViewModel() {
             }
     }
 
+    // --- Friends Functions ---
+
+    // 1. Fetch both Friends and Pending Requests
+    fun fetchFriends() {
+        val currentUserId = auth.currentUser?.uid ?: return
+
+        db.collection("users").document(currentUserId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) return@addSnapshotListener
+
+                val friendUids = snapshot.get("friends") as? List<String> ?: emptyList()
+                val requestUids = snapshot.get("friendRequests") as? List<String> ?: emptyList()
+
+                // Fetch Friends Profiles
+                if (friendUids.isNotEmpty()) {
+                    db.collection("users").whereIn("uid", friendUids)
+                        .get()
+                        .addOnSuccessListener { friendDocs ->
+                            _friendsList.value = friendDocs.documents.map { doc ->
+                                FriendProfile(
+                                    uid = doc.getString("uid") ?: "",
+                                    name = doc.getString("name") ?: "Unknown",
+                                    email = doc.getString("email") ?: "",
+                                    appUserId = doc.getString("appUserId") ?: ""
+                                )
+                            }
+
+                            // Trigger the Friends of Friends algorithm
+                            fetchSuggestedFriends(friendUids, currentUserId)
+                        }
+                } else {
+                    _friendsList.value = emptyList()
+                    _suggestedFriends.value = emptyList() // Clear suggestions if no friends
+                }
+
+                // Fetch Friend Request Profiles
+                if (requestUids.isNotEmpty()) {
+                    db.collection("users").whereIn("uid", requestUids)
+                        .get()
+                        .addOnSuccessListener { reqDocs ->
+                            _friendRequests.value = reqDocs.documents.map { doc ->
+                                FriendProfile(
+                                    uid = doc.getString("uid") ?: "",
+                                    name = doc.getString("name") ?: "Unknown",
+                                    email = doc.getString("email") ?: "",
+                                    appUserId = doc.getString("appUserId") ?: ""
+                                )
+                            }
+                        }
+                } else {
+                    _friendRequests.value = emptyList()
+                }
+            }
+    }
+
+    // --- Friends of Friends Algorithm ---
+    private fun fetchSuggestedFriends(myFriendUids: List<String>, currentUserId: String) {
+        if (myFriendUids.isEmpty()) return
+
+        // Look at all of our friends' documents to see who they are friends with
+        db.collection("users").whereIn("uid", myFriendUids).get().addOnSuccessListener { friendsDocs ->
+            val friendsOfFriendsUids = mutableSetOf<String>()
+
+            for (doc in friendsDocs.documents) {
+                val theirFriends = doc.get("friends") as? List<String> ?: emptyList()
+                friendsOfFriendsUids.addAll(theirFriends)
+            }
+
+            // Remove myself, my current friends, and people who already sent me a request
+            friendsOfFriendsUids.remove(currentUserId)
+            friendsOfFriendsUids.removeAll(myFriendUids.toSet())
+            friendsOfFriendsUids.removeAll(_friendRequests.value.map { it.uid }.toSet())
+
+            if (friendsOfFriendsUids.isEmpty()) {
+                _suggestedFriends.value = emptyList()
+                return@addOnSuccessListener
+            }
+
+            // Grab the top 10 suggestions.
+            val topSuggestions = friendsOfFriendsUids.take(10)
+
+            db.collection("users").whereIn("uid", topSuggestions).get().addOnSuccessListener { suggDocs ->
+                _suggestedFriends.value = suggDocs.documents.map { doc ->
+                    FriendProfile(
+                        uid = doc.getString("uid") ?: "",
+                        name = doc.getString("name") ?: "Unknown",
+                        email = doc.getString("email") ?: "",
+                        appUserId = doc.getString("appUserId") ?: ""
+                    )
+                }
+            }
+        }
+    }
+
+    // --- Case-Insensitive Search ---
+    fun searchUsers(query: String) {
+        val queryText = query.trim()
+        if (queryText.isEmpty()) {
+            _searchResults.value = emptyList()
+            return
+        }
+
+        val currentUserId = auth.currentUser?.uid ?: ""
+
+        // Force whatever they type into the search bar to be lowercase
+        val lowerCaseQuery = queryText.lowercase()
+
+        // Launch queries against the standard fields
+        val emailQuery = db.collection("users").whereEqualTo("email", lowerCaseQuery).get()
+        val phoneQuery = db.collection("users").whereEqualTo("phoneNumber", queryText).get()
+        val appUserIdQuery = db.collection("users").whereEqualTo("appUserId", lowerCaseQuery).get()
+
+        // Wait for all 3 queries to finish, then merge their results into one list
+        Tasks.whenAllSuccess<com.google.firebase.firestore.QuerySnapshot>(emailQuery, phoneQuery, appUserIdQuery)
+            .addOnSuccessListener { snapshots ->
+                val resultsMap = mutableMapOf<String, FriendProfile>() // Map prevents duplicates
+
+                for (snapshot in snapshots) {
+                    for (doc in snapshot.documents) {
+                        val uid = doc.getString("uid") ?: continue
+
+                        // Don't show the current user in their own search results
+                        if (uid == currentUserId) continue
+
+                        resultsMap[uid] = FriendProfile(
+                            uid = uid,
+                            name = doc.getString("name") ?: "Unknown",
+                            email = doc.getString("email") ?: "",
+                            appUserId = doc.getString("appUserId") ?: ""
+                        )
+                    }
+                }
+                _searchResults.value = resultsMap.values.toList()
+            }
+            .addOnFailureListener {
+                _searchResults.value = emptyList()
+            }
+    }
+
+    // 3. Send a Request
+    fun sendFriendRequest(targetUid: String) {
+        val currentUserId = auth.currentUser?.uid ?: return
+
+        // Use SetOptions.merge() to prevent crashes if the user document is missing
+        db.collection("users").document(targetUid)
+            .set(mapOf("friendRequests" to FieldValue.arrayUnion(currentUserId)), com.google.firebase.firestore.SetOptions.merge())
+    }
+
+    // 4. Accept Request (Adds them to your friends, adds you to their friends, removes request)
+    fun acceptFriendRequest(requesterUid: String) {
+        val currentUserId = auth.currentUser?.uid ?: return
+
+        // Add them to your friends & clear the request
+        db.collection("users").document(currentUserId)
+            .set(mapOf(
+                "friends" to FieldValue.arrayUnion(requesterUid),
+                "friendRequests" to FieldValue.arrayRemove(requesterUid)
+            ), com.google.firebase.firestore.SetOptions.merge())
+
+        // Add you to their friends so it's mutual
+        db.collection("users").document(requesterUid)
+            .set(mapOf(
+                "friends" to FieldValue.arrayUnion(currentUserId)
+            ), com.google.firebase.firestore.SetOptions.merge())
+    }
+
+    // 5. Decline Request
+    fun declineFriendRequest(requesterUid: String) {
+        val currentUserId = auth.currentUser?.uid ?: return
+        db.collection("users").document(currentUserId)
+            .set(mapOf(
+                "friendRequests" to FieldValue.arrayRemove(requesterUid)
+            ), com.google.firebase.firestore.SetOptions.merge())
+    }
+
+    // 6. Remove an existing friend
+    fun removeFriend(friendUid: String) {
+        val currentUserId = auth.currentUser?.uid ?: return
+
+        // Remove from your list
+        db.collection("users").document(currentUserId)
+            .update("friends", FieldValue.arrayRemove(friendUid))
+
+        // Remove from their list
+        db.collection("users").document(friendUid)
+            .update("friends", FieldValue.arrayRemove(currentUserId))
+    }
+
     // --- Chat Functions ---
 
     // Sets up a real-time listener for messages within a specific event
@@ -318,7 +532,7 @@ class EventViewModel : ViewModel() {
             "lastSenderId" to null,
             "readByUsers" to mapOf(currentUserId to System.currentTimeMillis()), // Mark as read for creator
             "hostId" to currentUserId,
-            "invitedGuests" to emptyList<String>(),
+            "invitedGuests" to eventInvitedGuests, // <-- Updated to save selected friends!
             "attending" to emptyList<String>(),
             "maybe" to emptyList<String>(),
             "declined" to emptyList<String>()
@@ -340,6 +554,9 @@ class EventViewModel : ViewModel() {
             val allowedUsers = mutableListOf<String>()
             if (currentUserId.isNotEmpty()) allowedUsers.add(currentUserId)
 
+            // --- New: Add all selected friends to the allowed users list so they get notified ---
+            allowedUsers.addAll(eventInvitedGuests)
+
             sendAppNotification(
                 title = "New Party Alert!",
                 message = "$eventName is happening on $displayDate. Tap to see details!",
@@ -353,6 +570,7 @@ class EventViewModel : ViewModel() {
             eventTime = ""
             eventAddress = ""
             _itemsList.value = emptyList()
+            eventInvitedGuests = emptyList() // <-- Reset guest list for next party
 
             // Generate a fresh ID for the next party they create
             eventId = db.collection("events").document().id

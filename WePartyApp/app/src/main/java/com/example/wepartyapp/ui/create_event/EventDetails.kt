@@ -39,7 +39,8 @@ import java.util.TimeZone
 // Event Details Screen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventDetailsScreenUI(viewItemModel: EventViewModel) {
+// --- New: Added showErrors parameter ---
+fun EventDetailsScreenUI(viewItemModel: EventViewModel, showErrors: Boolean = false) {
     // We removed the local rememberSaveable variables.
     // Now everything types directly into the EventViewModel so it survives navigation.
 
@@ -125,15 +126,23 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel) {
         )
     }
 
+    // --- Error Checking Logic ---
+    val isNameError = showErrors && viewItemModel.eventName.isBlank()
+    val isDateError = showErrors && viewItemModel.eventDate.isBlank()
+    val isTimeError = showErrors && viewItemModel.eventTime.isBlank()
+    val isAddressError = showErrors && viewItemModel.eventAddress.isBlank()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
     ) {
+        // --- Event Name ---
         Text(
             text = "Event Name:",
             fontSize = 20.sp,
-            textDecoration = TextDecoration.Underline
+            textDecoration = TextDecoration.Underline,
+            color = if (isNameError) Color.Red else Color.Black // Highlight label
         )
         Row(
             modifier = Modifier.fillMaxWidth()
@@ -142,11 +151,13 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel) {
                 modifier = Modifier.weight(1f),
                 value = viewItemModel.eventName,
                 onValueChange = { viewItemModel.eventName = it },
-                singleLine = true // Forces "Next" on keyboard instead of return
+                singleLine = true, // Forces "Next" on keyboard instead of return
+                isError = isNameError // Highlights border
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
 
+        // --- Summart (Not Required, no error checking) ---
         Text(
             text = "Summary:",
             fontSize = 20.sp,
@@ -165,10 +176,12 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel) {
         }
         Spacer(modifier = Modifier.height(20.dp))
 
+        // --- Date ---
         Text(
             text = "Date:",
             fontSize = 20.sp,
-            textDecoration = TextDecoration.Underline
+            textDecoration = TextDecoration.Underline,
+            color = if (isDateError) Color.Red else Color.Black // Highlight label
         )
         Row(
             modifier = Modifier.fillMaxWidth()
@@ -180,17 +193,20 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel) {
                     value = viewItemModel.eventDate,
                     onValueChange = { },
                     readOnly = true, // Prevents keyboard from popping up
-                    singleLine = true
+                    singleLine = true,
+                    isError = isDateError // Highlights border
                 )
                 Box(modifier = Modifier.matchParentSize().clickable { showDatePicker = true })
             }
         }
         Spacer(modifier = Modifier.height(20.dp))
 
+        // --- Time ---
         Text(
             text = "Time:",
             fontSize = 20.sp,
-            textDecoration = TextDecoration.Underline
+            textDecoration = TextDecoration.Underline,
+            color = if (isTimeError) Color.Red else Color.Black // Highlight label
         )
         Row(
             modifier = Modifier.fillMaxWidth()
@@ -201,17 +217,20 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel) {
                     value = viewItemModel.eventTime,
                     onValueChange = { },
                     readOnly = true,
-                    singleLine = true
+                    singleLine = true,
+                    isError = isTimeError // Highlights border
                 )
                 Box(modifier = Modifier.matchParentSize().clickable { showTimePicker = true })
             }
         }
         Spacer(modifier = Modifier.height(20.dp))
 
+        // --- Address ---
         Text(
             text = "Address:",
             fontSize = 20.sp,
-            textDecoration = TextDecoration.Underline
+            textDecoration = TextDecoration.Underline,
+            color = if (isAddressError) Color.Red else Color.Black // Highlight label
         )
         Row(
             modifier = Modifier.fillMaxWidth()
@@ -220,7 +239,8 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel) {
                 modifier = Modifier.weight(1f),
                 value = viewItemModel.eventAddress,
                 onValueChange = { viewItemModel.eventAddress = it },
-                singleLine = true
+                singleLine = true,
+                isError = isAddressError // Highlights border
             )
         }
     }
