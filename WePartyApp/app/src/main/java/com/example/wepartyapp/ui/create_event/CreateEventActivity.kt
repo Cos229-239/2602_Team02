@@ -94,6 +94,7 @@ class CreateEventActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewModel) {
+
     val context = LocalContext.current // <-- Grab context for the Intent
 
     // --- Validation Logic for all 4 required fields ---
@@ -141,7 +142,6 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                //Spacer(modifier = Modifier.height(40.dp)) // <-- Pushes the whole screen down!
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),

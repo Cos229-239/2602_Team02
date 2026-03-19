@@ -172,7 +172,6 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-               //Spacer(modifier = Modifier.height(40.dp))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
