@@ -54,6 +54,7 @@ import com.google.firebase.auth.UserProfileChangeRequest
 class SignUpActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
+    private val db = FirebaseFirestore.getInstance() // <-- New: Firestore instance for uniqueness check
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,18 +76,27 @@ class SignUpActivity : ComponentActivity() {
             var errorMessage by remember { mutableStateOf<String?>(null) }
 
             SignUpScreenUI(
-                isLoading = isLoading,
-                errorMessage = errorMessage,
-                onSignUpClick = { nameInput, emailInput, passwordInput ->
+                isLoading = isLoading, // Pass state down
+                errorMessage = errorMessage, // Pass state down
+                // --- Updated: Added appUserId and phone inputs ---
+                onSignUpClick = { nameInput, appUserIdInput, phoneInput, emailInput, passwordInput ->
                     val name = nameInput.trim()
-                    val email = emailInput.trim()
+
+                    // Clean the handle and force it to lowercase instantly
+                    val appUserId = appUserIdInput.trim().replace(" ", "").replace("@", "").lowercase()
+
+                    val phone = phoneInput.trim()
+
+                    // FORCE the email to lowercase instantly
+                    val email = emailInput.trim().lowercase()
+
                     val password = passwordInput.trim()
 
                     // Reset error on new attempt
                     errorMessage = null
 
-                    if (email.isEmpty() || password.isEmpty() || name.isEmpty()) {
-                        errorMessage = "Please fill in all fields."
+                    if (email.isEmpty() || password.isEmpty() || name.isEmpty() || appUserId.isEmpty()) {
+                        errorMessage = "Please fill in all required fields."
                         return@SignUpScreenUI
                     }
 
@@ -100,34 +110,70 @@ class SignUpActivity : ComponentActivity() {
                         return@SignUpScreenUI
                     }
 
+
+
+                    // Lock the UI
                     isLoading = true
 
-                    auth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(this) { task ->
-                            if (task.isSuccessful) {
-                                // Save display name to Firebase profile
+                    // Check if the completely lowercase UserID is already taken
+                    db.collection("users").whereEqualTo("appUserId", appUserId).get()
+                        .addOnSuccessListener { documents ->
+                            if (!documents.isEmpty) {
+                                isLoading = false
+                                errorMessage = "That UserID is already taken. Please choose another."
+                                return@addOnSuccessListener
+                            }
+
+                            // Proceed to create the Auth account.
+                            auth.createUserWithEmailAndPassword(email, password)
+                                .addOnCompleteListener(this) { task ->
+                                    if (task.isSuccessful) {
+
+                                // Save name to Firebase
                                 val user = auth.currentUser
                                 val profileUpdates = UserProfileChangeRequest.Builder()
                                     .setDisplayName(name)
                                     .build()
 
-                                user?.updateProfile(profileUpdates)?.addOnCompleteListener {
-                                    startActivity(Intent(this, OnboardingActivity::class.java))
-                                    finish()
-                                }
+                                        user?.updateProfile(profileUpdates)?.addOnCompleteListener { profileTask ->
 
-                            } else {
-                                isLoading = false
+                                            // --- Database Save ---
+                                            val userMap = hashMapOf(
+                                                "uid" to user.uid,
+                                                "name" to name, // Keeps its capitals
+                                                "appUserId" to appUserId, // Saved as lowercase
+                                                "phoneNumber" to phone,
+                                                "email" to email, // Saved as lowercase
+                                                "friends" to emptyList<String>(),
+                                                "friendRequests" to emptyList<String>()
+                                            )
 
-                                // Translate Firebase errors into readable messages
-                                val exceptionMsg = task.exception?.message ?: ""
-                                errorMessage = when {
-                                    exceptionMsg.contains("email address is already in use", ignoreCase = true) -> "An account with this email already exists."
-                                    exceptionMsg.contains("network error", ignoreCase = true) -> "Network error. Please check your connection."
-                                    exceptionMsg.contains("weak password", ignoreCase = true) -> "Password is too weak. Please use a stronger password."
-                                    else -> "Sign Up failed. Please try again."
+                                            db.collection("users").document(user.uid)
+                                                .set(userMap)
+                                                .addOnSuccessListener {
+                                                    startActivity(Intent(this, OnboardingActivity::class.java))
+                                                    finish()
+                                                }
+                                        }
+
+                                    } else {
+                                        // Unlock the UI
+                                        isLoading = false
+
+                                        // --- Added: Human-readable error translations ---
+                                        val exceptionMsg = task.exception?.message ?: ""
+                                        errorMessage = when {
+                                            exceptionMsg.contains("email address is already in use", ignoreCase = true) -> "An account with this email already exists."
+                                            exceptionMsg.contains("network error", ignoreCase = true) -> "Network error. Please check your connection."
+                                            exceptionMsg.contains("weak password", ignoreCase = true) -> "Password is too weak. Please use a stronger password."
+                                            else -> "Sign Up failed. Please try again."
+                                        }
+                                    }
                                 }
-                            }
+                        }
+                        .addOnFailureListener {
+                            isLoading = false
+                            errorMessage = "Network error. Could not verify UserID availability."
                         }
                 },
                 onNavigateToLogin = {
@@ -140,12 +186,15 @@ class SignUpActivity : ComponentActivity() {
 
 @Composable
 fun SignUpScreenUI(
-    isLoading: Boolean,
-    errorMessage: String?,
-    onSignUpClick: (String, String, String) -> Unit,
+    isLoading: Boolean, // <-- Added
+    errorMessage: String?, // <-- Added
+    // --- Updated Signature to accept new fields ---
+    onSignUpClick: (String, String, String, String, String) -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
     var name by remember { mutableStateOf("") }
+    var appUserId by remember { mutableStateOf("") } // <-- New
+    var phone by remember { mutableStateOf("") }     // <-- New
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -165,17 +214,17 @@ fun SignUpScreenUI(
             painter = painterResource(id = R.drawable.app_logo),
             contentDescription = "WeParty Logo",
             modifier = Modifier
-                .size(180.dp)
+                .size(120.dp) // Slightly reduced size to fit new fields on smaller screens
                 .padding(bottom = 16.dp)
         )
 
         // Title
         Text(
             text = "Join the Party!",
-            fontSize = 32.sp,
+            fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFFFF4081),
-            modifier = Modifier.padding(bottom = 32.dp)
+            modifier = Modifier.padding(bottom = 24.dp)
         )
 
         // Name field
@@ -189,7 +238,54 @@ fun SignUpScreenUI(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .padding(bottom = 12.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = Color.White,
+                focusedContainerColor = Color.White,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent
+            )
+        )
+
+        // --- New: UserID Field ---
+        TextField(
+            value = appUserId,
+            onValueChange = { appUserId = it },
+            placeholder = { Text("Unique UserID (@handle)") },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = Color.White,
+                focusedContainerColor = Color.White,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent
+            )
+        )
+
+        // --- New: Phone Number Field ---
+        TextField(
+            value = phone,
+            onValueChange = { phone = it },
+            placeholder = { Text("Phone Number (Optional)") },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Phone,
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
             shape = RoundedCornerShape(8.dp),
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = Color.White,
@@ -213,7 +309,7 @@ fun SignUpScreenUI(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .padding(bottom = 12.dp),
             shape = RoundedCornerShape(8.dp),
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = Color.White,
@@ -236,7 +332,7 @@ fun SignUpScreenUI(
             keyboardActions = KeyboardActions(
                 onDone = {
                     focusManager.clearFocus()
-                    if (!isLoading) onSignUpClick(name, email, password)
+                    if (!isLoading) onSignUpClick(name, appUserId, phone, email, password)
                 }
             ),
             modifier = Modifier
@@ -264,7 +360,7 @@ fun SignUpScreenUI(
 
         // Sign up button — shows spinner while loading
         Button(
-            onClick = { onSignUpClick(name, email, password) },
+            onClick = { onSignUpClick(name, appUserId, phone, email, password) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
