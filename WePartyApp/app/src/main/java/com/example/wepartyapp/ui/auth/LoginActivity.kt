@@ -1,6 +1,6 @@
 package com.example.wepartyapp.ui.auth
 
-import android.app.Activity // <-- Added
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
@@ -14,39 +14,39 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height // <-- Added for fixed button height
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions // <-- Added
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator // <-- Added for loading spinner
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect // <-- Added
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection // <-- Added
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager // <-- Added
-import androidx.compose.ui.platform.LocalView // <-- Added
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction // <-- Added
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat // <-- Added
+import androidx.core.view.WindowCompat
 import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.home.MainActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -72,7 +72,7 @@ class LoginActivity : ComponentActivity() {
         auth = FirebaseAuth.getInstance()
 
         setContent {
-            // --- Status Bar Fix ---
+            // Status bar appearance
             val view = LocalView.current
             if (!view.isInEditMode) {
                 SideEffect {
@@ -81,21 +81,20 @@ class LoginActivity : ComponentActivity() {
                 }
             }
 
-            // --- Added: State variables to control the UI ---
+            // UI state
             var isLoading by remember { mutableStateOf(false) }
             var errorMessage by remember { mutableStateOf<String?>(null) }
 
             LoginScreenUI(
-                isLoading = isLoading, // Pass state down
-                errorMessage = errorMessage, // Pass state down
+                isLoading = isLoading,
+                errorMessage = errorMessage,
                 onLoginClick = { emailInput, passwordInput ->
                     val email = emailInput.trim()
                     val password = passwordInput.trim()
 
-                    // Reset state on new attempt
+                    // Reset error on new attempt
                     errorMessage = null
 
-                    // Basic validation (prevents dumb "invalid" issues)
                     if (email.isEmpty() || password.isEmpty()) {
                         errorMessage = "Please enter both email and password."
                         return@LoginScreenUI
@@ -106,19 +105,17 @@ class LoginActivity : ComponentActivity() {
                         return@LoginScreenUI
                     }
 
-                    // Lock the UI
                     isLoading = true
 
                     auth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this) { task ->
-                            // Unlock the UI
                             isLoading = false
 
                             if (task.isSuccessful) {
                                 startActivity(Intent(this, MainActivity::class.java))
                                 finish()
                             } else {
-                                // --- Added: Human-readable error translations ---
+                                // Translate Firebase errors into readable messages
                                 val exceptionMsg = task.exception?.message ?: ""
                                 errorMessage = when {
                                     exceptionMsg.contains("INVALID_LOGIN_CREDENTIALS") -> "Incorrect email or password. Please try again."
@@ -142,8 +139,8 @@ class LoginActivity : ComponentActivity() {
 
 @Composable
 fun LoginScreenUI(
-    isLoading: Boolean, // <-- Added
-    errorMessage: String?, // <-- Added
+    isLoading: Boolean,
+    errorMessage: String?,
     onLoginClick: (String, String) -> Unit,
     onNavigateToSignUp: () -> Unit,
     onNavigateToForgotPassword: () -> Unit
@@ -151,7 +148,7 @@ fun LoginScreenUI(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    val focusManager = LocalFocusManager.current // <-- Controls moving between fields
+    val focusManager = LocalFocusManager.current
 
     Column(
         modifier = Modifier
@@ -162,7 +159,7 @@ fun LoginScreenUI(
         verticalArrangement = Arrangement.Center
     ) {
 
-        // Logo (kept exactly)
+        // Logo
         Image(
             painter = painterResource(id = R.drawable.app_logo),
             contentDescription = "WeParty Logo",
@@ -179,16 +176,15 @@ fun LoginScreenUI(
             modifier = Modifier.padding(bottom = 32.dp)
         )
 
+        // Email field
         TextField(
             value = email,
             onValueChange = { email = it },
             placeholder = { Text("Email") },
-            // Set keyboard to show "Next" instead of enter
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next
             ),
-            // Move focus down to password field when "Next" is hit
             keyboardActions = KeyboardActions(
                 onNext = { focusManager.moveFocus(FocusDirection.Down) }
             ),
@@ -204,21 +200,20 @@ fun LoginScreenUI(
             )
         )
 
+        // Password field
         TextField(
             value = password,
             onValueChange = { password = it },
             placeholder = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
-            // Set keyboard to show "Done" instead of enter
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Done
             ),
-            // Submits the form when "Done" is hit
             keyboardActions = KeyboardActions(
                 onDone = {
-                    focusManager.clearFocus() // Hide keyboard
-                    if (!isLoading) onLoginClick(email, password) // Only click if not already loading
+                    focusManager.clearFocus()
+                    if (!isLoading) onLoginClick(email, password)
                 }
             ),
             modifier = Modifier
@@ -233,7 +228,7 @@ fun LoginScreenUI(
             )
         )
 
-        // Forgot Password link (new)
+        // Forgot password link
         Text(
             text = "Forgot password?",
             color = Color(0xFFFF4081),
@@ -244,7 +239,7 @@ fun LoginScreenUI(
                 .clickable { onNavigateToForgotPassword() }
         )
 
-        // --- Added: In-UI Error Message Display ---
+        // Show error if there is one
         if (errorMessage != null) {
             Text(
                 text = errorMessage,
@@ -255,14 +250,14 @@ fun LoginScreenUI(
             )
         }
 
-        // --- Updated: Button with Loading State ---
+        // Login button — shows spinner while loading
         Button(
             onClick = { onLoginClick(email, password) },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp), // Fixed height so it doesn't jump when loading
+                .height(50.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4081)),
-            enabled = !isLoading // Disables the button while Firebase is working
+            enabled = !isLoading
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
