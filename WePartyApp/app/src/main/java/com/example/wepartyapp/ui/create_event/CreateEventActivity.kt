@@ -30,6 +30,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect // <-- Added for status bar
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -94,7 +98,11 @@ class CreateEventActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewModel) {
+
     val context = LocalContext.current // <-- Grab context for the Intent
+
+    // --- New: Track if we should show red validation errors ---
+    var showErrors by remember { mutableStateOf(false) }
 
     // --- Validation Logic for all 4 required fields ---
     val isFormComplete = viewItemModel.eventName.isNotBlank() &&
@@ -141,7 +149,6 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                //Spacer(modifier = Modifier.height(40.dp)) // <-- Pushes the whole screen down!
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -188,16 +195,19 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                 }
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Pass the viewItemModel to EventDetailsScreenUI so it caches data
-                EventDetailsScreenUI(viewItemModel)
+                // --- New: Pass the 'showErrors' flag down to the details screen ---
+                EventDetailsScreenUI(viewItemModel, showErrors)
             }
 
             // --- Updated Button with Dynamic Toast Error Handling ---
             Button(
                 onClick = {
                     if (isFormComplete) {
+                        showErrors = false // Reset errors on success
                         navController.navigate(CreateEventRoutes.addItems)
                     } else {
+                        showErrors = true // --- New: Flip the flag to true to trigger red text fields ---
+
                         // Identify specifically what is missing
                         val missing = mutableListOf<String>()
                         if (viewItemModel.eventName.isBlank()) missing.add("Name")
