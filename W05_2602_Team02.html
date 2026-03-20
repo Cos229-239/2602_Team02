@@ -1,0 +1,332 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meeting Snapshot — Cycle 2602 Week 5 — 2602_Team02</title>
+<style>
+:root{--bg:#f6f8fa;--card:#fff;--border:#d0d7de;--text:#1f2328;--muted:#656d76;--accent:#0969da;--high:#cf222e;--low:#1a7f37;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin:0;padding:0;background:var(--bg);color:var(--text);line-height:1.5;}
+.app{display:flex;min-height:100vh;}
+.sidebar{position:fixed;left:0;top:0;width:200px;height:100vh;overflow-y:auto;background:var(--text);color:#fff;padding:1rem 0;flex-shrink:0;}
+.sidebar a{display:block;color:rgba(255,255,255,0.9);text-decoration:none;padding:0.4rem 1rem;font-size:0.9rem;}
+.nav-cycle{font-weight:700;font-size:1rem;margin-top:0.5rem;}
+.nav-week{font-weight:600;margin-top:0.5rem;}
+.nav-team{padding-left:1.5rem;font-size:0.85rem;}
+.sidebar a:hover{background:rgba(255,255,255,0.1);color:#fff;}
+.sidebar a.active{background:var(--accent);color:#fff;}
+.sidebar-brand{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1rem;border-bottom:1px solid rgba(255,255,255,0.2);}
+.logo-link{flex-shrink:0;}
+.sidebar-logo{width:40px;height:40px;display:block;}
+.brand-text{display:flex;flex-direction:column;line-height:1.2;}
+.brand-org{font-weight:700;font-size:0.85rem;}
+.brand-cycle{font-size:0.75rem;opacity:0.9;}
+.nav-week-group{margin-bottom:0.75rem;}
+.nav-week{display:block;font-weight:600;font-size:1.1rem;margin-top:0.25rem;padding:0.35rem 1rem;}
+.nav-team{display:flex;align-items:center;padding:0.15rem 1rem 0.15rem 1.5rem;font-size:0.55rem;}
+.nav-team-bullet{display:inline-block;width:6px;height:6px;border-radius:50%;background:#f97316;margin-right:0.5rem;flex-shrink:0;}
+.nav-teams{list-style:none;margin:0.25rem 0 0 0;padding:0 0 0 0.75rem;font-size:0.85rem;}
+.nav-teams li{margin:0.1rem 0;}
+.content{flex:1;margin-left:200px;padding:1.5rem;max-width:900px;}
+.report-header{background:var(--text);color:#fff;padding:1rem 1.25rem;margin:0 0 0.5rem 0;font-size:0.95rem;border-radius:0 0 8px 0;display:flex;justify-content:space-between;align-items:center;}
+.report-subheader{font-size:0.85rem;color:var(--muted);margin:0 0 0.15rem 0;}
+.section{margin:1.5rem 0;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.section-git{border-left:4px solid #0969da;}
+.section-trello{border-left:4px solid #2da44e;}
+.section-discord{border-left:4px solid #8250df;}
+.section h2{margin:0;padding:0.75rem 1rem;background:var(--bg);font-size:1rem;border-bottom:1px solid var(--border);}
+.section-git h2{background:linear-gradient(90deg,#0969da08,var(--bg));}
+.section-trello h2{background:linear-gradient(90deg,#2da44e08,var(--bg));}
+.section-discord h2{background:linear-gradient(90deg,#8250df08,var(--bg));}
+.section-inner{padding:1rem 1.25rem;}
+table{width:100%;border-collapse:collapse;font-size:0.9rem;}
+th,td{border:1px solid var(--border);padding:0.5rem 0.75rem;text-align:left;}
+th{background:var(--bg);font-weight:600;}
+.risk-high{color:var(--high);font-weight:600;}
+.risk-low{color:var(--low);}
+code{background:#24292f;color:#f0f6fc;padding:0.2em 0.5em;border-radius:4px;font-size:0.88em;font-family:ui-monospace,monospace;}
+.members-list{list-style:none;padding:0;margin:0;}
+.members-list li{padding:0.25rem 0;border-bottom:1px solid var(--border);}
+.member-detail summary{cursor:pointer;user-select:none;}
+.member-detail-body{margin-top:0.25rem;font-size:0.85rem;color:var(--muted);}
+.members-list li:last-child{border-bottom:none;}
+.quick-ref{margin:0.5rem 0 1.25rem 0;padding:0.5rem 0;font-size:0.9rem;color:var(--muted);}
+.issues-list{list-style:none;padding:0;}
+.section-team-id{font-size:0.75rem;color:var(--muted);font-weight:400;display:block;margin-top:0.15rem;}
+.section-collapsible summary{cursor:pointer;list-style:none;user-select:none;}
+.section-collapsible summary::-webkit-details-marker{display:none;}
+.section-collapsible summary::before{content:'▼';font-size:0.75rem;margin-right:0.5rem;opacity:0.7;}
+.section-collapsible:not([open]) summary::before{content:'▶';}
+.git-detail-block{margin:1rem 0 1rem 1.5rem;padding:0.6rem 0.75rem;background:var(--bg);border-radius:6px;font-size:0.85rem;}
+.git-detail-block .code-block{font-size:0.8rem;padding:0.4rem 0.5rem;margin:0.2rem 0 0.25rem 0;}
+.git-detail-block .fix-steps li{margin:0.35rem 0;}
+.issues-list li{padding:0.5rem 0;border-bottom:1px solid var(--border);color:var(--high);}
+.files-sample{font-size:0.85rem;color:var(--muted);}
+</style></head><body><div class="app">
+<nav class="sidebar">
+<div class="sidebar-brand">
+<a href="index.html" class="logo-link"><img src="logo.png" alt="Logo" class="sidebar-logo"></a>
+<div class="brand-text"><span class="brand-org">Cos229-239</span><span class="brand-cycle">2602</span></div>
+</div>
+<a href="index.html" class="nav-home">Home</a>
+<div class="nav-week-group">
+<a href="W05.html" class="nav-week active">Week 05</a>
+<a href="W05_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W05_2602_Team02.html" class="nav-team active"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W06.html" class="nav-week">Week 06</a>
+<a href="W06_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W06_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W07.html" class="nav-week">Week 07</a>
+<a href="W07_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W07_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W08.html" class="nav-week">Week 08</a>
+<a href="W08_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W08_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+</nav>
+<main class="content">
+<div class="report-header"><span>MEETING SNAPSHOT - Cycle 2602 - Week 5</span></div>
+<div class="report-subheader">Generated: 03-19-2026 - 21:37</div>
+<div class="report-subheader">Report period: 2026-03-02 to 2026-03-08</div>
+<h1 style="margin-top:0;">2602_Team02</h1>
+<div class="section"><h2>Members</h2><div class="section-inner">
+<ul class="members-list">
+<li><details class="member-detail"><summary>Rodney F. — GIT, Trello, Discord</summary><div class="member-detail-body"><div>GIT: Active this week (see tables below).</div> <div>Trello: Has actions this week.</div> <div>Discord: Has standup posts this week.</div></div></details></li>
+<li><details class="member-detail"><summary>Lesly M. — <span style="color:#e85d04;font-weight:600;">GIT</span>, Trello, Discord</summary><div class="member-detail-body"><div style="color:#cf222e;">GIT: Has a diverged branch (merge conflict likely).</div> <div>Trello: Has actions this week.</div> <div>Discord: Has standup posts this week.</div></div></details></li>
+<li><details class="member-detail"><summary>Hasani C. — <span style="color:#e85d04;font-weight:600;">GIT</span>, Trello, Discord</summary><div class="member-detail-body"><div style="color:#cf222e;">GIT: Working from a fork of the class repo (HIGH merge risk). See Forks section for how to move into the class repo.</div> <div>Trello: Has actions this week.</div> <div>Discord: Has standup posts this week.</div></div></details></li>
+<li><details class="member-detail"><summary>Maret M. — GIT, Trello, Discord</summary><div class="member-detail-body"><div>GIT: Active this week (see tables below).</div> <div>Trello: Has actions this week.</div> <div>Discord: Has standup posts this week.</div></div></details></li>
+<li><details class="member-detail"><summary>Andy T. — GIT, Trello, Discord</summary><div class="member-detail-body"><div>GIT: Active this week (see tables below).</div> <div>Trello: Has actions this week.</div> <div>Discord: Has standup posts this week.</div></div></details></li>
+</ul>
+</div></div>
+<details class="section section-git section-collapsible" open><summary><h2>GIT — Branch Health (Merge Risk Audit)</h2><span class="section-team-id">2602_Team02</span></summary>
+<div class="section-inner">
+<p style="font-size:0.9rem;color:var(--muted);">USE the GUI in the IDE for fix actions, or View → Terminal. Commands below.</p>
+<table><thead><tr><th style="white-space:nowrap;">Person</th><th>Branch</th><th>Branch Status</th><th>Activity</th><th>Contribution</th><th>Ahead / Behind</th><th>Risk</th></tr></thead><tbody>
+<tr><td style="white-space:nowrap;">Andy T.</td><td><code>AndyPersonal</code></td><td>Behind</td><td>17d ago</td><td>+1083/-615</td><td>0 / 89</td><td class="risk-low">LOW</td></tr>
+<tr><td style="white-space:nowrap;">Andy T.</td><td><code>AndyPersonal2</code></td><td>Behind</td><td>4d ago</td><td>+1083/-615</td><td>0 / 27</td><td class="risk-low">LOW</td></tr>
+<tr><td style="white-space:nowrap;">Hasani C.</td><td><code>HasaniPersonal</code></td><td>Behind</td><td>8d ago</td><td>—</td><td>0 / 43</td><td class="risk-low">LOW</td></tr>
+<tr><td style="white-space:nowrap;">Lesly M.</td><td><code>LeslyMorales-personal</code></td><td>Diverged</td><td>TODAY</td><td>+2420/-713</td><td>1 / 3</td><td class="risk-high">HIGH</td></tr>
+<tr><td style="white-space:nowrap;">Maret M.</td><td><code>MaretRiveraPersonal</code></td><td>Behind</td><td>TODAY</td><td>+621/-207</td><td>0 / 9</td><td class="risk-low">LOW</td></tr>
+<tr><td style="white-space:nowrap;">Rodney F.</td><td><code>RodneyPersonal</code></td><td>Behind</td><td>TODAY</td><td>+2535/-924</td><td>0 / 7</td><td class="risk-low">LOW</td></tr>
+</tbody></table>
+<div class="quick-ref"><strong>Quick Reference:</strong> Status = Behind (pull dev), Ahead (push/merge to dev), Diverged (merge conflict risk — act soon), In Sync. Risk = HIGH → act soon.</div>
+<div style="margin-top:1.25rem;">
+<div class="git-detail-block">
+<strong>Andy T. (AndyPersonal) — </strong><br>
+Last commit: 17d ago.<br>
+89 commit(s) on dev you don't have<br>
+<strong>Suggested Action:</strong><ul class="fix-steps" style="margin:0.25rem 0;list-style:none;padding:0;">
+<li style="margin:0.5rem 0;">Pull dev (start of the day).</li>
+<li style="margin:0.5rem 0;"><span>Switch to dev</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git checkout dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Pull latest dev</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git pull origin dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Switch back to your branch (don't stay on dev)</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git checkout AndyPersonal</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Merge dev into your branch</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git merge dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;">Save work on your personal branch during the day (make commits with messages).</li>
+<li style="margin:0.5rem 0;">Push to dev when work is solid (share with the team every few days).</li>
+</ul>
+</div>
+<div class="git-detail-block">
+<strong>Andy T. (AndyPersonal2) — </strong><br>
+Last commit: 4d ago.<br>
+27 commit(s) on dev you don't have<br>
+<strong>Suggested Action:</strong><ul class="fix-steps" style="margin:0.25rem 0;list-style:none;padding:0;">
+<li style="margin:0.5rem 0;">Pull dev (start of the day).</li>
+<li style="margin:0.5rem 0;"><span>Switch to dev</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git checkout dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Pull latest dev</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git pull origin dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Switch back to your branch (don't stay on dev)</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git checkout AndyPersonal2</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Merge dev into your branch</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git merge dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;">Save work on your personal branch during the day (make commits with messages).</li>
+<li style="margin:0.5rem 0;">Push to dev when work is solid (share with the team every few days).</li>
+</ul>
+</div>
+<div class="git-detail-block">
+<strong>Hasani C. (HasaniPersonal) — </strong><br>
+Last commit: 8d ago.<br>
+43 commit(s) on dev you don't have<br>
+<strong>Suggested Action:</strong><ul class="fix-steps" style="margin:0.25rem 0;list-style:none;padding:0;">
+<li style="margin:0.5rem 0;">Pull dev (start of the day).</li>
+<li style="margin:0.5rem 0;"><span>Switch to dev</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git checkout dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Pull latest dev</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git pull origin dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Switch back to your branch (don't stay on dev)</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git checkout HasaniPersonal</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Merge dev into your branch</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git merge dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;">Save work on your personal branch during the day (make commits with messages).</li>
+<li style="margin:0.5rem 0;">Push to dev when work is solid (share with the team every few days).</li>
+</ul>
+</div>
+<div class="git-detail-block">
+<strong>Lesly M. (LeslyMorales-personal) — </strong><br>
+Last commit: TODAY.<br>
+1 commit not on dev yet<br>
+3 commit(s) on dev you don't have<br>
+<strong>Suggested Action:</strong><ul class="fix-steps" style="margin:0.25rem 0;list-style:none;padding:0;">
+<li style="margin:0.5rem 0;">Pull dev (start of the day).</li>
+<li style="margin:0.5rem 0;"><span>Switch to dev</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git checkout dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Pull latest dev</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git pull origin dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Switch back to your branch (don't stay on dev)</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git checkout LeslyMorales-personal</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Merge dev into your branch</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git merge dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;">Resolve any merge conflicts (edit conflicted files, then `git add` and `git commit`).</li>
+<li style="margin:0.5rem 0;">Push to dev when work is solid (share with the team every few days).</li>
+</ul>
+</div>
+<div class="git-detail-block">
+<strong>Maret M. (MaretRiveraPersonal) — </strong><br>
+Last commit: TODAY.<br>
+9 commit(s) on dev you don't have<br>
+<strong>Suggested Action:</strong><ul class="fix-steps" style="margin:0.25rem 0;list-style:none;padding:0;">
+<li style="margin:0.5rem 0;">Pull dev (start of the day).</li>
+<li style="margin:0.5rem 0;"><span>Switch to dev</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git checkout dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Pull latest dev</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git pull origin dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Switch back to your branch (don't stay on dev)</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git checkout MaretRiveraPersonal</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Merge dev into your branch</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git merge dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;">Save work on your personal branch during the day (make commits with messages).</li>
+<li style="margin:0.5rem 0;">Push to dev when work is solid (share with the team every few days).</li>
+</ul>
+</div>
+<div class="git-detail-block">
+<strong>Rodney F. (RodneyPersonal) — </strong><br>
+Last commit: TODAY.<br>
+7 commit(s) on dev you don't have<br>
+<strong>Suggested Action:</strong><ul class="fix-steps" style="margin:0.25rem 0;list-style:none;padding:0;">
+<li style="margin:0.5rem 0;">Pull dev (start of the day).</li>
+<li style="margin:0.5rem 0;"><span>Switch to dev</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git checkout dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Pull latest dev</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git pull origin dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Switch back to your branch (don't stay on dev)</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git checkout RodneyPersonal</code></pre>
+</li>
+<li style="margin:0.5rem 0;"><span>Merge dev into your branch</span>
+<pre class="code-block" style="margin:0.25rem 0;padding:0.4rem 0.5rem;background:#24292f;color:#f0f6fc;border-radius:6px;font-size:0.8rem;overflow-x:auto;font-family:ui-monospace,monospace;"><code>git merge dev</code></pre>
+</li>
+<li style="margin:0.5rem 0;">Save work on your personal branch during the day (make commits with messages).</li>
+<li style="margin:0.5rem 0;">Push to dev when work is solid (share with the team every few days).</li>
+</ul>
+</div>
+</div></details>
+<details class="section section-git section-collapsible"><summary><h2>GIT — Forks</h2><span class="section-team-id">2602_Team02</span></summary><div class="section-inner">
+<p style="font-size:0.9rem;color:var(--muted);">Forks of this team repo (HIGH merge risk — work is outside the class repo).</p>
+<table><thead><tr><th style="white-space:nowrap;">Name</th><th style="white-space:nowrap;">GitHub User</th><th>Notes</th></tr></thead><tbody>
+<tr><td style="white-space:nowrap;">Hasani C.</td><td style="white-space:nowrap;">@4hzzz</td><td>Fork of this team repo (HIGH merge risk). Move work into the class repo and stop using the fork.</td></tr>
+</tbody></table>
+<div style="margin-top:1rem;font-size:0.85rem;color:var(--muted);">
+<strong>How to move from a fork to the class repo:</strong>
+<ul style="margin:0.25rem 0 0.5rem 1.25rem;padding:0;">
+<li>1. Clone the <em>class</em> repo (org repo) if you have not already.</li>
+<li>2. In that clone, add your fork as a remote (for example: <code>git remote add fork &lt;your-fork-URL&gt;</code>).</li>
+<li>3. Fetch your fork (for example: <code>git fetch fork</code>).</li>
+<li>4. Create a new personal branch from <code>dev</code> in the class repo (for example: <code>git checkout -b YourNamePersonal origin/dev</code>).</li>
+<li>5. Merge the work from your fork branch into your new personal branch (for example: <code>git merge fork/&lt;your-branch&gt;</code> and resolve any conflicts).</li>
+<li>6. Push your personal branch back to the class repo (for example: <code>git push origin YourNamePersonal</code>).</li>
+<li>7. From now on, work only in the class repo (on your personal branch + dev); do not keep committing to the fork.</li>
+</ul></div>
+</div></details>
+<details class="section section-git section-collapsible" open><summary><h2>GIT — Files Touched This Week</h2><span class="section-team-id">2602_Team02</span></summary><div class="section-inner">
+<table><thead><tr><th style="white-space:nowrap;">Person</th><th style="white-space:nowrap;">Working from</th><th>Commits</th><th>+ / -</th><th>Net</th><th>Activity Sample (top 5)</th></tr></thead><tbody>
+<tr><td style="white-space:nowrap;">Rodney F.</td><td style="white-space:nowrap;">Org repo</td><td>13</td><td>+2535/-924</td><td>+1611</td><td class="files-sample">EventDashboardActivity.kt +673/-185 | CalendarScreen.kt +312/-198 | PasswordRecoveryActivity.kt +250/-82 | MainActivity.kt +248/-19 | EventViewModel.kt +216/-31 ... and 15 more files</td></tr>
+<tr><td style="white-space:nowrap;">Lesly M.</td><td style="white-space:nowrap;">Org repo</td><td>17</td><td>+2420/-713</td><td>+1707</td><td class="files-sample">EditItemActivity.kt +558/-47 | EventDashboardActivity.kt +418/-89 | MainActivity.kt +215/-91 | ConsolidatedShoppingListActivity.kt +203/-33 | EventViewModel.kt +193/-28 ... and 15 more files</td></tr>
+<tr><td style="white-space:nowrap;">Andy T.</td><td style="white-space:nowrap;">Org repo</td><td>4</td><td>+1083/-615</td><td>+468</td><td class="files-sample">ChatFeedContent.kt +621/-178 | EventViewModel.kt +296/-113 | EventDashboardActivity.kt +161/-179 | AndroidManifest.xml +3/-0 | MainActivity.kt +2/-1 ... and 2 more files</td></tr>
+<tr><td style="white-space:nowrap;">Maret M.</td><td style="white-space:nowrap;">Org repo</td><td>9</td><td>+621/-207</td><td>+414</td><td class="files-sample">EventInfoActivity.kt +260/-16 | MainActivity.kt +167/-149 | EventDashboardActivity.kt +124/-22 | ProfileActivity.kt +70/-20</td></tr>
+</tbody></table>
+</div></details>
+<details class="section section-trello section-collapsible" open><summary><h2>TRELLO — Activity This Week</h2><span class="section-team-id">2602_Team02</span></summary><div class="section-inner">
+<pre style="margin:0;white-space:pre-wrap;font-size:0.85rem;">2602_Team02
+Last Activity:
+2026-03-19
+0 days ago
+
+Members:
+- Andy T.
+- Hasani C.
+- Lesly M.
+- Maret M.
+- Rodney F.
+
+Assignments:
+  Andy T.: 5 cards
+  Hasani C.: 3 cards
+  Lesly M.: 7 cards
+  Maret M.: 4 cards
+  Rodney F.: 14 cards
+
+Activity (Week 5: 2026-03-02 → 2026-03-08):
+Andy T.:
+   19 actions
+   (Add:2 Move:9 Comment:<span style="color:#e85d04;">0</span> Complete:<span style="color:#e85d04;">0</span> Attach:3 Assigned:2 Label:0 Checklist:3)
+Hasani C.:
+   14 actions
+   (Add:1 Move:3 Comment:<span style="color:#e85d04;">0</span> Complete:8 Attach:0 Assigned:1 Label:0 Checklist:1)
+Lesly M.:
+   54 actions
+   (Add:1 Move:32 Comment:<span style="color:#e85d04;">0</span> Complete:2 Attach:7 Assigned:4 Label:0 Checklist:3)
+Maret M.:
+   23 actions
+   (Add:6 Move:13 Comment:<span style="color:#e85d04;">0</span> Complete:<span style="color:#e85d04;">0</span> Attach:1 Assigned:2 Label:0 Checklist:1)
+Rodney F.:
+   20 actions
+   (Add:1 Move:11 Comment:2 Complete:1 Attach:1 Assigned:4 Label:0 Checklist:0)
+
+Status: HEALTHY
+-------------------------------------------------</pre>
+</div></details>
+<details class="section section-discord section-collapsible" open><summary><h2>DISCORD — Standup Posts This Week</h2><span class="section-team-id">2602_Team02</span></summary><div class="section-inner">
+<table><thead><tr><th style="white-space:nowrap;">Person</th><th>Posts</th><th>Dates</th><th>Summary</th></tr></thead><tbody>
+<tr><td style="white-space:nowrap;">Andy T.</td><td>6</td><td>Mar 2, Mar 3, Mar 5, Mar 7, Mar 8</td><td>Worked extensively on the event dashboard, implementing persistent group messaging and item checklist functionality. Researched Firebase and notifications features, with plans to refine the UI.</td></tr>
+<tr><td style="white-space:nowrap;">Lesly M.</td><td>5</td><td>Mar 3, Mar 4, Mar 5, Mar 6</td><td>Developed the consolidated shopping list and edit screen functionality, ensuring items can be added and edited properly. Also worked on navigation issues and balancing this with class assignments.</td></tr>
+<tr><td style="white-space:nowrap;">Rodney F.</td><td>5</td><td>Mar 3, Mar 5, Mar 7</td><td>Participated in brainstorming sessions, addressing push notifications and refining error handling in the app. Worked on polishing the calendar UI, preparing for upcoming project tasks.</td></tr>
+<tr><td style="white-space:nowrap;">Maret M.</td><td>3</td><td>Mar 5, Mar 6</td><td>Contributed to brainstorming and project planning, focused on UI/UX improvements for the home screen and Event Info Screen. Engaged in team collaboration during Build Review.</td></tr>
+<tr><td style="white-space:nowrap;">Hasani C.</td><td>2</td><td>Mar 5</td><td>Improved login UX, focusing on preventing duplicate login attempts and ensuring reliable feedback during authentication processes. Will continue testing auth flow.</td></tr>
+</tbody></table>
+</div></details>
+<div class="section"><h2>ISSUES / ALERTS</h2><div class="section-inner">
+<ul class="issues-list">
+<li>Lesly M. has a diverged branch (merge conflict likely). Follow directions above.</li>
+<li>Lesly M. has a diverged branch (merge conflict likely).</li>
+<li>Hasani C. is working from a fork of the class repo — HIGH merge risk. See Forks section for how to move into the class repo.</li>
+</ul>
+</div></div>
+<div style="text-align:right;font-size:0.7rem;color:var(--muted);margin-top:1.5rem;">v1.1.24</div>
+</main></div></body></html>
