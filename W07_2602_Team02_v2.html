@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meeting Snapshot — Dashboard V2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com/">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+  <link href="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/css2" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --surface2: #243044;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --success: #3fb950;
+      --warn: #d29922;
+      --danger: #f85149;
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; min-height: 100vh; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 1rem 1.25rem; }
+
+    .v2-header {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;
+      padding: 1rem 0; border-bottom: 1px solid var(--surface2); margin-bottom: 1.25rem;
+    }
+    .v2-header h1 { font-size: 1.35rem; font-weight: 700; margin: 0; }
+    .v2-ref { font-size: 0.8rem; color: var(--text-muted); }
+    .v2-ref a { color: var(--accent); }
+
+    /* Overview cards */
+    .overview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
+    @media (max-width: 700px) { .overview-grid { grid-template-columns: repeat(2, 1fr); } }
+    .overview-card {
+      background: var(--surface); border: 1px solid var(--surface2); border-radius: var(--radius);
+      padding: 1rem; text-align: center;
+    }
+    .overview-card .icon { width: 36px; height: 36px; margin: 0 auto 0.5rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+    .overview-card .icon.members { background: rgba(88, 166, 255, 0.2); }
+    .overview-card .icon.status { background: rgba(63, 185, 80, 0.2); }
+    .overview-card .icon.commits { background: rgba(163, 113, 247, 0.2); }
+    .overview-card .icon.trello { background: rgba(210, 153, 34, 0.2); }
+    .overview-card .icon.standups { background: rgba(88, 101, 242, 0.2); }
+    .overview-card .lbl { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.25rem; }
+    .overview-card .num { font-size: 1.4rem; font-weight: 700; }
+
+    /* Three wheels - Git, Trello, Standups: left, center, right; color by % (100 green, 51-99 yellow, 0-50 red) */
+    @property --pct { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+    .radial-section { display: flex; flex-direction: column; align-items: stretch; margin-bottom: 1.5rem; padding: 1.25rem; background: var(--surface); border: 1px solid var(--surface2); border-radius: var(--radius); }
+    .radial-section h3 { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 1rem; }
+    .radial-wheels { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; gap: 1rem; }
+    .radial-wheel { position: relative; width: 140px; min-height: 140px; flex-shrink: 0; }
+    .radial-wheel .radial-bg { position: absolute; top: 0; left: 0; width: 140px; height: 140px; border-radius: 50%; background: var(--surface2); }
+    .radial-wheel .radial-fill { position: absolute; top: 6px; left: 6px; width: 128px; height: 128px; border-radius: 50%; --pct: 0deg; background: conic-gradient(var(--wheel-color) 0deg var(--pct), var(--surface2) var(--pct) 360deg); transition: opacity 0.25s ease; }
+    .radial-wheel .radial-inner { position: absolute; top: 20px; left: 20px; width: 100px; height: 100px; border-radius: 50%; background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.15rem; }
+    .radial-wheel .radial-inner .radial-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+    .radial-wheel .radial-inner .radial-icon svg { width: 22px; height: 22px; display: block; }
+    .radial-wheel .radial-inner .radial-icon.radial-icon-git svg { color: #58a6ff; }
+    .radial-wheel .radial-inner .radial-icon.radial-icon-trello svg { color: #0079bf; }
+    .radial-wheel .radial-inner .radial-icon.radial-icon-standups svg { color: #5865f2; }
+    .radial-wheel .radial-inner .pct { font-size: 1.5rem; font-weight: 800; line-height: 1; color: var(--warn); letter-spacing: 0.02em; }
+    .radial-wheel .radial-inner .pct.pct-full { color: var(--success); }
+    @keyframes stampSlamStamp { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(338deg) scale(0); } 12% { opacity: 1; transform: translate(-50%, -50%) rotate(163deg) scale(8); } 100% { opacity: 1; transform: translate(-50%, -50%) rotate(-12deg) scale(1); } }
+    .member-row .fork-stamp,
+    .member-row .rubber-stamp,
+    .branch-entry .fork-stamp,
+    .branch-entry .rubber-stamp,
+    .activity-row .fork-stamp,
+    .activity-row .rubber-stamp { opacity: 0; transform: translate(-50%, -50%) rotate(-12deg) scale(0); }
+    .member-row .fork-stamp.stamp-played,
+    .member-row .rubber-stamp.stamp-played,
+    .branch-entry .fork-stamp.stamp-played,
+    .branch-entry .rubber-stamp.stamp-played,
+    .activity-row .fork-stamp.stamp-played,
+    .activity-row .rubber-stamp.stamp-played { animation: stampSlamStamp 0.675s ease-out 0.075s forwards; }
+    .radial-wheel .radial-footer { margin-top: 144px; text-align: center; }
+    .radial-wheel .radial-footer .label { display: block; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .radial-wheel.wheel-full { --wheel-color: var(--success); }
+    .radial-wheel.wheel-high { --wheel-color: var(--warn); }
+    .radial-wheel.wheel-low { --wheel-color: var(--danger); }
+
+    /* Leaderboard (dot, speed bar, car) */
+    .leaderboard-row .row-badge { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--surface2); }
+    .leaderboard-row .row-badge svg { width: 16px; height: 16px; display: block; }
+    .leaderboard-row .row-badge.badge-code svg { color: #58a6ff; }
+    .leaderboard-row .row-badge.badge-trello svg { color: #0079bf; }
+    .leaderboard-row .row-badge.badge-standups svg { color: #5865f2; }
+    .leaderboard-reveal { text-align: center; padding: 1.5rem; }
+    .leaderboard-reveal button { padding: 0.6rem 1.25rem; font-size: 0.9rem; font-weight: 600; font-family: inherit; color: var(--bg); background: var(--accent); border: none; border-radius: var(--radius); cursor: pointer; }
+    .leaderboard-reveal button:hover { filter: brightness(1.1); }
+    .leaderboard-content { display: none; }
+    .leaderboard-content.revealed { display: block; }
+    .leaderboard { display: flex; flex-direction: column; gap: 0.85rem; padding: 0 1.25rem; }
+    .leaderboard-row { display: flex; align-items: center; gap: 1rem; font-size: 0.875rem; flex-wrap: wrap; padding: 0.25rem 0; }
+    .leaderboard-row .row-first { flex: 0 0 auto; min-width: 5rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; margin-left: auto; }
+    .leaderboard-row .row-name { opacity: 0; transform: scale(8); transition: opacity 0.6s ease, transform 0.6s ease; transform-origin: right center; }
+    .leaderboard-row.name-visible .row-name { opacity: 1; transform: scale(1); }
+    .leaderboard-row .row-track-wrap .track-speed-bar .track-trophy { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); opacity: 0; transition: opacity 0.2s ease; z-index: 2; font-size: 0.85rem; pointer-events: none; }
+    .leaderboard-row.trophy-visible .row-track-wrap .track-speed-bar .track-trophy { opacity: 0.95; }
+    .leaderboard-row .row-label { flex: 0 0 6.5rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); padding-right: 0.25rem; }
+    .leaderboard-row .row-track-wrap { flex: 1 1 140px; min-width: 100px; height: 24px; background: var(--surface2); border-radius: 999px; position: relative; padding-left: 20px; padding-right: 12px; box-sizing: border-box; }
+    .leaderboard-row .row-track-wrap .track-dot { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); font-size: 0.65rem; color: var(--text-muted); z-index: 2; }
+    .leaderboard-row .row-track-wrap .track-speed-bar { position: absolute; top: 2px; bottom: 2px; left: 20px; background: var(--success); border-radius: 999px; z-index: 1; min-width: 4px; transition: none; overflow: visible; }
+    .leaderboard-row .row-track-wrap .track-marker.car { position: absolute; left: 20px; top: 50%; transform: translateY(-50%) scaleX(-1); font-size: 0.75rem; z-index: 2; transition: none; }
+
+    /* Git stats + contribution bars */
+    .git-stats { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
+    .git-stat { text-align: center; padding: 0.5rem 1rem; background: var(--surface2); border-radius: var(--radius-sm); min-width: 80px; }
+    .git-stat .num { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+    .git-stat .lbl { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+    .contrib-bar-wrap { margin: 0.5rem 0; }
+    .contrib-bar-wrap .label { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.25rem; }
+    .contrib-bar-wrap .bar { height: 8px; background: var(--surface2); border-radius: 999px; overflow: hidden; }
+    .standup-stats { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
+    .standup-by-day-chart { margin-bottom: 1.25rem; padding: 1rem; background: var(--surface2); border-radius: var(--radius-sm); }
+    .standup-by-day-chart h3 { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 0.75rem; }
+    .standup-by-day-strip { display: flex; width: 100%; border-radius: var(--radius-sm); overflow: hidden; box-shadow: inset 0 0 0 1px var(--surface); }
+    .standup-by-day-strip .day-cell { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem 0.25rem; font-size: 0.7rem; min-height: 2.5rem; }
+    .standup-by-day-strip .day-cell .day-label { color: var(--text-muted); margin-bottom: 0.2rem; }
+    .standup-by-day-strip .day-cell .day-num { font-weight: 700; }
+    .standup-by-day-strip .day-cell .day-num.num-ok { color: var(--success); }
+    .standup-by-day-strip .day-cell .day-num.num-warn { color: var(--warn); }
+    .standup-by-day-strip .day-cell .day-num.num-danger { color: var(--danger); }
+    .standup-by-day-strip .day-cell.bar-ok { background: rgba(63, 185, 80, 0.25); }
+    .standup-by-day-strip .day-cell.bar-warn { background: rgba(210, 153, 34, 0.25); }
+    .standup-by-day-strip .day-cell.bar-danger { background: rgba(248, 81, 73, 0.25); }
+    .standup-stat { text-align: center; padding: 0.5rem 1rem; background: var(--surface2); border-radius: var(--radius-sm); min-width: 80px; }
+    .standup-stat .num { font-size: 1.25rem; font-weight: 700; color: #5865f2; }
+    .standup-stat .lbl { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+    .trello-stats { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
+    .trello-stat { text-align: center; padding: 0.5rem 1rem; background: var(--surface2); border-radius: var(--radius-sm); min-width: 80px; }
+    .trello-stat .num { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+    .trello-stat .lbl { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+    .member-row .avatar-stars { display: flex; justify-content: center; gap: 2px; margin-top: 0.35rem; width: 100%; text-align: center; }
+    .member-row .avatar-star { cursor: help; font-size: 0.65rem; color: #f0c14b; line-height: 1; }
+
+    .card { background: var(--surface); border: 1px solid var(--surface2); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem; }
+    .card h2 { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--surface2); }
+
+    /* Avatar + progress ring (roster, branch health, Trello/Discord) */
+    .avatar-ring-wrap { position: relative; flex-shrink: 0; }
+    .avatar-ring-wrap .ring-svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+    .avatar-ring-wrap .avatar-wrap { position: absolute; border-radius: 50%; overflow: hidden; z-index: 2; }
+    .avatar-ring-wrap .avatar-wrap .avatar { position: relative; z-index: 0; }
+    .avatar-ring-wrap > .fork-stamp,
+    .avatar-ring-wrap > .rubber-stamp {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-12deg) scale(0);
+      font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+      padding: 0.2rem 0.4rem; border: 2px solid; border-radius: 2px; background: rgba(0,0,0,0.5);
+      box-shadow: 0 0 0 1px currentColor; z-index: 999; pointer-events: none;
+      opacity: 0;
+    }
+    .avatar-ring-wrap > .fork-stamp.stamp-played,
+    .avatar-ring-wrap > .rubber-stamp.stamp-played { animation: stampSlamStamp 0.675s ease-out 0.075s forwards; }
+    .avatar-ring-wrap .avatar { border-radius: 50%; object-fit: cover; display: block; background: var(--surface2); }
+    #members-v2-root { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+    @media (max-width: 640px) { #members-v2-root { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 380px) { #members-v2-root { grid-template-columns: 1fr; } }
+    .member-row { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 0.75rem; border: 1px solid var(--surface2); border-radius: var(--radius-sm); background: var(--surface); }
+    .member-row .avatar-ring-wrap { width: 56px; height: 56px; }
+    .member-row .avatar-ring-wrap .avatar-wrap { inset: 6px; }
+    .member-row .avatar-ring-wrap .avatar { width: 44px; height: 44px; }
+    .member-row .fork-stamp,
+    .rubber-stamp {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-12deg);
+      font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em;
+      text-transform: uppercase; white-space: nowrap; padding: 0.2rem 0.4rem;
+      border: 2px solid; border-radius: 2px; background: rgba(0,0,0,0.5);
+      box-shadow: 0 0 0 1px currentColor; z-index: 100; pointer-events: none;
+    }
+    .member-row .fork-stamp,
+    .rubber-stamp.danger,
+    .avatar-ring-wrap > .fork-stamp { color: var(--danger); border-color: var(--danger); }
+    .rubber-stamp.missing { color: var(--danger); border-color: var(--danger); }
+    .rubber-stamp.no-activity { color: var(--warn); border-color: var(--warn); }
+    .member-row .info { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; min-width: 0; text-align: center; }
+    .member-row .name { font-weight: 600; font-size: 0.875rem; }
+    .member-row .meta { font-size: 0.75rem; color: var(--text-muted); display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem; }
+    .pill { font-size: 0.65rem; padding: 0.2rem 0.45rem; border-radius: 999px; }
+    .pill.ok { background: var(--success); color: #000; }
+    .pill.warn { background: var(--warn); color: #000; }
+    .pill.danger { background: var(--danger); color: #fff; }
+
+    /* Branch health with avatars + dropdown */
+    .branch-entry { border-bottom: 1px solid var(--surface2); }
+    .branch-entry:last-child { border-bottom: none; }
+    .branch-entry .branch-row-top { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0; cursor: pointer; }
+    .branch-entry .branch-row-top:hover { background: rgba(255,255,255,0.03); }
+    .branch-entry .avatar-ring-wrap { width: 48px; height: 48px; }
+    .branch-entry .avatar-ring-wrap .avatar-wrap { inset: 4px; }
+    .branch-entry .avatar-ring-wrap .avatar { width: 40px; height: 40px; }
+    .branch-entry .name { font-weight: 600; }
+    .branch-entry .branch { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-muted); }
+    .branch-entry .status-pill { font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 999px; margin-left: auto; }
+    .branch-entry .status-pill.sync { background: var(--success); color: #000; }
+    .branch-entry .status-pill.behind { background: var(--warn); color: #000; }
+    .branch-entry .status-pill.ahead { background: var(--accent); color: #000; }
+    .branch-entry .status-pill.missing { background: var(--danger); color: #fff; }
+    .branch-entry .dropdown-panel .status-text-behind { color: var(--warn); font-weight: 600; }
+    .branch-entry .dropdown-panel .status-text-ahead { color: var(--accent); font-weight: 600; }
+    .branch-entry .dropdown-panel .status-text-missing { color: var(--danger); font-weight: 600; }
+    .branch-entry .dropdown-panel .status-text-sync { color: var(--success); font-weight: 600; }
+    .branch-entry .dropdown-chevron { font-size: 0.75rem; color: var(--text-muted); transition: transform 0.2s; flex-shrink: 0; }
+    .branch-entry.open .dropdown-chevron { transform: rotate(180deg); }
+    .branch-entry .dropdown-panel { display: none; padding: 0.75rem 1rem; margin: 0 0 0.5rem; background: var(--bg); border-radius: var(--radius-sm); border-left: 3px solid var(--accent); font-size: 0.8rem; }
+    .branch-entry.open .dropdown-panel { display: block; }
+    .branch-entry .dropdown-panel.border-ok { border-left-color: var(--success); }
+    .branch-entry .dropdown-panel.border-warn { border-left-color: var(--warn); }
+    .branch-entry .dropdown-panel.border-danger { border-left-color: var(--danger); }
+    .branch-entry .dropdown-panel dl { margin: 0 0 0.75rem; display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 1rem; color: var(--text-muted); }
+    .branch-entry .dropdown-panel dt { font-weight: 600; color: var(--text); }
+    .branch-entry .dropdown-panel h4 { margin: 0 0 0.35rem; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); }
+    .branch-entry .dropdown-panel ol { margin: 0; padding-left: 1.25rem; color: var(--text-muted); }
+    .branch-entry .dropdown-panel code { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; background: var(--surface2); padding: 0.1rem 0.35rem; border-radius: 3px; }
+
+    /* Alert cards with icons */
+    .alert-card { display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 0.5rem; border-left: 4px solid; }
+    .alert-card.danger { background: rgba(248, 81, 73, 0.1); border-color: var(--danger); }
+    .alert-card.warn { background: rgba(210, 153, 34, 0.1); border-color: var(--warn); }
+    .alert-card .icon { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; }
+    .alert-card.danger .icon { background: var(--danger); color: #fff; }
+    .alert-card.warn .icon { background: var(--warn); color: #000; }
+    .alert-card .text { flex: 1; font-size: 0.875rem; }
+
+    /* Trello / Discord rows with avatars + dropdown */
+    .activity-row { border-bottom: 1px solid var(--surface2); }
+    .activity-row .row-top { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0; cursor: pointer; }
+    .activity-row .row-top:hover { background: rgba(255,255,255,0.03); }
+    .activity-row .avatar-ring-wrap { width: 44px; height: 44px; }
+    .activity-row .avatar-ring-wrap .avatar-wrap { inset: 4px; }
+    .activity-row .avatar-ring-wrap .avatar { width: 36px; height: 36px; }
+    .activity-row .bar-wrap { flex: 1; height: 10px; background: var(--surface2); border-radius: 999px; overflow: hidden; min-width: 60px; }
+    .activity-row .bar { height: 100%; border-radius: 999px; }
+    .activity-row .bar.bar-ok { background: var(--success); }
+    .activity-row .bar.bar-warn { background: var(--warn); }
+    .activity-row .bar.bar-danger { background: var(--danger); }
+    .activity-row .bar.bar-neutral { background: var(--accent); }
+    .activity-row .activity-name-wrap { flex-shrink: 0; }
+    .activity-row .activity-name { font-weight: 600; font-size: 0.875rem; }
+    .activity-row .activity-missing-label { margin-top: 0.1rem; }
+    .activity-row .count { font-weight: 600; font-size: 0.875rem; min-width: 4rem; text-align: right; }
+    .activity-row .count.zero { color: var(--warn); }
+    .activity-row .dropdown-chevron { font-size: 0.75rem; color: var(--text-muted); flex-shrink: 0; transition: transform 0.2s; }
+    .activity-row.open .dropdown-chevron { transform: rotate(180deg); }
+    .activity-row .dropdown-panel { display: none; padding: 0.75rem 1rem; margin: 0 0 0.5rem; background: var(--bg); border-radius: var(--radius-sm); border-left: 3px solid var(--accent); font-size: 0.8rem; }
+    .activity-row.open .dropdown-panel { display: block; }
+    .activity-row .dropdown-panel.border-danger { border-left-color: var(--danger); }
+    .activity-row .dropdown-panel.border-warn { border-left-color: var(--warn); }
+    .activity-row .dropdown-panel.border-ok { border-left-color: var(--success); }
+    .activity-row .dropdown-panel h4 { margin: 0 0 0.35rem; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); }
+    .activity-row .dropdown-panel h4.summary-heading { margin-top: 1rem; }
+    .activity-row .dropdown-panel h4.steps-heading { margin-top: 1rem; }
+    .activity-row .dropdown-panel h4.actions-heading { margin-top: 1rem; margin-bottom: 0.5rem; }
+    .activity-row .dropdown-panel p, .activity-row .dropdown-panel ul { margin: 0; color: var(--text-muted); }
+    .activity-row .dropdown-panel ul { padding-left: 1.25rem; margin-top: 0.35rem; margin-bottom: 0.5rem; }
+
+    .page-version { text-align: right; margin-top: 1rem; font-size: 0.7rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="v2-header">
+      <div>
+        <h1 id="v2-header-title">— Dashboard V2</h1>
+        <p class="v2-ref"><a id="link-lms-table" href="meeting-snapshot-lms-data.html">LMS Data</a> · <a id="link-v1-report" href="https://cos229-239.github.io/2602_Team02/W06_2602_Team02.html">Source</a></p>
+      </div>
+    </header>
+
+    <section class="overview-grid" id="overview-root">
+      <div class="overview-card">
+        <div class="icon members">👥</div>
+        <div class="lbl">Active Members</div>
+        <div class="num">5</div>
+      </div>
+      <div class="overview-card">
+        <div class="icon commits">⌗</div>
+        <div class="lbl">Total Commits</div>
+        <div class="num">20</div>
+      </div>
+      <div class="overview-card">
+        <div class="icon trello">▤</div>
+        <div class="lbl">Trello Actions</div>
+        <div class="num">21</div>
+      </div>
+      <div class="overview-card">
+        <div class="icon standups">💬</div>
+        <div class="lbl">Standup Posts</div>
+        <div class="num">15</div>
+      </div>
+    </section>
+
+    <section class="radial-section" id="radial-root">
+      <h3>Participation overview</h3>
+      <div class="radial-wheels">
+        <div class="radial-wheel wheel-high" title="Git">
+          <div class="radial-bg"></div>
+          <div class="radial-fill" style="--pct-target: 288deg; --pct: 0deg;" data-pct="288"></div>
+          <div class="radial-inner">
+            <span class="radial-icon radial-icon-git"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg></span>
+            <span class="pct">80%</span>
+          </div>
+          <div class="radial-footer"><span class="label">Git</span></div>
+        </div>
+        <div class="radial-wheel wheel-high" title="Trello">
+          <div class="radial-bg"></div>
+          <div class="radial-fill" style="--pct-target: 216deg; --pct: 0deg;" data-pct="216"></div>
+          <div class="radial-inner">
+            <span class="radial-icon radial-icon-trello"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-8 2h6v8h-6V5zm-2 0v8H3V5h6z"/></svg></span>
+            <span class="pct">60%</span>
+          </div>
+          <div class="radial-footer"><span class="label">Trello</span></div>
+        </div>
+        <div class="radial-wheel wheel-full" title="Standups">
+          <div class="radial-bg"></div>
+          <div class="radial-fill" style="--pct-target: 360deg; --pct: 0deg;" data-pct="360"></div>
+          <div class="radial-inner">
+            <span class="radial-icon radial-icon-standups"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg></span>
+            <span class="pct pct-full">100%</span>
+          </div>
+          <div class="radial-footer"><span class="label">Standups</span></div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+    (function() {
+      var root = document.getElementById('radial-root');
+      if (!root) return;
+      var wheels = root.querySelectorAll('.radial-wheel');
+      function animateFill(wheel, toTarget) {
+        var fill = wheel.querySelector('.radial-fill');
+        if (!fill) return;
+        var targetDeg = parseFloat(fill.getAttribute('data-pct') || '0', 10);
+        var duration = toTarget ? 550 : 350;
+        var startVal = parseFloat(fill.style.getPropertyValue('--pct') || '0', 10) || 0;
+        var start = performance.now();
+        var animId = null;
+        function step(now) {
+          var elapsed = now - start;
+          var t = Math.min(1, elapsed / duration);
+          var eased = 1 - Math.pow(1 - t, 2);
+          var current = toTarget ? (eased * targetDeg) : (startVal * (1 - t));
+          fill.style.setProperty('--pct', current + 'deg');
+          if (t < 1) animId = requestAnimationFrame(step);
+        }
+        animId = requestAnimationFrame(step);
+        return function cancel() { if (animId) cancelAnimationFrame(animId); };
+      }
+      wheels.forEach(function(wheel) {
+        var fill = wheel.querySelector('.radial-fill');
+        if (!fill) return;
+        var targetDeg = parseFloat(fill.getAttribute('data-pct') || '0', 10);
+        var duration = 600;
+        var start = performance.now();
+        function step(now) {
+          var elapsed = now - start;
+          var t = Math.min(1, elapsed / duration);
+          var eased = 1 - Math.pow(1 - t, 2);
+          fill.style.setProperty('--pct', (eased * targetDeg) + 'deg');
+          if (t < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+        var cancelAnim = null;
+        wheel.addEventListener('mouseenter', function() {
+          if (cancelAnim) cancelAnim();
+          fill.style.setProperty('--pct', '0deg');
+          requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+              cancelAnim = animateFill(wheel, true);
+            });
+          });
+        });
+        wheel.addEventListener('mouseleave', function() {
+          if (cancelAnim) cancelAnim();
+          /* stay filled - no empty on mouse away */
+        });
+      });
+    })();
+    </script>
+
+    <section class="card" id="leaderboard-card">
+      <h2>Leaderboard</h2>
+      <div class="leaderboard-reveal" id="leaderboard-reveal">
+        <button type="button" id="leaderboard-reveal-btn">Show leaderboard</button>
+      </div>
+      <div class="leaderboard-content" id="leaderboard-content">
+        <div class="leaderboard" id="leaderboard-v2-root"><div class="leaderboard-row label-visible" data-lead-pct="92.9294648174934"><span class="row-badge badge-code" title="Code" aria-label="Code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><line x1="6" y1="3" x2="6" y2="15"></line><circle cx="18" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><path d="M18 9a9 9 0 0 1-9 9"></path></svg></span><span class="row-label">#1 in Git</span><div class="row-track-wrap"><span class="track-dot" title="Start">●</span><div class="track-speed-bar" style="width: 633.779px;" title="Lead"><span class="track-marker track-trophy" aria-hidden="true">🏆</span></div><span class="track-marker car" style="left: 659.779px;" title="Leader">🚗</span></div><span class="row-first"><span class="row-name">Hasani C.</span></span></div><div class="leaderboard-row label-visible" data-lead-pct="57.14285714285714"><span class="row-badge badge-trello" title="Trello" aria-label="Trello"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-8 2h6v8h-6V5zm-2 0v8H3V5h6z"></path></svg></span><span class="row-label">#1 in Trello</span><div class="row-track-wrap"><span class="track-dot" title="Start">●</span><div class="track-speed-bar" style="width: 388.571px;" title="Lead"><span class="track-marker track-trophy" aria-hidden="true">🏆</span></div><span class="track-marker car" style="left: 414.571px;" title="Leader">🚗</span></div><span class="row-first"><span class="row-name">Rodney F.</span></span></div><div class="leaderboard-row label-visible" data-lead-pct="100"><span class="row-badge badge-standups" title="Standups" aria-label="Standups"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"></path></svg></span><span class="row-label">#1 in Standups</span><div class="row-track-wrap"><span class="track-dot" title="Start">●</span><div class="track-speed-bar" style="width: 610px;" title="Lead"><span class="track-marker track-trophy" aria-hidden="true">🏆</span></div><span class="track-marker car" style="left: 636px;" title="Leader">🚗</span></div><span class="row-first"><span class="row-name">Hasani C. &amp; Lesly M.</span></span></div></div>
+      </div>
+    </section>
+
+    <script>
+    (function() {
+      var btn = document.getElementById('leaderboard-reveal-btn');
+      var reveal = document.getElementById('leaderboard-reveal');
+      var content = document.getElementById('leaderboard-content');
+      if (!btn || !reveal || !content) return;
+      btn.addEventListener('click', function() {
+        reveal.style.display = 'none';
+        content.classList.add('revealed');
+        var rows = content.querySelectorAll('.leaderboard-row');
+        var barDurationMax = 1500;
+        var labelDelay = 450;
+        var nameDuration = 600;
+        var trophyDelay = 400;
+        rows.forEach(function(row) {
+          row.classList.remove('name-visible', 'trophy-visible');
+          var bar = row.querySelector('.track-speed-bar');
+          var car = row.querySelector('.track-marker.car');
+          if (bar) bar.style.width = '0';
+          if (car) car.style.left = '20px';
+        });
+        function runRow(index) {
+          if (index >= rows.length) return;
+          var row = rows[index];
+          var targetPct = parseFloat(row.getAttribute('data-lead-pct') || '0', 10);
+          var bar = row.querySelector('.track-speed-bar');
+          var car = row.querySelector('.track-marker.car');
+          var wrap = row.querySelector('.row-track-wrap');
+          if (!bar || !car || !wrap) { runRow(index + 1); return; }
+          var barDuration = Math.max(400, (targetPct / 100) * barDurationMax);
+          var start = performance.now();
+          function step(now) {
+            var elapsed = now - start;
+            var t = Math.min(1, elapsed / barDuration);
+            var eased = 1 - Math.pow(1 - t, 1.2);
+            var pct = eased * targetPct;
+            var trackWidth = wrap.offsetWidth - 32;
+            var barWidth = (trackWidth * pct / 100);
+            var carLeft = 20 + barWidth + 6;
+            bar.style.width = barWidth + 'px';
+            car.style.left = carLeft + 'px';
+            if (t < 1) {
+              requestAnimationFrame(step);
+            } else {
+              setTimeout(function() {
+                row.classList.add('trophy-visible');
+                setTimeout(function() {
+                  row.classList.add('name-visible');
+                  setTimeout(function() { runRow(index + 1); }, nameDuration);
+                }, trophyDelay);
+              }, labelDelay);
+            }
+          }
+          requestAnimationFrame(step);
+        }
+        requestAnimationFrame(function() { runRow(0); });
+      });
+    })();
+    </script>
+
+    <section class="card">
+      <h2>Team</h2>
+      <div id="members-v2-root">
+      <div class="member-row">
+        <div class="avatar-ring-wrap">
+          <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+          <div class="avatar-wrap">
+            <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource" alt="" width="44" height="44" loading="lazy" onerror="this.src=&#39;https://ui-avatars.com/api/?name=Rodney%20F.&amp;background=388bfd&amp;color=fff&amp;size=88&#39;">
+          </div>
+        </div>
+        <div class="avatar-stars"><span class="avatar-star" title="Trello Allstar" aria-label="Trello Allstar">★</span></div>
+        <div class="info">
+          <div class="name">Rodney F.</div>
+          <div class="meta">
+            <span class="pill ok">GIT</span>
+            <span class="pill ok">Trello</span>
+            <span class="pill ok">Discord</span>
+          </div>
+        </div>
+      </div>
+    
+      <div class="member-row">
+        <div class="avatar-ring-wrap">
+          <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+          <div class="avatar-wrap">
+            <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource(1)" alt="" width="44" height="44" loading="lazy" onerror="this.src=&#39;https://ui-avatars.com/api/?name=Lesly%20M.&amp;background=388bfd&amp;color=fff&amp;size=88&#39;">
+          </div>
+        </div>
+        <div class="avatar-stars"><span class="avatar-star" title="Standups Allstar" aria-label="Standups Allstar">★</span></div>
+        <div class="info">
+          <div class="name">Lesly M.</div>
+          <div class="meta">
+            <span class="pill ok">GIT</span>
+            <span class="pill ok">Trello</span>
+            <span class="pill ok">Discord</span>
+          </div>
+        </div>
+      </div>
+    
+      <div class="member-row">
+        <div class="avatar-ring-wrap">
+          <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--danger)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+          <div class="avatar-wrap">
+            <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/4hzzz.png" alt="" width="44" height="44" loading="lazy" onerror="this.src=&#39;https://ui-avatars.com/api/?name=Hasani%20C.&amp;background=388bfd&amp;color=fff&amp;size=88&#39;">
+          </div>
+          <span class="fork-stamp" aria-label="Fork">Fork</span>
+        </div>
+        <div class="avatar-stars"><span class="avatar-star" title="Code Allstar" aria-label="Code Allstar">★</span><span class="avatar-star" title="Standups Allstar" aria-label="Standups Allstar">★</span></div>
+        <div class="info">
+          <div class="name">Hasani C.</div>
+          <div class="meta">
+            <span class="pill danger">GIT</span>
+            <span class="pill ok">Trello</span>
+            <span class="pill ok">Discord</span>
+          </div>
+        </div>
+      </div>
+    
+      <div class="member-row">
+        <div class="avatar-ring-wrap">
+          <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--warn)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+          <div class="avatar-wrap">
+            <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource(2)" alt="" width="44" height="44" loading="lazy" onerror="this.src=&#39;https://ui-avatars.com/api/?name=Maret%20M.&amp;background=388bfd&amp;color=fff&amp;size=88&#39;">
+            
+          </div>
+          
+        </div>
+        <div class="info">
+          <div class="name">Maret M.</div>
+          <div class="meta">
+            <span class="pill ok">GIT</span>
+            <span class="pill warn">Trello</span>
+            <span class="pill ok">Discord</span>
+          </div>
+        </div>
+      </div>
+    
+      <div class="member-row">
+        <div class="avatar-ring-wrap">
+          <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--warn)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+          <div class="avatar-wrap">
+            <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource(3)" alt="" width="44" height="44" loading="lazy" onerror="this.src=&#39;https://ui-avatars.com/api/?name=Andy%20T.&amp;background=388bfd&amp;color=fff&amp;size=88&#39;">
+            
+          </div>
+          
+        </div>
+        <div class="info">
+          <div class="name">Andy T.</div>
+          <div class="meta">
+            <span class="pill ok">GIT</span>
+            <span class="pill warn">Trello</span>
+            <span class="pill ok">Discord</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    </section>
+
+    <section class="card">
+      <h2>GIT — Files Touched This Week (Net +/-)</h2>
+      <div class="git-stats" id="git-stats-v2-root">
+      <div class="git-stat"><span class="num">20</span><div class="lbl">Commits this week</div></div>
+      <div class="git-stat"><span class="num">+16077 / −2548</span><div class="lbl">Team +/−</div></div>
+      <div class="git-stat"><span class="num">13529</span><div class="lbl">Net lines</div></div>
+    </div>
+      <div id="contrib-v2-root">
+      <div class="contrib-bar-wrap">
+        <div class="label">
+          <span>Hasani C. <small style="color:var(--text-muted)">(3 commits, Fork (@4hzzz))</small></span>
+          <span>+12381 / −628 → <strong>11753</strong></span>
+        </div>
+        <div class="bar"><div style="width:100%; height:100%; border-radius:999px; background: linear-gradient(90deg, var(--accent), #a371f7);"></div></div>
+      </div>
+    
+      <div class="contrib-bar-wrap">
+        <div class="label">
+          <span>Lesly M. <small style="color:var(--text-muted)">(5 commits, Org repo)</small></span>
+          <span>+1776 / −945 → <strong>831</strong></span>
+        </div>
+        <div class="bar"><div style="width:7.070535182506594%; height:100%; border-radius:999px; background: linear-gradient(90deg, var(--accent), #a371f7);"></div></div>
+      </div>
+    
+      <div class="contrib-bar-wrap">
+        <div class="label">
+          <span>Rodney F. <small style="color:var(--text-muted)">(6 commits, Org repo)</small></span>
+          <span>+988 / −555 → <strong>433</strong></span>
+        </div>
+        <div class="bar"><div style="width:5%; height:100%; border-radius:999px; background: linear-gradient(90deg, var(--accent), #a371f7);"></div></div>
+      </div>
+    
+      <div class="contrib-bar-wrap">
+        <div class="label">
+          <span>Maret M. <small style="color:var(--text-muted)">(6 commits, Org repo)</small></span>
+          <span>+932 / −420 → <strong>512</strong></span>
+        </div>
+        <div class="bar"><div style="width:5%; height:100%; border-radius:999px; background: linear-gradient(90deg, var(--accent), #a371f7);"></div></div>
+      </div>
+    </div>
+    </section>
+
+    <section class="card">
+      <h2>GIT Branch Health</h2>
+      <div id="branch-v2-root">
+      <div class="branch-entry" data-idx="0">
+        <div class="branch-row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--warn)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+            <div class="avatar-wrap">
+              <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource(3)" alt="" width="40" height="40" loading="lazy" data-name="Andy T." onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=&#39;https://ui-avatars.com/api/?name=&#39;+encodeURIComponent(this.dataset.name||&#39;User&#39;)+&#39;&amp;size=80&#39;}">
+            </div>
+            
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="name">Andy T.</div>
+            <div class="branch">AndyPersonal</div>
+          </div>
+          <span class="status-pill behind">Behind</span>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel border-ok" id="branch-panel-0"><dl><dt>Last commit</dt><dd>11d ago</dd><dt>Contribution</dt><dd>—</dd><dt>Unmerged / Behind</dt><dd>0 / 59</dd><dt>Branch status</dt><dd><span class="status-text-behind">Behind</span> · Risk: LOW</dd></dl><h4>Steps to resolve</h4><ol><li>Pull dev (start of the day).</li><li>Switch to dev: <code>git checkout dev</code></li><li>Pull latest dev: <code>git pull origin dev</code></li><li>Switch back to your branch: <code>git checkout AndyPersonal</code></li><li>Merge dev into your branch: <code>git merge dev</code></li><li>Save work on your personal branch during the day (make commits with messages).</li><li>Push to dev when work is solid (share with the team every few days).</li></ol></div>
+      </div>
+    
+      <div class="branch-entry" data-idx="1">
+        <div class="branch-row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--warn)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+            <div class="avatar-wrap">
+              <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource(3)" alt="" width="40" height="40" loading="lazy" data-name="Andy T." onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=&#39;https://ui-avatars.com/api/?name=&#39;+encodeURIComponent(this.dataset.name||&#39;User&#39;)+&#39;&amp;size=80&#39;}">
+            </div>
+            
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="name">Andy T.</div>
+            <div class="branch">AndyPersonal2</div>
+          </div>
+          <span class="status-pill behind">Behind</span>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel border-ok" id="branch-panel-1"><dl><dt>Last commit</dt><dd>5d ago</dd><dt>Contribution</dt><dd>—</dd><dt>Unmerged / Behind</dt><dd>0 / 23</dd><dt>Branch status</dt><dd><span class="status-text-behind">Behind</span> · Risk: LOW</dd></dl><h4>Steps to resolve</h4><ol><li>Pull dev (start of the day).</li><li>Switch to dev: <code>git checkout dev</code></li><li>Pull latest dev: <code>git pull origin dev</code></li><li>Switch back to your branch: <code>git checkout AndyPersonal2</code></li><li>Merge dev into your branch: <code>git merge dev</code></li><li>Save work on your personal branch during the day (make commits with messages).</li><li>Push to dev when work is solid (share with the team every few days).</li></ol></div>
+      </div>
+    
+      <div class="branch-entry" data-idx="2">
+        <div class="branch-row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+            <div class="avatar-wrap">
+              <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource(1)" alt="" width="40" height="40" loading="lazy" data-name="Lesly M." onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=&#39;https://ui-avatars.com/api/?name=&#39;+encodeURIComponent(this.dataset.name||&#39;User&#39;)+&#39;&amp;size=80&#39;}">
+            </div>
+            
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="name">Lesly M.</div>
+            <div class="branch">LeslyMorales-personal</div>
+          </div>
+          <span class="status-pill ahead">Unmerged</span>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel border-ok" id="branch-panel-2"><dl><dt>Last commit</dt><dd>TODAY</dd><dt>Contribution</dt><dd>+1776/-945</dd><dt>Unmerged / Behind</dt><dd>2 / 0</dd><dt>Branch status</dt><dd><span class="status-text-ahead">Unmerged</span> · Risk: LOW</dd></dl><h4>Steps to resolve</h4><ol><li>Push work from your personal branch up to dev (when it is solid).</li><li>Push your branch: <code>git push origin LeslyMorales-personal</code></li><li>Switch to dev: <code>git checkout dev</code></li><li>Merge your branch into dev: <code>git merge LeslyMorales-personal</code></li><li>Push dev: <code>git push origin dev</code></li><li>Switch back to your branch: <code>git checkout LeslyMorales-personal</code></li></ol></div>
+      </div>
+    
+      <div class="branch-entry" data-idx="3">
+        <div class="branch-row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--warn)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+            <div class="avatar-wrap">
+              <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource(2)" alt="" width="40" height="40" loading="lazy" data-name="Maret M." onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=&#39;https://ui-avatars.com/api/?name=&#39;+encodeURIComponent(this.dataset.name||&#39;User&#39;)+&#39;&amp;size=80&#39;}">
+            </div>
+            
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="name">Maret M.</div>
+            <div class="branch">MaretRiveraPersonal</div>
+          </div>
+          <span class="status-pill behind">Behind</span>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel border-ok" id="branch-panel-3"><dl><dt>Last commit</dt><dd>TODAY</dd><dt>Contribution</dt><dd>+932/-420</dd><dt>Unmerged / Behind</dt><dd>0 / 1</dd><dt>Branch status</dt><dd><span class="status-text-behind">Behind</span> · Risk: LOW</dd></dl><h4>Steps to resolve</h4><ol><li>Pull dev (start of the day).</li><li>Switch to dev: <code>git checkout dev</code></li><li>Pull latest dev: <code>git pull origin dev</code></li><li>Switch back to your branch: <code>git checkout MaretRiveraPersonal</code></li><li>Merge dev into your branch: <code>git merge dev</code></li><li>Save work on your personal branch during the day (make commits with messages).</li><li>Push to dev when work is solid (share with the team every few days).</li></ol></div>
+      </div>
+    
+      <div class="branch-entry" data-idx="4">
+        <div class="branch-row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+            <div class="avatar-wrap">
+              <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource" alt="" width="40" height="40" loading="lazy" data-name="Rodney F." onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=&#39;https://ui-avatars.com/api/?name=&#39;+encodeURIComponent(this.dataset.name||&#39;User&#39;)+&#39;&amp;size=80&#39;}">
+            </div>
+            
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="name">Rodney F.</div>
+            <div class="branch">RodneyPersonal</div>
+          </div>
+          <span class="status-pill behind">Behind</span>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel border-ok" id="branch-panel-4"><dl><dt>Last commit</dt><dd>TODAY</dd><dt>Contribution</dt><dd>+988/-555</dd><dt>Unmerged / Behind</dt><dd>0 / 7</dd><dt>Branch status</dt><dd><span class="status-text-behind">Behind</span> · Risk: LOW</dd></dl><h4>Steps to resolve</h4><ol><li>Pull dev (start of the day).</li><li>Switch to dev: <code>git checkout dev</code></li><li>Pull latest dev: <code>git pull origin dev</code></li><li>Switch back to your branch: <code>git checkout RodneyPersonal</code></li><li>Merge dev into your branch: <code>git merge dev</code></li><li>Save work on your personal branch during the day (make commits with messages).</li><li>Push to dev when work is solid (share with the team every few days).</li></ol></div>
+      </div>
+    
+      <div class="branch-entry" data-idx="5">
+        <div class="branch-row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--danger)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+            <div class="avatar-wrap">
+              <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/4hzzz.png" alt="" width="40" height="40" loading="lazy" data-name="Hasani C." onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=&#39;https://ui-avatars.com/api/?name=&#39;+encodeURIComponent(this.dataset.name||&#39;User&#39;)+&#39;&amp;size=80&#39;}">
+            </div>
+            <span class="rubber-stamp missing" aria-label="Missing">Missing</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="name">Hasani C.</div>
+            <div class="branch">Missing</div>
+          </div>
+          <span class="status-pill missing">Missing</span>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel border-danger" id="branch-panel-5"><p class="branch-abandoned-note" style="color:var(--danger);font-weight:600;margin:0 0 0.5rem;">No named branch in repo.</p><h4>Steps to resolve</h4><p>Create and push a named branch to the repo so the team can track your work.</p></div>
+      </div>
+    </div>
+    </section>
+
+    <section class="card">
+      <h2>Trello Activity</h2>
+      <div class="trello-stats" id="trello-stats-v2-root">
+      <div class="trello-stat"><span class="num">25</span><div class="lbl">Cards assigned</div></div>
+      <div class="trello-stat"><span class="num">21</span><div class="lbl">Actions this week</div></div>
+    </div>
+      <div id="trello-v2-root">
+      <div class="activity-row" data-idx="0">
+        <div class="row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--warn)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+            <div class="avatar-wrap">
+              <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource(3)" alt="" width="36" height="36" loading="lazy" onerror="this.src=&#39;https://ui-avatars.com/api/?name=Andy%20T.&amp;size=72&#39;">
+            </div>
+            <span class="rubber-stamp no-activity" aria-label="No activity">No activity</span>
+          </div>
+          <div class="activity-name-wrap" style="min-width:0;">
+            <div class="activity-name">Andy T.</div>
+          </div>
+          <div class="bar-wrap" style="flex:1"><div class="bar bar-danger" style="width:0%"></div></div>
+          <span class="count zero">0 actions</span>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel border-warn">
+          <h4>Statistics</h4>
+          <p><strong>Cards assigned:</strong> 3 · <strong>Actions this week:</strong> 0</p>
+          
+          <h4 class="steps-heading">Steps to resolve</h4><p>Update your Trello cards to reflect work done. Move cards, add comments, or complete checklist items so the team can see your activity.</p>
+        </div>
+      </div>
+    
+      <div class="activity-row" data-idx="1">
+        <div class="row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--danger)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+            <div class="avatar-wrap">
+              <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/4hzzz.png" alt="" width="36" height="36" loading="lazy" onerror="this.src=&#39;https://ui-avatars.com/api/?name=Hasani%20C.&amp;size=72&#39;">
+            </div>
+            
+          </div>
+          <div class="activity-name-wrap" style="min-width:0;">
+            <div class="activity-name">Hasani C.</div>
+          </div>
+          <div class="bar-wrap" style="flex:1"><div class="bar bar-warn" style="width:20%"></div></div>
+          <span class="count ">1 actions</span>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel border-warn">
+          <h4>Statistics</h4>
+          <p><strong>Cards assigned:</strong> 2 · <strong>Actions this week:</strong> 1</p>
+          <h4 class="actions-heading">Actions this week</h4><ul><li><strong>Comment:</strong> 1</li></ul>
+          
+        </div>
+      </div>
+    
+      <div class="activity-row" data-idx="2">
+        <div class="row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+            <div class="avatar-wrap">
+              <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource(1)" alt="" width="36" height="36" loading="lazy" onerror="this.src=&#39;https://ui-avatars.com/api/?name=Lesly%20M.&amp;size=72&#39;">
+            </div>
+            
+          </div>
+          <div class="activity-name-wrap" style="min-width:0;">
+            <div class="activity-name">Lesly M.</div>
+          </div>
+          <div class="bar-wrap" style="flex:1"><div class="bar bar-ok" style="width:100%"></div></div>
+          <span class="count ">6 actions</span>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel border-ok">
+          <h4>Statistics</h4>
+          <p><strong>Cards assigned:</strong> 5 · <strong>Actions this week:</strong> 6</p>
+          <h4 class="actions-heading">Actions this week</h4><ul><li><strong>Comment:</strong> 2</li><li><strong>Move card:</strong> 3</li><li><strong>Create card:</strong> 1</li></ul>
+          
+        </div>
+      </div>
+    
+      <div class="activity-row" data-idx="3">
+        <div class="row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--warn)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+            <div class="avatar-wrap">
+              <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource(2)" alt="" width="36" height="36" loading="lazy" onerror="this.src=&#39;https://ui-avatars.com/api/?name=Maret%20M.&amp;size=72&#39;">
+            </div>
+            <span class="rubber-stamp no-activity" aria-label="No activity">No activity</span>
+          </div>
+          <div class="activity-name-wrap" style="min-width:0;">
+            <div class="activity-name">Maret M.</div>
+          </div>
+          <div class="bar-wrap" style="flex:1"><div class="bar bar-danger" style="width:0%"></div></div>
+          <span class="count zero">0 actions</span>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel border-warn">
+          <h4>Statistics</h4>
+          <p><strong>Cards assigned:</strong> 3 · <strong>Actions this week:</strong> 0</p>
+          
+          <h4 class="steps-heading">Steps to resolve</h4><p>Update your Trello cards to reflect work done. Move cards, add comments, or complete checklist items so the team can see your activity.</p>
+        </div>
+      </div>
+    
+      <div class="activity-row" data-idx="4">
+        <div class="row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+            <div class="avatar-wrap">
+              <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource" alt="" width="36" height="36" loading="lazy" onerror="this.src=&#39;https://ui-avatars.com/api/?name=Rodney%20F.&amp;size=72&#39;">
+            </div>
+            
+          </div>
+          <div class="activity-name-wrap" style="min-width:0;">
+            <div class="activity-name">Rodney F.</div>
+          </div>
+          <div class="bar-wrap" style="flex:1"><div class="bar bar-ok" style="width:100%"></div></div>
+          <span class="count ">14 actions</span>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel border-ok">
+          <h4>Statistics</h4>
+          <p><strong>Cards assigned:</strong> 12 · <strong>Actions this week:</strong> 14</p>
+          <h4 class="actions-heading">Actions this week</h4><ul><li><strong>Comment:</strong> 5</li><li><strong>Move card:</strong> 4</li><li><strong>Complete checklist:</strong> 3</li><li><strong>Create card:</strong> 2</li></ul>
+          
+        </div>
+      </div>
+    </div>
+    </section>
+
+    <section class="card">
+      <h2>Discord Standups</h2>
+      <div class="standup-stats" id="standup-stats-v2-root">
+      <div class="standup-stat"><span class="num">15</span><div class="lbl">Posts this week</div></div>
+    </div>
+      <div class="standup-by-day-chart" id="standup-by-day-root">
+      <h3>Standups by day</h3>
+      <div class="standup-by-day-strip">
+        <div class="day-cell bar-warn" title="2 of 5 (40%)"><span class="day-label">Mon Mar 9</span><span class="day-num num-warn">2</span></div><div class="day-cell bar-warn" title="1 of 5 (20%)"><span class="day-label">Tue Mar 10</span><span class="day-num num-warn">1</span></div><div class="day-cell bar-warn" title="4 of 5 (80%)"><span class="day-label">Wed Mar 11</span><span class="day-num num-warn">4</span></div><div class="day-cell bar-ok" title="5 of 5 (100%)"><span class="day-label">Thu Mar 12</span><span class="day-num num-ok">5</span></div><div class="day-cell bar-warn" title="1 of 5 (20%)"><span class="day-label">Fri Mar 13</span><span class="day-num num-warn">1</span></div><div class="day-cell bar-danger" title="0 of 5 (0%)"><span class="day-label">Sat Mar 14</span><span class="day-num num-danger">0</span></div><div class="day-cell bar-danger" title="0 of 5 (0%)"><span class="day-label">Sun Mar 15</span><span class="day-num num-danger">0</span></div>
+      </div>
+    </div>
+      <div id="discord-v2-root">
+      <div class="activity-row" data-idx="0">
+        <div class="row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+            <div class="avatar-wrap">
+              <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource" alt="" width="36" height="36" loading="lazy" onerror="this.src=&#39;https://ui-avatars.com/api/?name=Rodney%20F.&amp;size=72&#39;">
+            </div>
+            
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="activity-name">Rodney F. · 2 posts</div>
+            <div class="meta" style="font-size:0.75rem;color:var(--text-muted)">Mar 9, Mar 12</div>
+          </div>
+          <div class="bar-wrap" style="width:60px"><div class="bar bar-warn" style="width:50%"></div></div>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel border-warn">
+          <h4>Statistics</h4><p><strong>Posts this week:</strong> 2 · <strong>Dates:</strong> Mar 9, Mar 12</p>
+          <h4 class="summary-heading">Summary</h4><p>Focused on error handling across screens and researched deep links. Plans to continue improving error handling despite work commitments.</p>
+          <h4 class="steps-heading">Steps to resolve</h4><p>Try to have at least 4+ posts per week to fill the bar.</p>
+        </div>
+      </div>
+    
+      <div class="activity-row" data-idx="1">
+        <div class="row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+            <div class="avatar-wrap">
+              <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource(1)" alt="" width="36" height="36" loading="lazy" onerror="this.src=&#39;https://ui-avatars.com/api/?name=Lesly%20M.&amp;size=72&#39;">
+            </div>
+            
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="activity-name">Lesly M. · 4 posts</div>
+            <div class="meta" style="font-size:0.75rem;color:var(--text-muted)">Mar 10, Mar 11, Mar 12, Mar 13</div>
+          </div>
+          <div class="bar-wrap" style="width:60px"><div class="bar bar-ok" style="width:100%"></div></div>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel border-ok">
+          <h4>Statistics</h4><p><strong>Posts this week:</strong> 4 · <strong>Dates:</strong> Mar 10, Mar 11, Mar 12, Mar 13</p>
+          <h4 class="summary-heading">Summary</h4><p>Researched deep linking, created testing apps, and polished UI components. Aimed to address issues with Firebase dynamic links and implement feedback from the build review.</p>
+        </div>
+      </div>
+    
+      <div class="activity-row" data-idx="2">
+        <div class="row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--danger)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+            <div class="avatar-wrap">
+              <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/4hzzz.png" alt="" width="36" height="36" loading="lazy" onerror="this.src=&#39;https://ui-avatars.com/api/?name=Hasani%20C.&amp;size=72&#39;">
+            </div>
+            
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="activity-name">Hasani C. · 4 posts</div>
+            <div class="meta" style="font-size:0.75rem;color:var(--text-muted)">Mar 9, Mar 11, Mar 12</div>
+          </div>
+          <div class="bar-wrap" style="width:60px"><div class="bar bar-ok" style="width:100%"></div></div>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel border-ok">
+          <h4>Statistics</h4><p><strong>Posts this week:</strong> 4 · <strong>Dates:</strong> Mar 9, Mar 11, Mar 12</p>
+          <h4 class="summary-heading">Summary</h4><p>Tested and improved the login flow, resolved merge conflicts, and reviewed team tasks. Focus will be on updating Trello and continuing work on auth features.</p>
+        </div>
+      </div>
+    
+      <div class="activity-row" data-idx="3">
+        <div class="row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--warn)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+            <div class="avatar-wrap">
+              <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource(2)" alt="" width="36" height="36" loading="lazy" onerror="this.src=&#39;https://ui-avatars.com/api/?name=Maret%20M.&amp;size=72&#39;">
+            </div>
+            
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="activity-name">Maret M. · 3 posts</div>
+            <div class="meta" style="font-size:0.75rem;color:var(--text-muted)">Mar 11, Mar 12</div>
+          </div>
+          <div class="bar-wrap" style="width:60px"><div class="bar bar-warn" style="width:75%"></div></div>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel border-warn">
+          <h4>Statistics</h4><p><strong>Posts this week:</strong> 3 · <strong>Dates:</strong> Mar 11, Mar 12</p>
+          <h4 class="summary-heading">Summary</h4><p>Worked on the event info page and integrated Firebase attendance features. Planning to polish the UI and continue Firebase integration.</p>
+          <h4 class="steps-heading">Steps to resolve</h4><p>Try to have at least 4+ posts per week to fill the bar.</p>
+        </div>
+      </div>
+    
+      <div class="activity-row" data-idx="4">
+        <div class="row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 11.150757595082503 40.8492424049175 A 21 21 0 0 1 11.1507575950825 11.150757595082503"></path><path fill="none" stroke="var(--warn)" stroke-width="10" stroke-linecap="round" d="M 11.1507575950825 11.150757595082503 A 21 21 0 0 1 40.8492424049175 11.150757595082503"></path><path fill="none" stroke="var(--success)" stroke-width="10" stroke-linecap="round" d="M 40.8492424049175 11.150757595082503 A 21 21 0 0 1 40.8492424049175 40.8492424049175"></path></svg>
+            <div class="avatar-wrap">
+              <img class="avatar" src="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/saved_resource(3)" alt="" width="36" height="36" loading="lazy" onerror="this.src=&#39;https://ui-avatars.com/api/?name=Andy%20T.&amp;size=72&#39;">
+            </div>
+            
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="activity-name">Andy T. · 2 posts</div>
+            <div class="meta" style="font-size:0.75rem;color:var(--text-muted)">Mar 11, Mar 12</div>
+          </div>
+          <div class="bar-wrap" style="width:60px"><div class="bar bar-warn" style="width:50%"></div></div>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel border-warn">
+          <h4>Statistics</h4><p><strong>Posts this week:</strong> 2 · <strong>Dates:</strong> Mar 11, Mar 12</p>
+          <h4 class="summary-heading">Summary</h4><p>Worked on the unread messages indicator script and updated Trello. Plans to complete the script and test the indicator's functionality.</p>
+          <h4 class="steps-heading">Steps to resolve</h4><p>Try to have at least 4+ posts per week to fill the bar.</p>
+        </div>
+      </div>
+    </div>
+    </section>
+
+    <section class="card">
+      <h2>Issues &amp; Alerts</h2>
+      <div id="alerts-v2-root">
+      <div class="alert-card danger">
+        <div class="icon">!</div>
+        <div class="text">Hasani C. is working from a fork — HIGH merge risk. Move work into the class repo.</div>
+      </div>
+    
+      <div class="alert-card warn">
+        <div class="icon">⚠</div>
+        <div class="text">Maret M. has no Trello activity this week. Update cards to reflect work done.</div>
+      </div>
+    
+      <div class="alert-card warn">
+        <div class="icon">⚠</div>
+        <div class="text">Andy T. has no Trello activity this week. Update cards to reflect work done.</div>
+      </div>
+    </div>
+    </section>
+
+    <div class="page-version">v1.1.25 · Dashboard V2</div>
+  </div>
+
+  <script>
+  (function dropdownDelegation() {
+    function playStampOnExpand(container) {
+      var stamps = container.querySelectorAll('.rubber-stamp, .fork-stamp');
+      stamps.forEach(function(stamp) {
+        stamp.classList.remove('stamp-played');
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() { stamp.classList.add('stamp-played'); });
+        });
+      });
+    }
+    document.body.addEventListener('click', function(e) {
+      var branchBtn = e.target.closest('.branch-entry .branch-row-top');
+      if (branchBtn) {
+        var entry = branchBtn.closest('.branch-entry');
+        if (entry) {
+          entry.classList.toggle('open');
+          var isOpen = entry.classList.contains('open');
+          branchBtn.setAttribute('aria-expanded', isOpen);
+          if (isOpen) playStampOnExpand(entry);
+        }
+        return;
+      }
+      var rowBtn = e.target.closest('.activity-row .row-top');
+      if (rowBtn) {
+        var row = rowBtn.closest('.activity-row');
+        if (row) {
+          row.classList.toggle('open');
+          var isOpen = row.classList.contains('open');
+          rowBtn.setAttribute('aria-expanded', isOpen);
+          if (isOpen) playStampOnExpand(row);
+        }
+      }
+    });
+  })();
+  </script>
+
+  <script>
+    const data = {"report": {"generated": "03-20-2026 - 19:19", "period": "2026-03-16 to 2026-03-22", "cycle": "2602", "week": 7}, "members": [{"name": "Rodney F.", "git": "fork", "trello": false, "discord": true, "githubUsername": ""}, {"name": "Maret M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Andy T.", "git": "fork", "trello": false, "discord": true, "githubUsername": "4hzzz"}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Behind", "activity": "17d ago", "contribution": "\u2014", "aheadBehind": "0 / 89", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "4d ago", "contribution": "\u2014", "aheadBehind": "0 / 27", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Behind", "activity": "8d ago", "contribution": "+880/-356", "aheadBehind": "0 / 43", "risk": "LOW", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Diverged", "activity": "TODAY", "contribution": "+2291/-913", "aheadBehind": "1 / 3", "risk": "HIGH", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "TODAY", "contribution": "+206/-98", "aheadBehind": "0 / 9", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "TODAY", "contribution": "+1586/-134", "aheadBehind": "0 / 7", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Lesly M.", "workingFrom": "Org repo", "commits": 13, "additions": 2291, "deletions": 913, "net": 1378}, {"person": "Rodney F.", "workingFrom": "Org repo", "commits": 4, "additions": 1586, "deletions": 134, "net": 1452}, {"person": "Hasani C.", "workingFrom": "Fork (@4hzzz)", "commits": 3, "additions": 880, "deletions": 356, "net": 524}, {"person": "Maret M.", "workingFrom": "Org repo", "commits": 5, "additions": 206, "deletions": 98, "net": 108}], "trello": {"assignments": {"Andy T.": 5, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 14}, "actions": {"Lesly M.": 16, "Maret M.": 4, "Rodney F.": 21}, "actionBreakdown": {"Lesly M.": {"Create card": 1, "Move card": 10, "Comment": 1, "Complete checklist": 9}, "Maret M.": {"Create card": 1, "Move card": 3, "Comment": 1, "Complete checklist": 8}, "Rodney F.": {"Create card": 1, "Move card": 4, "Comment": 1, "Complete checklist": 9}}, "status": "HEALTHY"}, "discord": [{"person": "Andy T.", "posts": 0, "dates": "Behind", "summary": "17d ago"}, {"person": "Andy T.", "posts": 0, "dates": "Behind", "summary": "4d ago"}, {"person": "Hasani C.", "posts": 0, "dates": "Behind", "summary": "8d ago"}, {"person": "Lesly M.", "posts": 0, "dates": "Diverged", "summary": "TODAY"}, {"person": "Maret M.", "posts": 0, "dates": "Behind", "summary": "TODAY"}, {"person": "Rodney F.", "posts": 0, "dates": "Behind", "summary": "TODAY"}], "alerts": [{"type": "warn", "text": "inner\">"}, {"type": "warn", "text": "list\">"}]};
+    try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
+
+    (function setupHeaderLinks() {
+      var titleEl = document.getElementById('v2-header-title');
+      if (titleEl && data.report) {
+        var cycle = (data.report.cycle || '').toString();
+        var team = (data.report.team || '').toString();
+        var prefix = (team || cycle || '').trim();
+        titleEl.textContent = prefix ? prefix + ' — Dashboard V2' : 'Dashboard V2';
+      }
+      var v1Link = document.getElementById('link-v1-report');
+      if (v1Link && data.report && data.report.sourceUrl) {
+        v1Link.href = data.report.sourceUrl;
+      }
+    })();
+
+    function avatarUrl(m) {
+      if (m.githubUsername) return 'https://github.com/' + m.githubUsername + '.png';
+      const name = encodeURIComponent(m.name.replace(/\s+/g, ' '));
+      return 'https://ui-avatars.com/api/?name=' + name + '&background=388bfd&color=fff&size=88';
+    }
+
+    function initials(name) {
+      return name.split(/\s+/).map(s => s[0]).join('').slice(0, 2);
+    }
+    function getMemberForRing(personName) {
+      const m = data.members.find(x => x.name === personName);
+      if (m) return m;
+      const hasDiscord = Array.isArray(data.discord) && data.discord.some(d => d.person === personName);
+      return { name: personName, git: null, trello: !!(data.trello && data.trello.assignments && data.trello.assignments[personName]), discord: hasDiscord };
+    }
+
+    const RING_OK = 'var(--success)';
+    const RING_WARN = 'var(--warn)';
+    const RING_DANGER = 'var(--danger)';
+    const RING_DIM = 'var(--surface2)';
+    function memberRingSvg(m) {
+      const gitStatus = !m.git ? null : m.git === 'fork' ? 'danger' : 'ok';
+      const trelloStatus = m.trello ? 'ok' : 'warn';
+      const hasDiscord = !!m.discord || (Array.isArray(data.discord) && data.discord.some(d => d.person === m.name));
+      const discordStatus = hasDiscord ? 'ok' : 'warn';
+      const cx = 26; const cy = 26; const r = 21; const stroke = 10;
+      const arc = (startAngle, endAngle) => {
+        const rad = (deg) => (deg - 90) * Math.PI / 180;
+        const x1 = cx + r * Math.cos(rad(startAngle)); const y1 = cy + r * Math.sin(rad(startAngle));
+        const x2 = cx + r * Math.cos(rad(endAngle)); const y2 = cy + r * Math.sin(rad(endAngle));
+        const delta = ((endAngle - startAngle) % 360 + 360) % 360;
+        const large = delta >= 180 ? 1 : 0;
+        return `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`;
+      };
+      const color = (s) => !s ? RING_DIM : s === 'ok' ? RING_OK : s === 'warn' ? RING_WARN : RING_DANGER;
+      const seg = (start, end, status) => `<path fill="none" stroke="${color(status)}" stroke-width="${stroke}" stroke-linecap="round" d="${arc(start, end)}"/>`;
+      return `<svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${seg(225, 315, gitStatus)}${seg(315, 45, trelloStatus)}${seg(45, 135, discordStatus)}</svg>`;
+    }
+
+    const totalCommits = data.filesTouched.reduce((a, f) => a + f.commits, 0);
+    const totalActions = Object.values(data.trello.actions).reduce((a, b) => a + b, 0);
+    const totalStandupPosts = data.discord.reduce((a, d) => a + d.posts, 0);
+    const totalCards = Object.values(data.trello.assignments).reduce((a, b) => a + b, 0);
+    const engagedCount = data.discord.length;
+    const totalMembers = data.members.length;
+    const participationPct = totalMembers ? Math.round((engagedCount / totalMembers) * 100) : 0;
+
+    const netByPerson = {};
+    data.filesTouched.forEach(f => { netByPerson[f.person] = (netByPerson[f.person] || 0) + f.net; });
+    const codeSorted = Object.entries(netByPerson).sort((a, b) => b[1] - a[1]);
+    const codeLeadVal = codeSorted[0]?.[1] ?? 0;
+    const codeSecondVal = codeSorted[1]?.[1] ?? 0;
+    const codeLeads = codeLeadVal ? codeSorted.filter(([, v]) => v === codeLeadVal).map(([n]) => n) : [];
+    const trelloSorted = Object.entries(data.trello.actions).sort((a, b) => b[1] - a[1]);
+    const trelloLeadVal = trelloSorted[0]?.[1] ?? 0;
+    const trelloSecondVal = trelloSorted[1]?.[1] ?? 0;
+    const trelloLeads = trelloLeadVal ? trelloSorted.filter(([, v]) => v === trelloLeadVal).map(([n]) => n) : [];
+    const postsByPerson = {};
+    data.discord.forEach(d => { postsByPerson[d.person] = d.posts; });
+    const standupsSorted = Object.entries(postsByPerson).sort((a, b) => b[1] - a[1]);
+    const standupsLeadVal = standupsSorted[0]?.[1] ?? 0;
+    const standupsSecondVal = standupsSorted[1]?.[1] ?? 0;
+    const standupsLeads = standupsLeadVal ? standupsSorted.filter(([, v]) => v === standupsLeadVal).map(([n]) => n) : [];
+
+    const BADGE_LOGOS = {
+      code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>',
+      trello: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-8 2h6v8h-6V5zm-2 0v8H3V5h6z"/></svg>',
+      standups: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>'
+    };
+    function leadTrack(metricTitle) {
+      return `<span class="track-dot" title="Start">●</span><div class="track-speed-bar" style="width:0;" title="${metricTitle}"><span class="track-marker track-trophy" aria-hidden="true">🏆</span></div><span class="track-marker car" style="left:20px;" title="${metricTitle}">🚗</span>`;
+    }
+    document.getElementById('leaderboard-v2-root').innerHTML = [
+      { label: 'Code', badge: 'code', title: 'Git', first: codeLeads, firstVal: codeLeadVal, secondVal: codeSecondVal },
+      { label: 'Trello', badge: 'trello', title: 'Trello', first: trelloLeads, firstVal: trelloLeadVal, secondVal: trelloSecondVal },
+      { label: 'Standups', badge: 'standups', title: 'Standups', first: standupsLeads, firstVal: standupsLeadVal, secondVal: standupsSecondVal }
+    ].map(r => {
+      const leadPct = r.firstVal ? (r.firstVal === r.secondVal ? 100 : (1 - r.secondVal / r.firstVal) * 100) : 0;
+      const names = Array.isArray(r.first) ? r.first : (r.first ? [r.first] : []);
+      const nameText = names.length ? names.join(' & ') : '—';
+      const firstContent = names.length ? `<span class="row-name">${nameText}</span>` : '<span class="row-name">—</span>';
+      const badgeEl = `<span class="row-badge badge-${r.badge}" title="${r.title}" aria-label="${r.title}">${BADGE_LOGOS[r.badge]}</span>`;
+      const labelText = r.label === 'Code' ? '#1 in Git' : r.label === 'Trello' ? '#1 in Trello' : '#1 in Standups';
+      return `<div class="leaderboard-row label-visible" data-lead-pct="${Math.min(100, Math.max(0, leadPct))}">${badgeEl}<span class="row-label">${labelText}</span><div class="row-track-wrap">${leadTrack(r.title)}</div><span class="row-first">${firstContent}</span></div>`;
+    }).join('');
+
+    function playCheer() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const masterGain = ctx.createGain();
+        masterGain.connect(ctx.destination);
+        masterGain.gain.setValueAtTime(0.22, ctx.currentTime);
+        const t0 = ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        const durs = [0.12, 0.12, 0.12, 0.28];
+        let time = t0;
+        notes.forEach((freq, i) => {
+          const g = ctx.createGain();
+          g.connect(masterGain);
+          g.gain.setValueAtTime(0, time);
+          g.gain.linearRampToValueAtTime(1, time + 0.02);
+          g.gain.linearRampToValueAtTime(0.7, time + durs[i] * 0.5);
+          g.gain.exponentialRampToValueAtTime(0.001, time + durs[i]);
+          const o = ctx.createOscillator();
+          o.type = 'triangle';
+          o.frequency.setValueAtTime(freq, time);
+          o.connect(g);
+          o.start(time);
+          o.stop(time + durs[i]);
+          time += durs[i] + (i < 2 ? 0.02 : 0);
+        });
+      } catch (e) {}
+    }
+    function allstarsFor(name) {
+      const b = [];
+      if (codeLeads.includes(name)) b.push({ title: 'Code Allstar' });
+      if (trelloLeads.includes(name)) b.push({ title: 'Trello Allstar' });
+      if (standupsLeads.includes(name)) b.push({ title: 'Standups Allstar' });
+      return b;
+    }
+
+    document.getElementById('overview-root').innerHTML = `
+      <div class="overview-card">
+        <div class="icon members">👥</div>
+        <div class="lbl">Active Members</div>
+        <div class="num">${totalMembers}</div>
+      </div>
+      <div class="overview-card">
+        <div class="icon commits">⌗</div>
+        <div class="lbl">Total Commits</div>
+        <div class="num">${totalCommits}</div>
+      </div>
+      <div class="overview-card">
+        <div class="icon trello">▤</div>
+        <div class="lbl">Trello Actions</div>
+        <div class="num">${totalActions}</div>
+      </div>
+      <div class="overview-card">
+        <div class="icon standups">💬</div>
+        <div class="lbl">Standup Posts</div>
+        <div class="num">${totalStandupPosts}</div>
+      </div>
+    `;
+
+    const gitEngaged = data.filesTouched.length;
+    const gitPct = totalMembers ? Math.round((gitEngaged / totalMembers) * 100) : 0;
+    const trelloEngaged = Object.values(data.trello.actions).filter(a => a > 0).length;
+    const trelloPct = totalMembers ? Math.round((trelloEngaged / totalMembers) * 100) : 0;
+    const standupsPct = participationPct;
+    const toDeg = pct => (Math.min(100, Math.max(0, pct)) / 100) * 360;
+    function wheelTier(pct) {
+      if (pct >= 100) return 'wheel-full';
+      if (pct >= 51) return 'wheel-high';
+      return 'wheel-low';
+    }
+    document.getElementById('radial-root').innerHTML = `
+      <h3>Participation overview</h3>
+      <div class="radial-wheels">
+        <div class="radial-wheel ${wheelTier(gitPct)}" title="Git">
+          <div class="radial-bg"></div>
+          <div class="radial-fill" style="--pct-target: ${toDeg(gitPct)}deg; --pct: 0deg;" data-pct="${toDeg(gitPct)}"></div>
+          <div class="radial-inner">
+            <span class="radial-icon radial-icon-git">${BADGE_LOGOS.code}</span>
+            <span class="pct ${gitPct === 100 ? 'pct-full' : ''}">${gitPct}%</span>
+          </div>
+          <div class="radial-footer"><span class="label">Git</span></div>
+        </div>
+        <div class="radial-wheel ${wheelTier(trelloPct)}" title="Trello">
+          <div class="radial-bg"></div>
+          <div class="radial-fill" style="--pct-target: ${toDeg(trelloPct)}deg; --pct: 0deg;" data-pct="${toDeg(trelloPct)}"></div>
+          <div class="radial-inner">
+            <span class="radial-icon radial-icon-trello">${BADGE_LOGOS.trello}</span>
+            <span class="pct ${trelloPct === 100 ? 'pct-full' : ''}">${trelloPct}%</span>
+          </div>
+          <div class="radial-footer"><span class="label">Trello</span></div>
+        </div>
+        <div class="radial-wheel ${wheelTier(standupsPct)}" title="Standups">
+          <div class="radial-bg"></div>
+          <div class="radial-fill" style="--pct-target: ${toDeg(standupsPct)}deg; --pct: 0deg;" data-pct="${toDeg(standupsPct)}"></div>
+          <div class="radial-inner">
+            <span class="radial-icon radial-icon-standups">${BADGE_LOGOS.standups}</span>
+            <span class="pct ${standupsPct === 100 ? 'pct-full' : ''}">${standupsPct}%</span>
+          </div>
+          <div class="radial-footer"><span class="label">Standups</span></div>
+        </div>
+      </div>
+    `;
+
+    (function animateWheelsOnLoad() {
+      var wheels = document.querySelectorAll('#radial-root .radial-wheel');
+      wheels.forEach(function(wheel) {
+        var fill = wheel.querySelector('.radial-fill');
+        if (!fill) return;
+        var targetDeg = parseFloat(fill.getAttribute('data-pct') || '0', 10);
+        var duration = 600;
+        var start = performance.now();
+        function step(now) {
+          var elapsed = now - start;
+          var t = Math.min(1, elapsed / duration);
+          var eased = 1 - Math.pow(1 - t, 2);
+          fill.style.setProperty('--pct', (eased * targetDeg) + 'deg');
+          if (t < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      });
+    })();
+
+    document.querySelectorAll('#radial-root .radial-wheel').forEach(wheel => {
+      const fill = wheel.querySelector('.radial-fill');
+      if (!fill) return;
+      const targetDeg = parseFloat(fill.getAttribute('data-pct') || '0', 10);
+      let cancelAnim = null;
+      function animateFill(toTarget) {
+        const duration = toTarget ? 550 : 350;
+        const startVal = parseFloat(fill.style.getPropertyValue('--pct') || '0', 10) || 0;
+        const start = performance.now();
+        let animId = null;
+        function step(now) {
+          const elapsed = now - start;
+          const t = Math.min(1, elapsed / duration);
+          const eased = 1 - Math.pow(1 - t, 2);
+          const current = toTarget ? (eased * targetDeg) : (startVal * (1 - t));
+          fill.style.setProperty('--pct', current + 'deg');
+          if (t < 1) animId = requestAnimationFrame(step);
+        }
+        animId = requestAnimationFrame(step);
+        return () => { if (animId) cancelAnimationFrame(animId); };
+      }
+      wheel.addEventListener('mouseenter', () => {
+        if (cancelAnim) cancelAnim();
+        fill.style.setProperty('--pct', '0deg');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => { cancelAnim = animateFill(true); });
+        });
+      });
+      wheel.addEventListener('mouseleave', () => {
+        if (cancelAnim) cancelAnim();
+        /* stay filled */
+      });
+    });
+
+    document.getElementById('members-v2-root').innerHTML = data.members.map(m => {
+      const stars = allstarsFor(m.name);
+      const starsHtml = stars.length ? `<div class="avatar-stars">${stars.map(s => `<span class="avatar-star" title="${s.title}" aria-label="${s.title}">★</span>`).join('')}</div>` : '';
+      const stamp = m.git === 'fork' ? '<span class="fork-stamp" aria-label="Fork">Fork</span>' : '';
+      return `
+      <div class="member-row">
+        <div class="avatar-ring-wrap">
+          ${memberRingSvg(m)}
+          <div class="avatar-wrap">
+            <img class="avatar" src="${avatarUrl(m)}" alt="" width="44" height="44" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=388bfd&color=fff&size=88'">
+          </div>
+          ${stamp}
+        </div>
+        ${starsHtml}
+        <div class="info">
+          <div class="name">${m.name}</div>
+          <div class="meta">
+            <span class="pill ${m.git === 'fork' ? 'danger' : 'ok'}">GIT</span>
+            <span class="pill ${m.trello ? 'ok' : 'warn'}">Trello</span>
+            <span class="pill ${(m.discord || (Array.isArray(data.discord) && data.discord.some(d => d.person === m.name))) ? 'ok' : 'warn'}">Discord</span>
+          </div>
+        </div>
+      </div>
+    `;
+    }).join('');
+
+    const totalAdditions = data.filesTouched.reduce((a, f) => a + f.additions, 0);
+    const totalDeletions = data.filesTouched.reduce((a, f) => a + f.deletions, 0);
+    const totalNet = data.filesTouched.reduce((a, f) => a + f.net, 0);
+    document.getElementById('git-stats-v2-root').innerHTML = `
+      <div class="git-stat"><span class="num">${totalCommits}</span><div class="lbl">Commits this week</div></div>
+      <div class="git-stat"><span class="num">+${totalAdditions} / −${totalDeletions}</span><div class="lbl">Team +/−</div></div>
+      <div class="git-stat"><span class="num">${totalNet}</span><div class="lbl">Net lines</div></div>
+    `;
+    const maxNet = Math.max(...data.filesTouched.map(f => f.net));
+    document.getElementById('contrib-v2-root').innerHTML = data.filesTouched.map(f => `
+      <div class="contrib-bar-wrap">
+        <div class="label">
+          <span>${f.person} <small style="color:var(--text-muted)">(${f.commits} commits, ${f.workingFrom})</small></span>
+          <span>+${f.additions} / −${f.deletions} → <strong>${f.net}</strong></span>
+        </div>
+        <div class="bar"><div style="width:${Math.max(5, (f.net / maxNet) * 100)}%; height:100%; border-radius:999px; background: linear-gradient(90deg, var(--accent), #a371f7);"></div></div>
+      </div>
+    `).join('');
+
+    document.getElementById('trello-stats-v2-root').innerHTML = `
+      <div class="trello-stat"><span class="num">${totalCards}</span><div class="lbl">Cards assigned</div></div>
+      <div class="trello-stat"><span class="num">${totalActions}</span><div class="lbl">Actions this week</div></div>
+    `;
+    document.getElementById('standup-stats-v2-root').innerHTML = `
+      <div class="standup-stat"><span class="num">${totalStandupPosts}</span><div class="lbl">Posts this week</div></div>
+    `;
+
+    const postsByDay = {};
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    data.discord.forEach(d => {
+      if (!d.dates) return;
+      d.dates.split(',').forEach(part => {
+        const trimmed = part.trim();
+        if (!trimmed) return;
+        const match = trimmed.match(/^(\w{3})\s*(\d+)(?:\s*[–-]\s*(\d+))?$/);
+        if (match) {
+          const month = match[1];
+          const start = parseInt(match[2], 10);
+          const end = match[3] ? parseInt(match[3], 10) : start;
+          for (let day = start; day <= end; day++) {
+            const key = month + ' ' + day;
+            postsByDay[key] = (postsByDay[key] || 0) + 1;
+          }
+        } else {
+          postsByDay[trimmed] = (postsByDay[trimmed] || 0) + 1;
+        }
+      });
+    });
+    const period = (data.report && data.report.period) ? data.report.period : '2026-03-09 to 2026-03-15';
+    const [startStr, endStr] = period.split(/\s+to\s+/).map(s => s.trim());
+    const parseYMD = s => { const [y, m, d] = (s || '').split(/[-/]/).map(Number); return { y: y || 2026, m: m || 1, d: d || 1 }; };
+    const start = parseYMD(startStr);
+    const end = parseYMD(endStr);
+    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const fullWeek = [];
+    const d = new Date(start.y, start.m - 1, start.d);
+    const endDate = new Date(end.y, end.m - 1, end.d);
+    for (; d <= endDate; d.setDate(d.getDate() + 1)) {
+      fullWeek.push({ key: monthNames[d.getMonth()] + ' ' + d.getDate(), dayName: dayNames[d.getDay()] });
+    }
+    const weekDays = fullWeek.slice(0, 7);
+    document.getElementById('standup-by-day-root').innerHTML = weekDays.length ? `
+      <h3>Standups by day</h3>
+      <div class="standup-by-day-strip">
+        ${weekDays.map(({ key, dayName }) => {
+          const n = postsByDay[key] || 0;
+          const ratio = totalMembers ? n / totalMembers : 0;
+          const barClass = ratio >= 1 ? 'bar-ok' : ratio === 0 ? 'bar-danger' : 'bar-warn';
+          const numClass = ratio >= 1 ? 'num-ok' : ratio === 0 ? 'num-danger' : 'num-warn';
+          return `<div class="day-cell ${barClass}" title="${n} of ${totalMembers} (${Math.round(ratio * 100)}%)"><span class="day-label">${dayName} ${key}</span><span class="day-num ${numClass}">${n}</span></div>`;
+        }).join('')}
+      </div>
+    ` : '';
+
+    const personsWithBranch = new Set(data.branchHealth.map(b => b.person));
+    const branchList = [...data.branchHealth];
+    data.members.forEach(m => { if (!personsWithBranch.has(m.name)) branchList.push({ person: m.name, branch: 'Missing', status: 'Missing', isMissing: true, contribution: '—', aheadBehind: '—', activity: '—', risk: '—', suggestedSteps: null }); });
+
+    const avatarByPerson = {};
+    data.members.forEach(m => { avatarByPerson[m.name] = avatarUrl(m); });
+
+    function branchPanelBorder(b) {
+      if (b.isMissing) return 'border-danger';
+      const r = (b.risk || '').toUpperCase();
+      if (r === 'LOW') return 'border-ok';
+      if (r === 'HIGH') return 'border-danger';
+      return 'border-warn';
+    }
+
+    function branchStatusDisplay(status, isMissing) {
+      if (isMissing) return 'Missing';
+      const s = (status || '').toLowerCase();
+      if (s.includes('ahead')) return 'Unmerged';
+      if (s.includes('behind')) return 'Behind';
+      return status || 'Sync';
+    }
+    document.getElementById('branch-v2-root').innerHTML = branchList.map((b, i) => {
+      const statusClass = b.isMissing ? 'missing' : b.status.toLowerCase().includes('behind') ? 'behind' : b.status.toLowerCase().includes('ahead') ? 'ahead' : 'sync';
+      const statusLabel = branchStatusDisplay(b.status, b.isMissing);
+      const stamp = b.isMissing ? '<span class="rubber-stamp missing" aria-label="Missing">Missing</span>' : '';
+      const statusTextClass = b.isMissing ? 'status-text-missing' : b.status.toLowerCase().includes('behind') ? 'status-text-behind' : b.status.toLowerCase().includes('ahead') ? 'status-text-ahead' : 'status-text-sync';
+      const statusInPanel = '<span class="' + statusTextClass + '">' + statusLabel + '</span>';
+      const detailsHtml = b.isMissing
+        ? '<p class="branch-abandoned-note" style="color:var(--danger);font-weight:600;margin:0 0 0.5rem;">No named branch in repo.</p>'
+        : `<dl><dt>Last commit</dt><dd>${b.activity || '—'}</dd><dt>Contribution</dt><dd>${b.contribution || '—'}</dd><dt>Unmerged / Behind</dt><dd>${b.aheadBehind || '—'}</dd><dt>Branch status</dt><dd>${statusInPanel} · Risk: ${b.risk || '—'}</dd></dl>`;
+      const stepsHtml = (b.suggestedSteps || []).length ? '<h4>Steps to resolve</h4><ol>' + (b.suggestedSteps || []).map(s => '<li>' + s + '</li>').join('') + '</ol>' : (b.isMissing ? '<h4>Steps to resolve</h4><p>Create and push a named branch to the repo so the team can track your work.</p>' : '');
+      const panelContent = detailsHtml + stepsHtml;
+      const avatarSrc = avatarByPerson[b.person] || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(b.person) + '&size=80');
+      return `
+      <div class="branch-entry" data-idx="${i}">
+        <div class="branch-row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            ${memberRingSvg(getMemberForRing(b.person))}
+            <div class="avatar-wrap">
+              <img class="avatar" src="${avatarSrc}" alt="" width="40" height="40" loading="lazy" data-name="${b.person.replace(/"/g, '&quot;')}" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='https://ui-avatars.com/api/?name='+encodeURIComponent(this.dataset.name||'User')+'&size=80'}">
+            </div>
+            ${stamp}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="name">${b.person}</div>
+            <div class="branch">${b.branch}</div>
+          </div>
+          <span class="status-pill ${statusClass}">${statusLabel}</span>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel ${branchPanelBorder(b)}" id="branch-panel-${i}">${panelContent}</div>
+      </div>
+    `;
+    }).join('');
+
+    const maxActions = Math.max(...Object.values(data.trello.actions), 1);
+    function trelloBarClass(actions) {
+      if (actions === 0) return 'bar-danger';
+      if (actions >= 5) return 'bar-ok';
+      return 'bar-warn';
+    }
+    document.getElementById('trello-v2-root').innerHTML = Object.entries(data.trello.assignments).map(([name, cards], i) => {
+      const actions = data.trello.actions[name] ?? 0;
+      const pct = Math.min(100, (actions / 5) * 100);
+      const m = data.members.find(x => x.name === name);
+      const src = m ? avatarUrl(m) : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&size=72';
+      const stamp = actions === 0 ? '<span class="rubber-stamp no-activity" aria-label="No activity">No activity</span>' : '';
+      const stepsHtml = actions === 0 ? '<h4 class="steps-heading">Steps to resolve</h4><p>Update your Trello cards to reflect work done. Move cards, add comments, or complete checklist items so the team can see your activity.</p>' : '';
+      const breakdown = data.trello.actionBreakdown && data.trello.actionBreakdown[name];
+      const actionsListHtml = breakdown && Object.keys(breakdown).length ? '<h4 class="actions-heading">Actions this week</h4><ul>' + Object.entries(breakdown).map(([actionType, count]) => `<li><strong>${actionType}:</strong> ${count}</li>`).join('') + '</ul>' : '';
+      const panelBorder = actions === 0 ? 'border-warn' : (actions >= 5 ? 'border-ok' : 'border-warn');
+      return `
+      <div class="activity-row" data-idx="${i}">
+        <div class="row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            ${memberRingSvg(m || getMemberForRing(name))}
+            <div class="avatar-wrap">
+              <img class="avatar" src="${src}" alt="" width="36" height="36" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=72'">
+            </div>
+            ${stamp}
+          </div>
+          <div class="activity-name-wrap" style="min-width:0;">
+            <div class="activity-name">${name}</div>
+          </div>
+          <div class="bar-wrap" style="flex:1"><div class="bar ${trelloBarClass(actions)}" style="width:${pct}%"></div></div>
+          <span class="count ${actions === 0 ? 'zero' : ''}">${actions} actions</span>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel ${panelBorder}">
+          <h4>Statistics</h4>
+          <p><strong>Cards assigned:</strong> ${cards} · <strong>Actions this week:</strong> ${actions}</p>
+          ${actionsListHtml}
+          ${stepsHtml}
+        </div>
+      </div>
+    `;
+    }).join('');
+
+    const discordByPerson = {};
+    data.discord.forEach(d => { discordByPerson[d.person] = d; });
+    function standupBarClass(posts) {
+      if (posts === 0) return 'bar-danger';
+      if (posts >= 4) return 'bar-ok';
+      return 'bar-warn';
+    }
+    document.getElementById('discord-v2-root').innerHTML = data.members.map((m, i) => {
+      const d = discordByPerson[m.name];
+      const posts = d ? d.posts : 0;
+      const dates = d ? d.dates : '—';
+      const summary = d ? d.summary : '';
+      const pct = Math.min(100, (posts / 4) * 100);
+      const src = avatarUrl(m);
+      const stamp = posts === 0 ? '<span class="rubber-stamp no-activity" aria-label="No activity">No activity</span>' : '';
+      const panelBorder = posts === 0 ? 'border-warn' : (posts >= 4 ? 'border-ok' : 'border-warn');
+      const statsHtml = '<h4>Statistics</h4><p><strong>Posts this week:</strong> ' + posts + (d ? ' · <strong>Dates:</strong> ' + dates : '') + '</p>';
+      const summaryHtml = summary ? '<h4 class="summary-heading">Summary</h4><p>' + summary + '</p>' : '';
+      const stepsHtml = posts === 0
+        ? '<h4 class="steps-heading">Steps to resolve</h4><p>No standup posts this week. Consider posting an update in the standups channel so the team knows what you\'re working on.</p>'
+        : (posts < 4 ? '<h4 class="steps-heading">Steps to resolve</h4><p>Try to have at least 4+ posts per week to fill the bar.</p>' : '');
+      return `
+      <div class="activity-row" data-idx="${i}">
+        <div class="row-top" role="button" tabindex="0" aria-expanded="false">
+          <div class="avatar-ring-wrap">
+            ${memberRingSvg(m)}
+            <div class="avatar-wrap">
+              <img class="avatar" src="${src}" alt="" width="36" height="36" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&size=72'">
+            </div>
+            ${stamp}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="activity-name">${m.name} · ${posts} post${posts !== 1 ? 's' : ''}</div>
+            ${posts > 0 ? '<div class="meta" style="font-size:0.75rem;color:var(--text-muted)">' + dates + '</div>' : ''}
+          </div>
+          <div class="bar-wrap" style="width:60px"><div class="bar ${standupBarClass(posts)}" style="width:${pct}%"></div></div>
+          <span style="font-size:0.7rem;color:var(--text-muted);margin-left:0.35rem;white-space:nowrap;">${posts} of 4 min</span>
+          <span class="dropdown-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="dropdown-panel ${panelBorder}">
+          ${statsHtml}
+          ${summaryHtml}
+          ${stepsHtml}
+        </div>
+      </div>
+    `;
+    }).join('');
+
+    document.getElementById('alerts-v2-root').innerHTML = data.alerts.map(a => `
+      <div class="alert-card ${a.type}">
+        <div class="icon">${a.type === 'danger' ? '!' : '⚠'}</div>
+        <div class="text">${a.text}</div>
+      </div>
+    `).join('');
+  </script>
+
+  <script>
+  (function() {
+    function playStampsOnce() {
+      document.querySelectorAll('.fork-stamp, .rubber-stamp').forEach(function(el) {
+        if (!el.classList.contains('stamp-played')) el.classList.add('stamp-played');
+      });
+    }
+    function onRowHover(ev) {
+      var row = ev.currentTarget;
+      row.querySelectorAll('.fork-stamp, .rubber-stamp').forEach(function(el) {
+        if (!el.classList.contains('stamp-played')) el.classList.add('stamp-played');
+      });
+    }
+    function attachHover() {
+      document.addEventListener('mouseover', function(ev) {
+        var row = ev.target.closest('.member-row, .branch-entry, .activity-row');
+        if (!row || row.contains(ev.relatedTarget)) return;
+        onRowHover({ currentTarget: row });
+      });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(playStampsOnce, 450);
+        attachHover();
+      });
+    } else {
+      setTimeout(playStampsOnce, 450);
+      attachHover();
+    }
+  })();
+  </script>
+
+</body></html>
