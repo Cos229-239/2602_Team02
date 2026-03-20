@@ -619,7 +619,7 @@ fun EventCard(title: String, date: String, time: String, onDeleteClick: () -> Un
                 )
             }
 
-            //Edit events button
+            // Edit events button - only show if the user is the host - add host verification here
             IconButton(
                 onClick = {     //takes us to edit event screen
                     val intent = Intent(context, EditEventActivity::class.java)

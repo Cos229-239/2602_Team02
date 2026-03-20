@@ -124,7 +124,8 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { navController.popBackStack() }) { //back to add items btn
+                    //back to add items page btn
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null,
@@ -142,14 +143,16 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(                                                           //pg icon
+                    //Page icon
+                    Icon(
                         imageVector = Icons.Default.AccountCircle,
                         contentDescription = null,
                         Modifier.size(60.dp),
                         tint = Color(0xFFBF6363)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text(                                                           //pg title
+                    //Page Title
+                    Text(
                         text = "Invite Friends",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 30.sp

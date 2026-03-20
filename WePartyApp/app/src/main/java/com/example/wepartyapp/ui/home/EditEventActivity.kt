@@ -80,6 +80,9 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
     val events = eventViewModel.events.observeAsState(emptyList())
     val currEvent = events.value.find { it.name == eventName }
 
+    // add host verification steps - they will only be able to edit the event if they are the host
+    // might have to be added in main activity not here...
+
     //helps with rerendering - text fields were reverting to og data everytime the date+time fields were clicked
     LaunchedEffect(currEvent) {
         //saving the current event's info to our shared view model's vars to be able to display + change
