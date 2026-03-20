@@ -1,9 +1,9 @@
 package com.example.wepartyapp.ui.auth
 
-import android.app.Activity // <-- Added
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Patterns // <-- Added for email validation
+import android.util.Patterns
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,42 +14,42 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height // <-- Added for fixed button height
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions // <-- Added
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator // <-- Added for loading spinner
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect // <-- Added
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection // <-- Added
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager // <-- Added
-import androidx.compose.ui.platform.LocalView // <-- Added
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction // <-- Added
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat // <-- Added
+import androidx.core.view.WindowCompat
 import com.example.wepartyapp.R
-import com.example.wepartyapp.ui.onboarding.OnboardingActivity // <-- Updated Import
+import com.example.wepartyapp.ui.onboarding.OnboardingActivity
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.UserProfileChangeRequest // <-- NEW IMPORT NEEDED TO SAVE NAME
+import com.google.firebase.auth.UserProfileChangeRequest
 
 class SignUpActivity : ComponentActivity() {
 
@@ -61,7 +61,7 @@ class SignUpActivity : ComponentActivity() {
         auth = FirebaseAuth.getInstance()
 
         setContent {
-            // --- Status Bar Fix ---
+            // Status bar appearance
             val view = LocalView.current
             if (!view.isInEditMode) {
                 SideEffect {
@@ -70,19 +70,19 @@ class SignUpActivity : ComponentActivity() {
                 }
             }
 
-            // --- Added: State variables to control the UI ---
+            // UI state
             var isLoading by remember { mutableStateOf(false) }
             var errorMessage by remember { mutableStateOf<String?>(null) }
 
             SignUpScreenUI(
-                isLoading = isLoading, // Pass state down
-                errorMessage = errorMessage, // Pass state down
+                isLoading = isLoading,
+                errorMessage = errorMessage,
                 onSignUpClick = { nameInput, emailInput, passwordInput ->
                     val name = nameInput.trim()
                     val email = emailInput.trim()
                     val password = passwordInput.trim()
 
-                    // Reset state on new attempt
+                    // Reset error on new attempt
                     errorMessage = null
 
                     if (email.isEmpty() || password.isEmpty() || name.isEmpty()) {
@@ -100,32 +100,26 @@ class SignUpActivity : ComponentActivity() {
                         return@SignUpScreenUI
                     }
 
-                    // Lock the UI
                     isLoading = true
 
-                    // Create User in Firebase
                     auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this) { task ->
                             if (task.isSuccessful) {
-
-                                // Save name to Firebase
+                                // Save display name to Firebase profile
                                 val user = auth.currentUser
                                 val profileUpdates = UserProfileChangeRequest.Builder()
                                     .setDisplayName(name)
                                     .build()
 
-                                user?.updateProfile(profileUpdates)?.addOnCompleteListener { profileTask ->
-                                    // Success: Route straight to the Onboarding Screen
+                                user?.updateProfile(profileUpdates)?.addOnCompleteListener {
                                     startActivity(Intent(this, OnboardingActivity::class.java))
                                     finish()
                                 }
-                                // -------------------------------------------
 
                             } else {
-                                // Unlock the UI
                                 isLoading = false
 
-                                // --- Added: Human-readable error translations ---
+                                // Translate Firebase errors into readable messages
                                 val exceptionMsg = task.exception?.message ?: ""
                                 errorMessage = when {
                                     exceptionMsg.contains("email address is already in use", ignoreCase = true) -> "An account with this email already exists."
@@ -137,27 +131,25 @@ class SignUpActivity : ComponentActivity() {
                         }
                 },
                 onNavigateToLogin = {
-                    finish() // Just close this screen to go back to Login
+                    finish()
                 }
             )
         }
     }
 }
 
-// SignUp Screen UI
 @Composable
 fun SignUpScreenUI(
-    isLoading: Boolean, // <-- Added
-    errorMessage: String?, // <-- Added
+    isLoading: Boolean,
+    errorMessage: String?,
     onSignUpClick: (String, String, String) -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
-    // State variables holding what the user types
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    val focusManager = LocalFocusManager.current // <-- Controls moving between fields
+    val focusManager = LocalFocusManager.current
 
     Column(
         modifier = Modifier
@@ -186,14 +178,12 @@ fun SignUpScreenUI(
             modifier = Modifier.padding(bottom = 32.dp)
         )
 
-        // Name Field
+        // Name field
         TextField(
             value = name,
             onValueChange = { name = it },
             placeholder = { Text("Full Name") },
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Next
-            ),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             keyboardActions = KeyboardActions(
                 onNext = { focusManager.moveFocus(FocusDirection.Down) }
             ),
@@ -209,7 +199,7 @@ fun SignUpScreenUI(
             )
         )
 
-        // Email Field
+        // Email field
         TextField(
             value = email,
             onValueChange = { email = it },
@@ -233,7 +223,7 @@ fun SignUpScreenUI(
             )
         )
 
-        // Password Field
+        // Password field
         TextField(
             value = password,
             onValueChange = { password = it },
@@ -251,7 +241,7 @@ fun SignUpScreenUI(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp), // Adjusted padding to make room for error text
+                .padding(bottom = 16.dp),
             shape = RoundedCornerShape(8.dp),
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = Color.White,
@@ -261,7 +251,7 @@ fun SignUpScreenUI(
             )
         )
 
-        // --- Added: In-UI Error Message Display ---
+        // Show error message if there is one
         if (errorMessage != null) {
             Text(
                 text = errorMessage,
@@ -272,15 +262,14 @@ fun SignUpScreenUI(
             )
         }
 
-        // --- Updated: Button with Loading State ---
-        // Sign Up Button
+        // Sign up button — shows spinner while loading
         Button(
             onClick = { onSignUpClick(name, email, password) },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp), // Fixed height so it doesn't jump
+                .height(50.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4081)),
-            enabled = !isLoading // Disables the button while Firebase is working
+            enabled = !isLoading
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
@@ -293,7 +282,7 @@ fun SignUpScreenUI(
             }
         }
 
-        // Back to Login Link
+        // Back to login
         Text(
             text = "Already have an account? Log In",
             color = Color(0xFFFF4081),
