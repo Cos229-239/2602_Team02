@@ -50,6 +50,7 @@ import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.onboarding.OnboardingActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
 
 class SignUpActivity : ComponentActivity() {
 
@@ -129,11 +130,11 @@ class SignUpActivity : ComponentActivity() {
                                 .addOnCompleteListener(this) { task ->
                                     if (task.isSuccessful) {
 
-                                // Save name to Firebase
-                                val user = auth.currentUser
-                                val profileUpdates = UserProfileChangeRequest.Builder()
-                                    .setDisplayName(name)
-                                    .build()
+                                        // Save name to Firebase
+                                        val user = auth.currentUser
+                                        val profileUpdates = UserProfileChangeRequest.Builder()
+                                            .setDisplayName(name)
+                                            .build()
 
                                         user?.updateProfile(profileUpdates)?.addOnCompleteListener { profileTask ->
 
@@ -184,6 +185,7 @@ class SignUpActivity : ComponentActivity() {
     }
 }
 
+// SignUp Screen UI
 @Composable
 fun SignUpScreenUI(
     isLoading: Boolean, // <-- Added
@@ -192,6 +194,7 @@ fun SignUpScreenUI(
     onSignUpClick: (String, String, String, String, String) -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
+    // State variables holding what the user types
     var name by remember { mutableStateOf("") }
     var appUserId by remember { mutableStateOf("") } // <-- New
     var phone by remember { mutableStateOf("") }     // <-- New
