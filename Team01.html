@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2602_Team01 — Welcome</title>
+  <style>
+    :root{--bg:#f6f8fa;--text:#1f2328;--accent:#0969da;--muted:#656d76;--card:#fff;--border:#d0d7de;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin:0;padding:0;background:var(--bg);color:var(--text);line-height:1.5;}
+    .app{display:flex;min-height:100vh;}
+    .sidebar{position:fixed;left:0;top:0;width:200px;height:100vh;overflow-y:auto;background:var(--text);color:#fff;padding:1rem 0;}
+    .sidebar a{display:block;color:rgba(255,255,255,0.9);text-decoration:none;padding:0.4rem 1rem;font-size:0.9rem;}
+    .sidebar a:hover{background:rgba(255,255,255,0.1);color:#fff;}
+    .sidebar a.active{background:var(--accent);color:#fff;}
+    .sidebar-brand{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1rem;border-bottom:1px solid rgba(255,255,255,0.2);}
+    .logo-link{flex-shrink:0;}
+    .sidebar-logo{width:40px;height:40px;display:block;}
+    .brand-text{display:flex;flex-direction:column;line-height:1.2;}
+    .brand-org{font-weight:700;font-size:0.85rem;}
+    .brand-cycle{font-size:0.75rem;opacity:0.9;}
+    .nav-week-group{margin-bottom:0.75rem;}
+    .nav-week{display:block;font-weight:600;font-size:1.1rem;margin-top:0.25rem;padding:0.35rem 1rem;}
+    .nav-team{display:flex;align-items:center;padding-left:1.25rem;font-size:0.55rem;padding:0.2rem 1rem 0.2rem 1.5rem;}
+    .nav-team-bullet{display:inline-block;width:6px;height:6px;border-radius:50%;background:#f97316;margin-right:0.5rem;flex-shrink:0;}
+    .content{flex:1;margin-left:200px;padding:1.5rem;max-width:980px;}
+    .hero,.panel{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;}
+    h1,h2{margin-top:0;}
+    .quick-links{display:flex;flex-wrap:wrap;gap:0.75rem;margin:0.75rem 0 0;}
+    .quick-links a{color:var(--accent);text-decoration:none;font-weight:600;}
+    .quick-links a:hover{text-decoration:underline;}
+    .members{padding-left:1.1rem;}
+    .member-meta{color:var(--muted);font-size:0.88rem;font-weight:400;}
+    .readme-block{margin:0;white-space:pre-wrap;background:#0f1419;color:#e6edf3;padding:1rem;border-radius:8px;overflow:auto;}
+    .empty-note{color:var(--muted);}
+  </style>
+</head>
+<body>
+<div class="app">
+<nav class="sidebar">
+<div class="sidebar-brand">
+<a href="index.html" class="logo-link"><img src="logo.png" alt="Logo" class="sidebar-logo"></a>
+<div class="brand-text"><span class="brand-org">Cos229-239</span><span class="brand-cycle">2602</span></div>
+</div>
+<a href="index.html" class="nav-home">Home</a>
+<div class="nav-week-group">
+<a href="W05.html" class="nav-week">Week 05</a>
+<a href="W05_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W05_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W06.html" class="nav-week">Week 06</a>
+<a href="W06_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W06_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W07.html" class="nav-week">Week 07</a>
+<a href="W07_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W07_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W08.html" class="nav-week">Week 08</a>
+<a href="W08_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W08_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+</nav>
+<main class="content">
+  <section class="hero">
+    <h1>2602_Team01</h1>
+    <p>Team welcome page for Cycle 2602. Use the weekly links in the sidebar for status snapshots, or use the quick links below for project resources.</p>
+    <div class="quick-links">
+      <a href="https://github.com/Cos229-239/2602_Team01">GitHub Repo</a>
+      <span class="empty-note">No Trello board link found.</span>
+      <a href="index.html">Cycle Home</a>
+    </div>
+  </section>
+  <section class="panel">
+    <h2>Team Members</h2>
+    <ul class="members">
+      <li><strong>Daniel Wetenkamp</strong> <span class="member-meta">(GitHub: @danielwetenkamp · Discord: ismeedan)</span></li>
+    </ul>
+  </section>
+  <section class="panel">
+    <h2>About the Project - GitHub README</h2>
+    <pre class="readme-block"><code># Class Project Template
+
+Start here. Keep this README updated with your team name, members, and a short plan.
+
+Team Name - Team 1 Campus 
+Team Member(s) - Daniel Wetenkamp
+Plan - I&#x27;ll be creating an app using Android Studio and writing in Kotlin Multiplatform. The app will be a digital file cabinet of sort, but I want to make it highly customizeable by the user. It&#x27;s to help keep all sorts of documents (pdfs), information, and even pictures saved in one place. For example: PDF of home, roof, HVAC system warranties; yr/mk/mdl of car(s) with oil weight, tire type/size, reminders for oil changes/maintenance; either pictures of or user-added info of their preferred company regarding HVAC/Mechanic/Lawncare/etc.
+
+* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
+  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+
+### Build and Run Android Application
+
+To build and run the development version of the Android app, use the run configuration from the run widget
+in your IDE’s toolbar or build it directly from the terminal:
+- on macOS/Linux
+  ```shell
+  ./gradlew :composeApp:assembleDebug
+  ```
+- on Windows
+  ```shell
+  .\gradlew.bat :composeApp:assembleDebug
+  ```
+
+### Build and Run Desktop (JVM) Application
+
+To build and run the development version of the desktop app, use the run configuration from the run widget
+in your IDE’s toolbar or run it directly from the terminal:
+- on macOS/Linux
+  ```shell
+  ./gradlew :composeApp:run
+  ```
+- on Windows
+  ```shell
+  .\gradlew.bat :composeApp:run
+  ```
+
+### Build and Run iOS Application
+
+To build and run the development version of the iOS app, use the run configuration from the run widget
+in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+
+---
+
+Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…</code></pre>
+  </section>
+</main>
+</div>
+</body>
+</html>

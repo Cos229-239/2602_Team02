@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Meeting Snapshots — Cycle 2602</title>
+  <title>2602_Team02 — Welcome</title>
   <style>
-    :root{--bg:#f6f8fa;--text:#1f2328;--accent:#0969da;}
+    :root{--bg:#f6f8fa;--text:#1f2328;--accent:#0969da;--muted:#656d76;--card:#fff;--border:#d0d7de;}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin:0;padding:0;background:var(--bg);color:var(--text);line-height:1.5;}
     .app{display:flex;min-height:100vh;}
     .sidebar{position:fixed;left:0;top:0;width:200px;height:100vh;overflow-y:auto;background:var(--text);color:#fff;padding:1rem 0;}
@@ -22,13 +22,16 @@
     .nav-week{display:block;font-weight:600;font-size:1.1rem;margin-top:0.25rem;padding:0.35rem 1rem;}
     .nav-team{display:flex;align-items:center;padding-left:1.25rem;font-size:0.55rem;padding:0.2rem 1rem 0.2rem 1.5rem;}
     .nav-team-bullet{display:inline-block;width:6px;height:6px;border-radius:50%;background:#f97316;margin-right:0.5rem;flex-shrink:0;}
-    .content{flex:1;margin-left:200px;padding:1.5rem;max-width:900px;}
-    .panel{background:#fff;border:1px solid #d0d7de;border-radius:10px;padding:1rem 1.25rem;}
-    h1{border-bottom:1px solid #ddd;padding-bottom:0.3em;}
-    ul{list-style:none;padding:0;}
-    li{margin:0.75rem 0;}
-    a{color:#0969da;text-decoration:none;}
-    a:hover{text-decoration:underline;}
+    .content{flex:1;margin-left:200px;padding:1.5rem;max-width:980px;}
+    .hero,.panel{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;}
+    h1,h2{margin-top:0;}
+    .quick-links{display:flex;flex-wrap:wrap;gap:0.75rem;margin:0.75rem 0 0;}
+    .quick-links a{color:var(--accent);text-decoration:none;font-weight:600;}
+    .quick-links a:hover{text-decoration:underline;}
+    .members{padding-left:1.1rem;}
+    .member-meta{color:var(--muted);font-size:0.88rem;font-weight:400;}
+    .readme-block{margin:0;white-space:pre-wrap;background:#0f1419;color:#e6edf3;padding:1rem;border-radius:8px;overflow:auto;}
+    .empty-note{color:var(--muted);}
   </style>
 </head>
 <body>
@@ -61,13 +64,31 @@
 </div>
 </nav>
 <main class="content">
+  <section class="hero">
+    <h1>2602_Team02</h1>
+    <p>Team welcome page for Cycle 2602. Use the weekly links in the sidebar for status snapshots, or use the quick links below for project resources.</p>
+    <div class="quick-links">
+      <a href="https://github.com/Cos229-239/2602_Team02">GitHub Repo</a>
+      <span class="empty-note">No Trello board link found.</span>
+      <a href="index.html">Cycle Home</a>
+    </div>
+  </section>
   <section class="panel">
-    <h1>Welcome</h1>
-    <p>Cycle 2602 currently has <strong>2</strong> teams published to GitHub Pages.</p>
-    <p>Select a team welcome page below, or use the weekly navigation in the sidebar.</p>
-    <ul>
-      <li><a href="Team01.html">Team 01</a></li><li><a href="Team02.html">Team 02</a></li>
+    <h2>Team Members</h2>
+    <ul class="members">
+      <li><strong>Rodney Ford</strong> <span class="member-meta">(GitHub: @Rodford · Discord: rodney_06143)</span></li>
+<li><strong>Lesly Morales</strong> <span class="member-meta">(GitHub: @Lesly-AM · Discord: l_m1234)</span></li>
+<li><strong>Hasani Carter</strong> <span class="member-meta">(GitHub: @4hzzz · Discord: hasanicarter)</span></li>
+<li><strong>Maret G. Rivera Merced</strong> <span class="member-meta">(GitHub: @MarRivMer · Discord: maretgabriel12)</span></li>
+<li><strong>Andy Tran</strong> <span class="member-meta">(GitHub: @717Andy · Discord: ando777)</span></li>
     </ul>
+  </section>
+  <section class="panel">
+    <h2>About the Project - GitHub README</h2>
+    <pre class="readme-block"><code># Class Project Template
+
+Start here. Keep this README updated with your team name, members, and a short plan.
+Updated WebHook</code></pre>
   </section>
 </main>
 </div>
