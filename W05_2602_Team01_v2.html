@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.0.1 | Purpose: V2 meeting snapshot dashboard template -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meeting Snapshot — Dashboard V2</title>
   <link rel="preconnect" href="https://fonts.googleapis.com/">
   <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-  <link href="./Meeting Snapshot — Dashboard V2 (2602 Team02)_files/css2" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #0f1419;
@@ -265,7 +266,7 @@
     <header class="v2-header">
       <div>
         <h1 id="v2-header-title">— Dashboard V2</h1>
-        <p class="v2-ref"><a id="link-lms-table" href="meeting-snapshot-lms-data.html">LMS Data</a> · <a id="link-v1-report" href="https://cos229-239.github.io/2602_Team02/W06_2602_Team02.html">Source</a></p>
+        <p class="v2-ref"><a id="link-v1-page" href="#">V1</a> · <a id="link-lms-table" href="meeting-snapshot-lms-data.html">LMS Data</a> · <a id="link-v1-report" href="#">Source</a></p>
       </div>
     </header>
 
@@ -1027,7 +1028,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-20-2026 - 19:19", "period": "2026-03-02 to 2026-03-08", "cycle": "2602", "week": 5}, "members": [{"name": "Daniel W.", "git": "fork", "trello": true, "discord": true, "githubUsername": ""}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "TODAY", "contribution": "+527/-158", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 4, "additions": 527, "deletions": 158, "net": 369}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 37}, "actionBreakdown": {"Daniel W.": {"Create card": 8, "Move card": 29}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 0, "dates": "Ahead", "summary": "TODAY"}], "alerts": [{"type": "warn", "text": "inner\">"}, {"type": "warn", "text": "list\">"}]};
+    const data = {"report": {"generated": "03-21-2026 - 13:16", "period": "2026-03-02 to 2026-03-08", "cycle": "2602", "week": 5, "team": "2602_Team01", "sourceUrl": "W05_2602_Team01.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "1d ago", "contribution": "+527/-158", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 4, "additions": 527, "deletions": 158, "net": 369}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 37}, "actionBreakdown": {"Daniel W.": {"Create card": 8, "Move card": 29}}, "status": "HEALTHY"}, "discord": [], "alerts": [{"type": "warn", "text": "Daniel W. has not posted standups this week. Post daily standups in the team standup channel."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     (function setupHeaderLinks() {
@@ -1038,9 +1039,16 @@
         var prefix = (team || cycle || '').trim();
         titleEl.textContent = prefix ? prefix + ' — Dashboard V2' : 'Dashboard V2';
       }
+      var currentFile = ((window.location && window.location.pathname) || '').split('/').pop();
+      var fallbackV1 = currentFile ? currentFile.replace(/_v2\.html$/i, '.html') : '';
+      var sourceHref = (data.report && data.report.sourceUrl) ? data.report.sourceUrl : fallbackV1;
+      var v1PageLink = document.getElementById('link-v1-page');
       var v1Link = document.getElementById('link-v1-report');
-      if (v1Link && data.report && data.report.sourceUrl) {
-        v1Link.href = data.report.sourceUrl;
+      if (v1PageLink && sourceHref) {
+        v1PageLink.href = sourceHref;
+      }
+      if (v1Link && sourceHref) {
+        v1Link.href = sourceHref;
       }
     })();
 
@@ -1087,7 +1095,7 @@
     const totalActions = Object.values(data.trello.actions).reduce((a, b) => a + b, 0);
     const totalStandupPosts = data.discord.reduce((a, d) => a + d.posts, 0);
     const totalCards = Object.values(data.trello.assignments).reduce((a, b) => a + b, 0);
-    const engagedCount = data.discord.length;
+    const engagedCount = data.discord.filter(d => d.posts > 0).length;
     const totalMembers = data.members.length;
     const participationPct = totalMembers ? Math.round((engagedCount / totalMembers) * 100) : 0;
 
