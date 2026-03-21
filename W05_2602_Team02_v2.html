@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.0.1 | Purpose: V2 meeting snapshot dashboard template -->
+<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.0.3 | Purpose: V2 meeting snapshot dashboard template -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meeting Snapshot — Dashboard V2</title>
@@ -135,9 +135,9 @@
     .trello-stat .lbl { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
     .member-row .avatar-stars { position: absolute; right: -3px; bottom: -3px; display: inline-flex; gap: 1px; z-index: 5; }
     .member-row .avatar-star { cursor: help; font-size: 0.58rem; color: #f0c14b; line-height: 1; background: rgba(15,20,25,0.92); border: 1px solid rgba(240,193,75,0.7); border-radius: 999px; padding: 0.15rem 0.2rem; }
-    .has-tip { position: relative; }
-    .has-tip:hover::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); background: rgba(15,20,25,0.96); color: var(--text); border: 1px solid var(--surface2); border-radius: 6px; padding: 0.35rem 0.5rem; font-size: 0.7rem; white-space: nowrap; z-index: 1000; box-shadow: 0 10px 24px rgba(0,0,0,0.28); pointer-events: none; }
-    .has-tip:hover::before { content: ''; position: absolute; left: 50%; bottom: calc(100% + 2px); transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--surface2); z-index: 999; pointer-events: none; }
+    .has-tip { position: relative; z-index: 20; }
+    .has-tip:hover::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); background: rgba(15,20,25,0.98); color: var(--text); border: 1px solid var(--surface2); border-radius: 6px; padding: 0.35rem 0.5rem; font-size: 0.7rem; white-space: nowrap; z-index: 9999; box-shadow: 0 10px 24px rgba(0,0,0,0.28); pointer-events: none; }
+    .has-tip:hover::before { content: ''; position: absolute; left: 50%; bottom: calc(100% + 2px); transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--surface2); z-index: 9998; pointer-events: none; }
 
     .card { background: var(--surface); border: 1px solid var(--surface2); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem; }
     .card h2 { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--surface2); }
@@ -151,7 +151,7 @@
     .avatar-ring-wrap > .rubber-stamp {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-12deg) scale(0);
       font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
-      padding: 0.2rem 0.4rem; border: 2px solid; border-radius: 2px; background: rgba(0,0,0,0.5);
+      padding: 0.2rem 0.4rem; border: 2px solid; border-radius: 2px; background: rgba(0,0,0,0.82);
       box-shadow: 0 0 0 1px currentColor; z-index: 999; pointer-events: none;
       opacity: 0;
     }
@@ -170,7 +170,7 @@
       position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-12deg);
       font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em;
       text-transform: uppercase; white-space: nowrap; padding: 0.2rem 0.4rem;
-      border: 2px solid; border-radius: 2px; background: rgba(0,0,0,0.5);
+      border: 2px solid; border-radius: 2px; background: rgba(0,0,0,0.82);
       box-shadow: 0 0 0 1px currentColor; z-index: 100; pointer-events: none;
     }
     .member-row .fork-stamp,
@@ -178,7 +178,7 @@
     .avatar-ring-wrap > .fork-stamp { color: var(--danger); border-color: var(--danger); }
     .rubber-stamp.missing { color: var(--danger); border-color: var(--danger); }
     .rubber-stamp.no-activity { color: var(--warn); border-color: var(--warn); }
-    .rubber-stamp.abandoned,
+    .rubber-stamp.inactive,
     .rubber-stamp.diverged { color: var(--danger); border-color: var(--danger); }
     .member-row .info { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; min-width: 0; text-align: center; }
     .member-row .name { font-weight: 600; font-size: 0.875rem; }
@@ -1031,7 +1031,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-21-2026 - 13:55", "period": "2026-03-02 to 2026-03-08", "cycle": "2602", "week": 5, "team": "2602_Team02", "sourceUrl": "W05_2602_Team02.html"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Hasani C.", "git": "active", "trello": true, "discord": true, "githubUsername": "4hzzz"}, {"name": "Maret M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Andy T.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Abandoned", "activity": "19d ago", "contribution": "+1083/-615", "aheadBehind": "0 / 93", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "5d ago", "contribution": "+1083/-615", "aheadBehind": "0 / 31", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Behind", "activity": "10d ago", "contribution": "\u2014", "aheadBehind": "0 / 47", "risk": "LOW", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Diverged", "activity": "TODAY", "contribution": "+2420/-713", "aheadBehind": "2 / 7", "risk": "HIGH", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "1d ago", "contribution": "+621/-207", "aheadBehind": "0 / 13", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "TODAY", "contribution": "+2535/-924", "aheadBehind": "0 / 1", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Rodney F.", "workingFrom": "Org repo", "commits": 13, "additions": 2535, "deletions": 924, "net": 1611}, {"person": "Lesly M.", "workingFrom": "Org repo", "commits": 17, "additions": 2420, "deletions": 713, "net": 1707}, {"person": "Andy T.", "workingFrom": "Org repo", "commits": 4, "additions": 1083, "deletions": 615, "net": 468}, {"person": "Maret M.", "workingFrom": "Org repo", "commits": 9, "additions": 621, "deletions": 207, "net": 414}], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 14}, "actions": {"Andy T.": 19, "Hasani C.": 14, "Lesly M.": 54, "Maret M.": 23, "Rodney F.": 20}, "actionBreakdown": {"Andy T.": {"Create card": 2, "Move card": 9, "Complete checklist": 3}, "Hasani C.": {"Create card": 1, "Move card": 3, "Complete checklist": 9}, "Lesly M.": {"Create card": 1, "Move card": 32, "Complete checklist": 5}, "Maret M.": {"Create card": 6, "Move card": 13, "Complete checklist": 1}, "Rodney F.": {"Create card": 1, "Move card": 11, "Comment": 2, "Complete checklist": 1}}, "status": "HEALTHY"}, "discord": [{"person": "Andy T.", "posts": 6, "dates": "Mar 2, Mar 3, Mar 5, Mar 7, Mar 8", "summary": "Implemented UI and functionality for events inbox and chat. Researched firebase and notifications. Created a script for event messaging and completed other dashboard features. Blocked by work commitme"}, {"person": "Lesly M.", "posts": 5, "dates": "Mar 3, Mar 4, Mar 5, Mar 6", "summary": "Worked on the consolidated shopping list and edit screen functionality. Researched data updates in firebase. Blocked by navigation issues and personal commitments."}, {"person": "Rodney F.", "posts": 5, "dates": "Mar 3, Mar 5, Mar 7", "summary": "Participated in brainstorming and resolved notification issues. Worked on push notifications and UI enhancements including error handling and audio for splash screens. Blocked by work hours."}, {"person": "Maret M.", "posts": 3, "dates": "Mar 5, Mar 6", "summary": "Collaborated on planning and worked on home screen UI improvements. Started building the Event Info Screen and engaged in team build reviews."}, {"person": "Hasani C.", "posts": 2, "dates": "Mar 5", "summary": "Improved login UX by adding loading states and preventing duplicate logins. Continued testing auth flow for consistency across screens."}], "alerts": [{"type": "warn", "text": "Lesly M. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Lesly M. has a diverged branch (merge conflict likely)."}, {"type": "warn", "text": "Hasani C. has not had branch activity in 10 days."}]};
+    const data = {"report": {"generated": "03-21-2026 - 14:20", "period": "2026-03-02 to 2026-03-08", "cycle": "2602", "week": 5, "team": "2602_Team02", "sourceUrl": "W05_2602_Team02.html"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Hasani C.", "git": "active", "trello": true, "discord": true, "githubUsername": "4hzzz"}, {"name": "Maret M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Andy T.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Inactive", "activity": "19d ago", "contribution": "+1083/-615", "aheadBehind": "0 / 93", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "5d ago", "contribution": "+1083/-615", "aheadBehind": "0 / 31", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Behind", "activity": "10d ago", "contribution": "\u2014", "aheadBehind": "0 / 47", "risk": "LOW", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Diverged", "activity": "TODAY", "contribution": "+2420/-713", "aheadBehind": "2 / 7", "risk": "HIGH", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "1d ago", "contribution": "+621/-207", "aheadBehind": "0 / 13", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "TODAY", "contribution": "+2535/-924", "aheadBehind": "0 / 1", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Rodney F.", "workingFrom": "Org repo", "commits": 13, "additions": 2535, "deletions": 924, "net": 1611}, {"person": "Lesly M.", "workingFrom": "Org repo", "commits": 17, "additions": 2420, "deletions": 713, "net": 1707}, {"person": "Andy T.", "workingFrom": "Org repo", "commits": 4, "additions": 1083, "deletions": 615, "net": 468}, {"person": "Maret M.", "workingFrom": "Org repo", "commits": 9, "additions": 621, "deletions": 207, "net": 414}], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 14}, "actions": {"Andy T.": 19, "Hasani C.": 14, "Lesly M.": 54, "Maret M.": 23, "Rodney F.": 20}, "actionBreakdown": {"Andy T.": {"Create card": 2, "Move card": 9, "Complete checklist": 3}, "Hasani C.": {"Create card": 1, "Move card": 3, "Complete checklist": 9}, "Lesly M.": {"Create card": 1, "Move card": 32, "Complete checklist": 5}, "Maret M.": {"Create card": 6, "Move card": 13, "Complete checklist": 1}, "Rodney F.": {"Create card": 1, "Move card": 11, "Comment": 2, "Complete checklist": 1}}, "status": "HEALTHY"}, "discord": [{"person": "Andy T.", "posts": 6, "dates": "Mar 2, Mar 3, Mar 5, Mar 7, Mar 8", "summary": "Implemented UI and functionality for events inbox and chat. Researched firebase and notifications. Created a script for event messaging and completed other dashboard features. Blocked by work commitme"}, {"person": "Lesly M.", "posts": 5, "dates": "Mar 3, Mar 4, Mar 5, Mar 6", "summary": "Worked on the consolidated shopping list and edit screen functionality. Researched data updates in firebase. Blocked by navigation issues and personal commitments."}, {"person": "Rodney F.", "posts": 5, "dates": "Mar 3, Mar 5, Mar 7", "summary": "Participated in brainstorming and resolved notification issues. Worked on push notifications and UI enhancements including error handling and audio for splash screens. Blocked by work hours."}, {"person": "Maret M.", "posts": 3, "dates": "Mar 5, Mar 6", "summary": "Collaborated on planning and worked on home screen UI improvements. Started building the Event Info Screen and engaged in team build reviews."}, {"person": "Hasani C.", "posts": 2, "dates": "Mar 5", "summary": "Improved login UX by adding loading states and preventing duplicate logins. Continued testing auth flow for consistency across screens."}], "alerts": [{"type": "warn", "text": "Lesly M. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Lesly M. has a diverged branch (merge conflict likely)."}, {"type": "warn", "text": "Hasani C. has not had branch activity in 10 days."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     (function setupHeaderLinks() {
@@ -1098,7 +1098,7 @@
       const rows = branchByPerson[name] || [];
       if (!rows.length) return 'missing';
       const statuses = rows.map(r => (r.status || '').toLowerCase());
-      if (statuses.some(s => s.includes('abandoned'))) return 'abandoned';
+      if (statuses.some(s => s.includes('inactive'))) return 'inactive';
       if (statuses.some(s => s.includes('diverged'))) return 'diverged';
       if (statuses.some(s => s.includes('behind'))) return 'behind';
       if (statuses.some(s => s.includes('ahead'))) return 'ahead';
@@ -1143,8 +1143,8 @@
       const issue = branchIssueLevel(m.name);
       const gitLabel = m.git === 'fork'
         ? 'Git: Working from a fork'
-        : issue === 'abandoned'
-          ? 'Git: Branch is abandoned'
+        : issue === 'inactive'
+          ? 'Git: Branch is inactive'
           : issue === 'diverged'
             ? 'Git: Branch is diverged'
             : issue === 'missing'
@@ -1369,7 +1369,7 @@
 
     function memberStampFor(m) {
       const issue = branchIssueLevel(m.name);
-      if (issue === 'abandoned') return { label: 'Abandoned', cls: 'abandoned', title: 'Branch is abandoned' };
+      if (issue === 'inactive') return { label: 'Inactive', cls: 'inactive', title: 'Branch is inactive' };
       if (issue === 'diverged') return { label: 'Diverged', cls: 'diverged', title: 'Branch is diverged' };
       if (issue === 'missing') return { label: 'Missing', cls: 'missing', title: 'No tracked personal branch' };
       if (m.git === 'fork') return { label: 'Fork', cls: 'danger', title: 'Working from a fork' };
@@ -1433,6 +1433,7 @@
     `;
 
     const postsByDay = {};
+    const postersByDay = {};
     const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     data.discord.forEach(d => {
       if (!d.dates) return;
@@ -1447,9 +1448,13 @@
           for (let day = start; day <= end; day++) {
             const key = month + ' ' + day;
             postsByDay[key] = (postsByDay[key] || 0) + 1;
+            if (!postersByDay[key]) postersByDay[key] = [];
+            if (postersByDay[key].indexOf(d.person) === -1) postersByDay[key].push(d.person);
           }
         } else {
           postsByDay[trimmed] = (postsByDay[trimmed] || 0) + 1;
+          if (!postersByDay[trimmed]) postersByDay[trimmed] = [];
+          if (postersByDay[trimmed].indexOf(d.person) === -1) postersByDay[trimmed].push(d.person);
         }
       });
     });
@@ -1471,10 +1476,14 @@
       <div class="standup-by-day-strip">
         ${weekDays.map(({ key, dayName }) => {
           const n = postsByDay[key] || 0;
+          const posters = postersByDay[key] || [];
           const ratio = totalMembers ? n / totalMembers : 0;
           const barClass = ratio >= 1 ? 'bar-ok' : ratio === 0 ? 'bar-danger' : 'bar-warn';
           const numClass = ratio >= 1 ? 'num-ok' : ratio === 0 ? 'num-danger' : 'num-warn';
-          return `<div class="day-cell ${barClass}" title="${n} of ${totalMembers} team members (${Math.round(ratio * 100)}%)"><span class="day-label">${dayName} ${key}</span><span class="day-num ${numClass}">${n}</span></div>`;
+          const tooltip = posters.length
+            ? `${n} of ${totalMembers} members\n- ${posters.join('\n- ')}`
+            : `0 of ${totalMembers} members\n- No posts`;
+          return `<div class="day-cell ${barClass}" title="${tooltip}"><span class="day-label">${dayName} ${key}</span><span class="day-num ${numClass}">${n}</span></div>`;
         }).join('')}
       </div>
     ` : '';
@@ -1489,7 +1498,7 @@
     function branchPanelBorder(b) {
       if (b.isMissing) return 'border-danger';
       const status = (b.status || '').toLowerCase();
-      if (status.includes('abandoned') || status.includes('diverged')) return 'border-danger';
+      if (status.includes('inactive') || status.includes('diverged')) return 'border-danger';
       if (status.includes('behind')) return 'border-warn';
       const r = (b.risk || '').toUpperCase();
       if (r === 'HIGH') return 'border-danger';
@@ -1500,7 +1509,7 @@
     function branchStatusDisplay(status, isMissing) {
       if (isMissing) return 'Missing';
       const s = (status || '').toLowerCase();
-      if (s.includes('abandoned')) return 'Abandoned';
+      if (s.includes('inactive')) return 'Inactive';
       if (s.includes('diverged')) return 'Diverged';
       if (s.includes('ahead')) return 'Unmerged';
       if (s.includes('behind')) return 'Behind';
@@ -1509,23 +1518,92 @@
     function branchStampFor(b) {
       if (b.isMissing) return { label: 'Missing', cls: 'missing' };
       const status = (b.status || '').toLowerCase();
-      if (status.includes('abandoned')) return { label: 'Abandoned', cls: 'abandoned' };
+      if (status.includes('inactive')) return { label: 'Inactive', cls: 'inactive' };
       if (status.includes('diverged')) return { label: 'Diverged', cls: 'diverged' };
       return null;
     }
+    function branchDetailContent(b, statusInPanel) {
+      const statusLower = (b.status || '').toLowerCase();
+      const branchName = b.branch || 'your-branch';
+      const infoLines = [];
+      const assumptionLines = [];
+      const stepLines = [];
+
+      if (b.isMissing) {
+        return {
+          detailsHtml: '<p class="branch-abandoned-note" style="color:var(--danger);font-weight:600;margin:0 0 0.5rem;">No named branch in repo.</p>',
+          explanationHtml: '<h4>What Is Going On Here</h4><p>No named branch is being tracked for this person right now.</p><h4>Assumption</h4><p>They may be committing somewhere else, or they may not have created and pushed their personal branch yet. If they already have a branch, push it to the class repo so it appears here. If they do not have one yet, create one from dev and begin working there.</p>',
+          stepsHtml: '<h4>Next Steps</h4><ol><li>Create a personal or task branch from dev.</li><li>Push it to origin so the team can track it.</li><li>Keep doing daily work on that branch, then merge back into dev when ready.</li></ol>',
+        };
+      }
+
+      const detailsHtml = `<dl><dt>Last commit</dt><dd>${b.activity || '—'}</dd><dt>Contribution</dt><dd>${b.contribution || '—'}</dd><dt>Unmerged / Behind</dt><dd>${b.aheadBehind || '—'}</dd><dt>Branch status</dt><dd>${statusInPanel} · Risk: ${b.risk || '—'}</dd></dl>`;
+
+      if (statusLower.includes('diverged')) {
+        infoLines.push('This branch and dev both changed, so a merge conflict is likely if nobody updates the branch.');
+        assumptionLines.push('Assumption: this is still the active branch, but it has fallen out of sync with dev.');
+        assumptionLines.push('If this branch is still being used, merge dev into it now.');
+        assumptionLines.push('If this branch is old and no longer needed, merge or delete it after confirming with the team.');
+        stepLines.push('Switch to dev: <code>git checkout dev</code>');
+        stepLines.push('Pull latest dev: <code>git pull origin dev</code>');
+        stepLines.push('Switch back to the branch: <code>git checkout ' + escapeHtml(branchName) + '</code>');
+        stepLines.push('Merge dev into the branch: <code>git merge dev</code>');
+        stepLines.push('Resolve conflicts, test, then push the updated branch.');
+      } else if (statusLower.includes('inactive')) {
+        infoLines.push('This branch has not had activity for a while, so it appears inactive.');
+        assumptionLines.push('Assumption: this may be an older feature branch, an archived branch, or a branch that should be merged and cleaned up.');
+        assumptionLines.push('If work is still happening here, update the branch and keep using it.');
+        assumptionLines.push('If this branch is complete or no longer used, follow a cleanup workflow and remove it.');
+        stepLines.push('Finish the feature work if it is still active.');
+        stepLines.push('Merge the branch into dev or main when appropriate.');
+        stepLines.push('Check merged branches: <code>git branch --merged</code>');
+        stepLines.push('Delete the local branch if it is no longer needed: <code>git branch -d ' + escapeHtml(branchName) + '</code>');
+        stepLines.push('Delete the remote branch: <code>git push origin --delete ' + escapeHtml(branchName) + '</code>');
+        stepLines.push('Prune stale remote-tracking refs: <code>git fetch --prune</code>');
+      } else if (statusLower.includes('behind')) {
+        infoLines.push('Dev moved ahead of this branch, so this branch is behind and should be updated.');
+        assumptionLines.push('Assumption: this is still the active working branch, but it has not pulled recent team changes from dev.');
+        assumptionLines.push('If the branch is active, merge dev into it.');
+        assumptionLines.push('If the branch is old and no longer needed, merge or delete it after review.');
+        stepLines.push('Switch to dev: <code>git checkout dev</code>');
+        stepLines.push('Pull latest dev: <code>git pull origin dev</code>');
+        stepLines.push('Switch back to the branch: <code>git checkout ' + escapeHtml(branchName) + '</code>');
+        stepLines.push('Merge dev into the branch: <code>git merge dev</code>');
+        stepLines.push('Keep working on the branch, then merge back into dev when ready.');
+      } else if (statusLower.includes('ahead') || statusLower.includes('unmerged')) {
+        infoLines.push('This branch has work that is not in dev yet.');
+        assumptionLines.push('Assumption: the work may be ready to merge, or it may still be in progress.');
+        assumptionLines.push('If the feature is done and tested, merge it into dev.');
+        assumptionLines.push('If it is not done, keep the work here and continue until it is ready.');
+        stepLines.push('Review the branch changes and confirm they are ready.');
+        stepLines.push('Merge the branch into dev when the feature is solid.');
+        stepLines.push('Delete the branch after merge if it is feature-based and no longer needed.');
+      } else {
+        infoLines.push('This branch appears to be in a healthy state right now.');
+        assumptionLines.push('Assumption: it is either current with dev or being used normally without a visible branch issue.');
+        assumptionLines.push('If work is complete, merge and clean up the branch.');
+        assumptionLines.push('If work is ongoing, continue committing and keep it synced with dev.');
+        stepLines.push('Keep making commits with clear messages.');
+        stepLines.push('Merge into dev when the work is ready.');
+        stepLines.push('Delete old feature branches after merge so the repo stays clean.');
+      }
+
+      return {
+        detailsHtml: detailsHtml,
+        explanationHtml: '<h4>What Is Going On Here</h4><p>' + infoLines.join(' ') + '</p><h4>Assumption</h4><p>' + assumptionLines.join(' ') + '</p>',
+        stepsHtml: '<h4>Next Steps</h4><ol>' + stepLines.map(s => '<li>' + s + '</li>').join('') + '</ol>',
+      };
+    }
     document.getElementById('branch-v2-root').innerHTML = branchList.map((b, i) => {
       const statusLower = (b.status || '').toLowerCase();
-      const statusClass = b.isMissing ? 'missing' : (statusLower.includes('abandoned') || statusLower.includes('diverged')) ? 'danger' : statusLower.includes('behind') ? 'behind' : statusLower.includes('ahead') ? 'ahead' : 'sync';
+      const statusClass = b.isMissing ? 'missing' : (statusLower.includes('inactive') || statusLower.includes('diverged')) ? 'danger' : statusLower.includes('behind') ? 'behind' : statusLower.includes('ahead') ? 'ahead' : 'sync';
       const statusLabel = branchStatusDisplay(b.status, b.isMissing);
       const stampInfo = branchStampFor(b);
       const stamp = stampInfo ? `<span class="rubber-stamp ${stampInfo.cls}" aria-label="${stampInfo.label}" title="${stampInfo.label}">${stampInfo.label}</span>` : '';
-      const statusTextClass = b.isMissing ? 'status-text-missing' : (statusLower.includes('abandoned') || statusLower.includes('diverged')) ? 'status-text-danger' : statusLower.includes('behind') ? 'status-text-behind' : statusLower.includes('ahead') ? 'status-text-ahead' : 'status-text-sync';
+      const statusTextClass = b.isMissing ? 'status-text-missing' : (statusLower.includes('inactive') || statusLower.includes('diverged')) ? 'status-text-danger' : statusLower.includes('behind') ? 'status-text-behind' : statusLower.includes('ahead') ? 'status-text-ahead' : 'status-text-sync';
       const statusInPanel = '<span class="' + statusTextClass + '">' + statusLabel + '</span>';
-      const detailsHtml = b.isMissing
-        ? '<p class="branch-abandoned-note" style="color:var(--danger);font-weight:600;margin:0 0 0.5rem;">No named branch in repo.</p>'
-        : `<dl><dt>Last commit</dt><dd>${b.activity || '—'}</dd><dt>Contribution</dt><dd>${b.contribution || '—'}</dd><dt>Unmerged / Behind</dt><dd>${b.aheadBehind || '—'}</dd><dt>Branch status</dt><dd>${statusInPanel} · Risk: ${b.risk || '—'}</dd></dl>`;
-      const stepsHtml = (b.suggestedSteps || []).length ? '<h4>Steps to resolve</h4><ol>' + (b.suggestedSteps || []).map(s => '<li>' + s + '</li>').join('') + '</ol>' : (b.isMissing ? '<h4>Steps to resolve</h4><p>Create and push a named branch to the repo so the team can track your work.</p>' : '');
-      const panelContent = detailsHtml + stepsHtml;
+      const branchDetail = branchDetailContent(b, statusInPanel);
+      const panelContent = branchDetail.detailsHtml + branchDetail.explanationHtml + branchDetail.stepsHtml;
       const avatarSrc = avatarByPerson[b.person] || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(b.person) + '&size=80');
       return `
       <div class="branch-entry" data-idx="${i}">
@@ -1645,7 +1723,6 @@
     function alertDetail(text) {
       const lower = (text || '').toLowerCase();
       if (lower.includes('diverged branch')) return 'Follow directions above (Git Branch health drop down)';
-      if (lower.includes('not had branch activity')) return 'Update this branch or remove it if abandoned.';
       if (lower.includes('no trello activity')) return 'Need a minimum of 4 cards per week.';
       if (lower.includes('not posted standups')) return 'Need a minimum of 4 standup posts per week.';
       return '';
