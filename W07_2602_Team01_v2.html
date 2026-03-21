@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.1.32 | Purpose: V2 meeting snapshot dashboard template -->
+<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.1.35 | Purpose: V2 meeting snapshot dashboard template -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meeting Snapshot — Dashboard V2</title>
@@ -24,21 +24,21 @@
     body { margin: 0; font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; min-height: 100vh; }
     .app-shell { display: flex; min-height: 100vh; }
     .content-shell { flex: 1; width: 100%; }
-    body.has-sidebar .content-shell { margin-left: 200px; }
+    body.has-sidebar .content-shell { margin-left: 172px; }
     .container { max-width: 1100px; margin: 0 auto; padding: 1rem 1.25rem; }
-    .sidebar{position:fixed;left:0;top:0;width:200px;height:100vh;overflow-y:auto;background:#1f2328;color:#fff;padding:1rem 0;flex-shrink:0;}
-    .sidebar a{display:block;color:rgba(255,255,255,0.9);text-decoration:none;padding:0.4rem 1rem;font-size:0.9rem;}
-    .sidebar a:hover{background:rgba(255,255,255,0.1);color:#fff;}
-    .sidebar a.active{background:#0969da;color:#fff;}
-    .sidebar-brand{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1rem;border-bottom:1px solid rgba(255,255,255,0.2);}
-    .logo-link{flex-shrink:0;}
-    .sidebar-logo{width:40px;height:40px;display:block;}
-    .brand-text{display:flex;flex-direction:column;line-height:1.2;}
-    .brand-org{font-weight:700;font-size:0.85rem;}
-    .brand-cycle{font-size:0.75rem;opacity:0.9;}
-    .nav-week-group{margin-bottom:0.75rem;}
-    .nav-week{display:block;font-weight:600;font-size:1.1rem;margin-top:0.25rem;padding:0.35rem 1rem;}
-    .nav-team{display:flex;align-items:center;padding:0.2rem 1rem 0.2rem 1.5rem;font-size:0.55rem;}
+    .sidebar{position:fixed;left:0;top:0;width:172px;height:100vh;overflow-y:auto;background:#141c28;color:#fff;padding:0.75rem 0;flex-shrink:0;border-right:1px solid rgba(255,255,255,0.06);}
+    .sidebar a{display:block;color:rgba(230,237,243,0.82);text-decoration:none;padding:0.32rem 0.9rem;font-size:0.78rem;}
+    .sidebar a:hover{background:rgba(88,166,255,0.08);color:#fff;}
+    .sidebar a.active{background:rgba(88,166,255,0.18);color:#fff;}
+    .sidebar-brand{display:flex;flex-direction:column;align-items:center;gap:0.4rem;padding:0.75rem 0.75rem 0.85rem;border-bottom:1px solid rgba(255,255,255,0.08);text-align:center;}
+    .logo-link{flex-shrink:0;display:flex;justify-content:center;}
+    .sidebar-logo{width:34px;height:34px;display:block;}
+    .brand-text{display:flex;flex-direction:column;line-height:1.15;align-items:center;}
+    .brand-org{font-weight:700;font-size:0.74rem;letter-spacing:0.02em;}
+    .brand-cycle{font-size:0.68rem;opacity:0.82;}
+    .nav-week-group{margin-bottom:0.45rem;}
+    .nav-week{display:block;font-weight:600;font-size:0.98rem;margin-top:0.2rem;padding:0.28rem 0.9rem;}
+    .nav-team{display:flex;align-items:center;padding:0.14rem 0.9rem 0.14rem 1.15rem;font-size:0.62rem;}
     .nav-team-bullet{display:inline-block;width:6px;height:6px;border-radius:50%;background:#f97316;margin-right:0.5rem;flex-shrink:0;}
     @media (max-width: 900px) {
       .sidebar { position: static; width: 100%; height: auto; }
@@ -128,7 +128,8 @@
     .leaderboard-row .row-track-wrap { flex: 1 1 140px; min-width: 100px; height: 24px; background: var(--surface2); border-radius: 999px; position: relative; padding-left: 20px; padding-right: 12px; box-sizing: border-box; }
     .leaderboard-row .row-track-wrap .track-dot { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); font-size: 0.65rem; color: var(--text-muted); z-index: 2; }
     .leaderboard-row .row-track-wrap .track-speed-bar { position: absolute; top: 2px; bottom: 2px; left: 20px; background: var(--success); border-radius: 999px; z-index: 1; min-width: 4px; transition: none; overflow: visible; display: flex; align-items: center; justify-content: center; }
-    .leaderboard-row .row-track-wrap .track-tie-label { color: #fff; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em; text-shadow: 0 1px 2px rgba(0,0,0,0.35); white-space: nowrap; pointer-events: none; }
+    .leaderboard-row .row-track-wrap .track-tie-label { color: #fff; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em; text-shadow: 0 1px 2px rgba(0,0,0,0.35); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.18s ease; padding: 0 0.55rem; }
+    .leaderboard-row .row-track-wrap .track-speed-bar.tie-visible .track-tie-label { opacity: 1; }
     .leaderboard-row .row-track-wrap .track-marker.car { position: absolute; left: 20px; top: 50%; transform: translateY(-50%) scaleX(-1); font-size: 0.75rem; z-index: 2; transition: none; }
 
     /* Git stats + contribution bars */
@@ -486,7 +487,10 @@
           row.classList.remove('name-visible');
           var bar = row.querySelector('.track-speed-bar');
           var car = row.querySelector('.track-marker.car');
-          if (bar) bar.style.width = '0';
+          if (bar) {
+            bar.style.width = '0';
+            bar.classList.remove('tie-visible');
+          }
           if (car) car.style.left = '20px';
         });
         function runRow(index) {
@@ -508,6 +512,9 @@
             var barWidth = (trackWidth * pct / 100);
             var carLeft = 20 + barWidth + 6;
             bar.style.width = barWidth + 'px';
+            var tieLabel = bar.querySelector('.track-tie-label');
+            var tieMinWidth = tieLabel ? (Math.ceil(tieLabel.scrollWidth) + 18) : 9999;
+            bar.classList.toggle('tie-visible', barWidth >= tieMinWidth);
             car.style.left = carLeft + 'px';
             if (t < 1) {
               requestAnimationFrame(step);
@@ -1060,7 +1067,7 @@
     </div>
     </section>
 
-    <div class="page-version" id="page-version">v1.1.32 · Dashboard V2</div>
+    <div class="page-version" id="page-version">v1.1.35 · Dashboard V2</div>
   </div>
   </main>
   </div>
@@ -1113,7 +1120,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-21-2026 - 15:00", "period": "2026-03-16 to 2026-03-22", "cycle": "2602", "week": 7, "team": "2602_Team01", "sourceUrl": "W07_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "1d ago", "contribution": "+299/-95", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 2, "additions": 299, "deletions": 95, "net": 204}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 2}, "actionBreakdown": {"Daniel W.": {"Create card": 1, "Move card": 1}}, "status": "HEALTHY"}, "discord": [], "alerts": [{"type": "warn", "text": "Daniel W. has not posted standups this week. Post daily standups in the team standup channel."}]};
+    const data = {"report": {"generated": "03-21-2026 - 15:09", "period": "2026-03-16 to 2026-03-22", "cycle": "2602", "week": 7, "team": "2602_Team01", "sourceUrl": "W07_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "1d ago", "contribution": "+299/-95", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 2, "additions": 299, "deletions": 95, "net": 204}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 2}, "actionBreakdown": {"Daniel W.": {"Create card": 1, "Move card": 1}}, "status": "HEALTHY"}, "discord": [], "alerts": [{"type": "warn", "text": "Daniel W. has not posted standups this week. Post daily standups in the team standup channel."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     (function setupHeaderLinks() {
