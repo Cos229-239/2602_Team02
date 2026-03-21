@@ -41,11 +41,9 @@ import androidx.compose.ui.layout.ContentScale // <-- Added for image cropping
 import androidx.core.view.WindowCompat // <-- Added for status bar
 import coil.compose.AsyncImage // <-- Added Coil for loading images
 import com.example.wepartyapp.R
-import com.example.wepartyapp.ui.auth.LoginActivity
 import com.example.wepartyapp.ui.calendar.CalendarScreenUI
 import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.example.wepartyapp.ui.create_event.CreateEventScreenUI
 import com.example.wepartyapp.ui.event_dashboard.ConsolidatedShoppingListScreenUI
 import androidx.compose.foundation.shape.CircleShape
 import com.example.wepartyapp.ui.profile.DietaryPreferencesScreenUI
@@ -59,7 +57,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid// <-- Added for La
 import androidx.compose.foundation.lazy.grid.items // <-- Added for LazyGrid Layout
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Shape
 import com.example.wepartyapp.ui.event_dashboard.EventInboxScreen
 import com.google.firebase.firestore.FirebaseFirestore // <-- Added for FCM Token
 import com.google.firebase.firestore.SetOptions // <-- Added for FCM Token
@@ -67,7 +64,6 @@ import com.google.firebase.messaging.FirebaseMessaging // <-- Added for FCM Toke
 import java.time.format.DateTimeFormatter // <-- Added for formatting dates
 import com.example.wepartyapp.ui.event_dashboard.ChatRoomActivity // <-- Added for EventCard Navigation
 import androidx.compose.ui.graphics.Brush
-import com.example.wepartyapp.ui.event_dashboard.EditItemActivity
 
 
 class MainActivity : ComponentActivity() {
@@ -352,16 +348,25 @@ fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
     val today = java.time.LocalDate.now()
     var selectedDays by remember { mutableStateOf(90) }
     val upcomingDateSelected = today.plusDays(selectedDays.toLong())
-    val ninetyDaysFromNow = today.plusDays(90)
+
+    // --- 1. Grab the current user's ID ---
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
     // --- Date Formatter ---
     // This exact pattern turns "2026-02-26" into "Feb. 26, 2026"
     val dateFormatter = DateTimeFormatter.ofPattern("MMM. d, yyyy")
 
+    // --- 2. Filter for Date and Participation ---
     val upcomingEvents = events
         .filter { event ->
             val date = event.date
-            date != null && date >= today && date <= upcomingDateSelected
+            val isWithinDateRange = date != null && date >= today && date <= upcomingDateSelected
+
+            // Security Check: Am I the host or was I invited
+            val amIParticipating = currentUserId != null &&
+                    (event.hostId == currentUserId || event.invitedGuests.contains(currentUserId))
+
+            isWithinDateRange && amIParticipating
         }
         .sortedBy { it.date }
 
@@ -429,27 +434,37 @@ fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.weight(1f)
-        ) {
-            items(upcomingEvents) { event ->
-                EventCard(
-                    title = event.name,
-                    date = event.date?.format(dateFormatter) ?: "No Date", // <-- Applied format here too
-                    time = event.time, // <-- Added time here
-                    onDeleteClick = { viewModel.deleteEvent(event) }, // <-- Triggers Firebase delete
-                    onCardClick = {
-                        val intent = Intent(context, ChatRoomActivity::class.java)
-                        intent.putExtra("EVENT_ID", event.id)
-                        intent.putExtra("EVENT_NAME", event.name)
-
-                        context.startActivity(intent)
-
-                    }
+        // --- 3. Show a message if no events were found ---
+        if (upcomingEvents.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(
+                    text = "No upcoming parties found.",
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
                 )
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                items(upcomingEvents) { event ->
+                    EventCard(
+                        title = event.name,
+                        date = event.date?.format(dateFormatter) ?: "No Date",
+                        time = event.time,
+                        isHost = event.hostId == currentUserId,
+                        onDeleteClick = { viewModel.deleteEvent(event) },
+                        onCardClick = {
+                            val intent = Intent(context, ChatRoomActivity::class.java)
+                            intent.putExtra("EVENT_ID", event.id)
+                            intent.putExtra("EVENT_NAME", event.name)
+                            context.startActivity(intent)
+                        }
+                    )
+                }
             }
         }
     }
@@ -554,7 +569,8 @@ fun NavigationItem(
 
 // --- Updated Event Card ---
 @Composable
-fun EventCard(title: String, date: String, time: String, onDeleteClick: () -> Unit, onCardClick: () -> Unit ) {
+fun EventCard(title: String, date: String, time: String, isHost: Boolean, // --- New: Added isHost parameter ---
+    onDeleteClick: () -> Unit, onCardClick: () -> Unit ) {
 
     val context = LocalContext.current
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -611,38 +627,41 @@ fun EventCard(title: String, date: String, time: String, onDeleteClick: () -> Un
                 }
             }
 
-            // The Delete Button
-            IconButton(
-                onClick = { showDeleteDialog = true },
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(4.dp)
-                    .size(32.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete Event",
-                    tint = Color.White
-                )
-            }
+            // --- New: Only show Delete & Edit buttons if they are the Host ---
+            if (isHost) {
+                // The Delete Button
+                IconButton(
+                    onClick = { showDeleteDialog = true },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                        .size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete Event",
+                        tint = Color.White
+                    )
+                }
 
-            //Edit events button
-            IconButton(
-                onClick = {     //takes us to edit event screen
-                    val intent = Intent(context, EditEventActivity::class.java)
-                    intent.putExtra("Event_Name", title)
-                    context.startActivity(intent)
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(4.dp)
-                    .size(32.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit Event",
-                    tint = Color.White
-                )
+                //Edit events button
+                IconButton(
+                    onClick = {     //takes us to edit event screen
+                        val intent = Intent(context, EditEventActivity::class.java)
+                        intent.putExtra("Event_Name", title)
+                        context.startActivity(intent)
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(4.dp)
+                        .size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit Event",
+                        tint = Color.White
+                    )
+                }
             }
         }
     }

@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -40,6 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -81,9 +81,18 @@ fun EventInboxScreen(viewModel: EventViewModel) {
     val auth = FirebaseAuth.getInstance()
     val currentUserId = auth.currentUser?.uid
 
-    // Filter for current and future events and sort chronologically
+    // --- The "Party Crasher" Filter ---
+    // Filter for current and future events and ensure the user is actually invited
     val sortedEvents = events
-        .filter { it.date == null || it.date >= today }
+        .filter { event ->
+            val isUpcoming = event.date == null || event.date >= today
+
+            // Only let it through if they are the Host or on the Guest List
+            val isParticipant = currentUserId != null &&
+                    (event.hostId == currentUserId || event.invitedGuests.contains(currentUserId))
+
+            isUpcoming && isParticipant // Both conditions must be true
+        }
         .sortedBy { it.date }
 
     Scaffold(
@@ -104,12 +113,36 @@ fun EventInboxScreen(viewModel: EventViewModel) {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(sortedEvents) { event ->
-                    InboxItem(event, currentUserId)
+            // --- The "Empty Inbox" State ---
+            if (sortedEvents.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "No active chats yet.",
+                        fontSize = 18.sp,
+                        color = Color.Gray,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "When you host a party or get invited to one, the chat will appear right here!",
+                        fontSize = 14.sp,
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 32.dp)
+                    )
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(sortedEvents, key = { it.id }) { event ->
+                        InboxItem(event, currentUserId)
+                    }
                 }
             }
         }
