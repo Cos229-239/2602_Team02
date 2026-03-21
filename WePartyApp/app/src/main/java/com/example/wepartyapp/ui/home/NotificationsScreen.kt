@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -172,16 +173,19 @@ fun NotificationsScreenUI(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(realNotifications) { notification ->
-                    // Pass the whole notification so we can use the timestamp
+                // --- New: Added a 'key' here so Compose knows exactly which item to animate/delete safely ---
+                items(realNotifications, key = { it.id }) { notification ->
                     NotificationCard(
                         notification = notification,
-                        onClick = { // <-- Added Click routing logic
+                        onClick = { // <-- Click routing logic
                             if (notification.title.contains("Friend", ignoreCase = true)) {
                                 onFriendInviteClick()
                             } else {
                                 onEventInviteClick()
                             }
+                        },
+                        onDismiss = { // --- New: Pass the dismiss trigger to the card ---
+                            viewModel.dismissNotification(notification.id)
                         }
                     )
                 }
@@ -193,7 +197,8 @@ fun NotificationsScreenUI(
 @Composable
 fun NotificationCard(
     notification: PartyNotification,
-    onClick: () -> Unit // <-- Added onClick parameter
+    onClick: () -> Unit, // <-- Added onClick parameter
+    onDismiss: () -> Unit // <-- New: Added onDismiss parameter
 ) {
     // 1. Create a local state for the relative time string
     var timeAgo by remember { mutableStateOf(notification.time) }
@@ -211,16 +216,32 @@ fun NotificationCard(
             .fillMaxWidth()
             .clickable { onClick() }, // <-- Makes the whole card clickable
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = notification.title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
-                // Now uses the dynamic timeAgo state
-                Text(text = timeAgo, fontSize = 12.sp, color = Color.Gray)
+
+                // --- New: Grouped the time and the 'X' button together ---
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = timeAgo, fontSize = 12.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Dismiss Alert",
+                            tint = Color.LightGray
+                        )
+                    }
+                }
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(text = notification.message, fontSize = 14.sp, color = Color.DarkGray)
