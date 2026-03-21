@@ -112,6 +112,14 @@ class MainActivity : ComponentActivity() {
 }
 
 
+/*
+* --- MainScreen ---
+* Displays Header, Navigation Bar and Handles their logic
+*
+* Parameters: (Int) Initial tab
+*
+* Returns: None
+* */
 @Composable
 fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab parameter
 
@@ -214,6 +222,16 @@ fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab p
     }
 }
 
+
+/*
+* --- Header ---
+* Header Component
+*
+* Parameters: (Int, Int, Unit, Unit, Unit) selected Tab, notification count, dietary navigation,
+* profile navigation, notification navigation.
+*
+* Returns: None
+* */
 @Composable
 fun Header(
     selectedTab: Int, // <-- Added parameter
@@ -341,6 +359,16 @@ fun Header(
     }
 }
 
+
+
+/*
+* --- HomeScreenUI ---
+* Displays Home Screen Content
+*
+* Parameters: (EventViewModel) viewModel for events
+*
+* Returns: None
+* */
 @Composable
 fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
     val context = LocalContext.current
@@ -473,6 +501,16 @@ fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
 
 }
 
+
+
+/*
+* --- NavigationBar ---
+* Navigation Bar Component
+*
+* Parameters: (Int, Unit(Int)) current tab, logic for what to do on selected tab
+*
+* Returns: None
+* */
 @Composable
 fun NavigationBar(
     selectedTab: Int,
@@ -539,6 +577,17 @@ fun NavigationBar(
         ) { onTabSelected(4) }
     }
 }
+
+
+/*
+* --- NavigationItem ---
+* The function acts as a button with an icon, label, and onClick logic. The function is meant
+* for the navigation bar to ensure all icons are created the same.
+*
+* Parameters: (ImageVector, String, Boolean, Unit) Icon, Name, Check if icon is selected, OnClick Logic
+*
+* Returns: None
+* */
 @Composable
 fun NavigationItem(
     icon: ImageVector,
@@ -567,7 +616,17 @@ fun NavigationItem(
     }
 }
 
-// --- Updated Event Card ---
+/*
+* --- EventCard ---
+* Function is used to automate the creation of event cards. This helps in handling the event cards easily
+* and effectively. Allowing for removal,addition and editing of the Event Cards without having to
+* manually do it everytime.
+*
+* Parameters: (String, String, String, Boolean, Unit, Unit) Title, Date, Time, IsHost, Deletion Logic
+* Card Click Logic
+*
+* Returns: None
+* */
 @Composable
 fun EventCard(title: String, date: String, time: String, isHost: Boolean, // --- New: Added isHost parameter ---
     onDeleteClick: () -> Unit, onCardClick: () -> Unit ) {
