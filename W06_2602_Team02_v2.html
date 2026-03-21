@@ -99,8 +99,6 @@
     .leaderboard-row .row-first { flex: 0 0 auto; min-width: 5rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; margin-left: auto; }
     .leaderboard-row .row-name { opacity: 0; transform: scale(8); transition: opacity 0.6s ease, transform 0.6s ease; transform-origin: right center; }
     .leaderboard-row.name-visible .row-name { opacity: 1; transform: scale(1); }
-    .leaderboard-row .row-track-wrap .track-speed-bar .track-trophy { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); opacity: 0; transition: opacity 0.2s ease; z-index: 2; font-size: 0.85rem; pointer-events: none; }
-    .leaderboard-row.trophy-visible .row-track-wrap .track-speed-bar .track-trophy { opacity: 0.95; }
     .leaderboard-row .row-label { flex: 0 0 6.5rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); padding-right: 0.25rem; }
     .leaderboard-row .row-track-wrap { flex: 1 1 140px; min-width: 100px; height: 24px; background: var(--surface2); border-radius: 999px; position: relative; padding-left: 20px; padding-right: 12px; box-sizing: border-box; }
     .leaderboard-row .row-track-wrap .track-dot { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); font-size: 0.65rem; color: var(--text-muted); z-index: 2; }
@@ -135,8 +133,11 @@
     .trello-stat { text-align: center; padding: 0.5rem 1rem; background: var(--surface2); border-radius: var(--radius-sm); min-width: 80px; }
     .trello-stat .num { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
     .trello-stat .lbl { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
-    .member-row .avatar-stars { display: flex; justify-content: center; gap: 2px; margin-top: 0.35rem; width: 100%; text-align: center; }
-    .member-row .avatar-star { cursor: help; font-size: 0.65rem; color: #f0c14b; line-height: 1; }
+    .member-row .avatar-stars { position: absolute; right: -3px; bottom: -3px; display: inline-flex; gap: 1px; z-index: 5; }
+    .member-row .avatar-star { cursor: help; font-size: 0.58rem; color: #f0c14b; line-height: 1; background: rgba(15,20,25,0.92); border: 1px solid rgba(240,193,75,0.7); border-radius: 999px; padding: 0.15rem 0.2rem; }
+    .has-tip { position: relative; }
+    .has-tip:hover::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); background: rgba(15,20,25,0.96); color: var(--text); border: 1px solid var(--surface2); border-radius: 6px; padding: 0.35rem 0.5rem; font-size: 0.7rem; white-space: nowrap; z-index: 1000; box-shadow: 0 10px 24px rgba(0,0,0,0.28); pointer-events: none; }
+    .has-tip:hover::before { content: ''; position: absolute; left: 50%; bottom: calc(100% + 2px); transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--surface2); z-index: 999; pointer-events: none; }
 
     .card { background: var(--surface); border: 1px solid var(--surface2); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem; }
     .card h2 { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--surface2); }
@@ -177,6 +178,8 @@
     .avatar-ring-wrap > .fork-stamp { color: var(--danger); border-color: var(--danger); }
     .rubber-stamp.missing { color: var(--danger); border-color: var(--danger); }
     .rubber-stamp.no-activity { color: var(--warn); border-color: var(--warn); }
+    .rubber-stamp.abandoned,
+    .rubber-stamp.diverged { color: var(--danger); border-color: var(--danger); }
     .member-row .info { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; min-width: 0; text-align: center; }
     .member-row .name { font-weight: 600; font-size: 0.875rem; }
     .member-row .meta { font-size: 0.75rem; color: var(--text-muted); display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem; }
@@ -199,10 +202,12 @@
     .branch-entry .status-pill.sync { background: var(--success); color: #000; }
     .branch-entry .status-pill.behind { background: var(--warn); color: #000; }
     .branch-entry .status-pill.ahead { background: var(--accent); color: #000; }
-    .branch-entry .status-pill.missing { background: var(--danger); color: #fff; }
+    .branch-entry .status-pill.missing,
+    .branch-entry .status-pill.danger { background: var(--danger); color: #fff; }
     .branch-entry .dropdown-panel .status-text-behind { color: var(--warn); font-weight: 600; }
     .branch-entry .dropdown-panel .status-text-ahead { color: var(--accent); font-weight: 600; }
-    .branch-entry .dropdown-panel .status-text-missing { color: var(--danger); font-weight: 600; }
+    .branch-entry .dropdown-panel .status-text-missing,
+    .branch-entry .dropdown-panel .status-text-danger { color: var(--danger); font-weight: 600; }
     .branch-entry .dropdown-panel .status-text-sync { color: var(--success); font-weight: 600; }
     .branch-entry .dropdown-chevron { font-size: 0.75rem; color: var(--text-muted); transition: transform 0.2s; flex-shrink: 0; }
     .branch-entry.open .dropdown-chevron { transform: rotate(180deg); }
@@ -225,6 +230,8 @@
     .alert-card.danger .icon { background: var(--danger); color: #fff; }
     .alert-card.warn .icon { background: var(--warn); color: #000; }
     .alert-card .text { flex: 1; font-size: 0.875rem; }
+    .alert-card .text .primary { display: block; }
+    .alert-card .text .detail { display: block; margin-top: 0.35rem; padding-left: 1rem; color: var(--text-muted); font-size: 0.82rem; }
 
     /* Trello / Discord rows with avatars + dropdown */
     .activity-row { border-bottom: 1px solid var(--surface2); }
@@ -405,9 +412,8 @@
         var barDurationMax = 1500;
         var labelDelay = 450;
         var nameDuration = 600;
-        var trophyDelay = 400;
         rows.forEach(function(row) {
-          row.classList.remove('name-visible', 'trophy-visible');
+          row.classList.remove('name-visible');
           var bar = row.querySelector('.track-speed-bar');
           var car = row.querySelector('.track-marker.car');
           if (bar) bar.style.width = '0';
@@ -437,11 +443,8 @@
               requestAnimationFrame(step);
             } else {
               setTimeout(function() {
-                row.classList.add('trophy-visible');
-                setTimeout(function() {
-                  row.classList.add('name-visible');
-                  setTimeout(function() { runRow(index + 1); }, nameDuration);
-                }, trophyDelay);
+                row.classList.add('name-visible');
+                setTimeout(function() { runRow(index + 1); }, nameDuration);
               }, labelDelay);
             }
           }
@@ -1028,7 +1031,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-21-2026 - 13:17", "period": "2026-03-09 to 2026-03-15", "cycle": "2602", "week": 6, "team": "2602_Team02", "sourceUrl": "W06_2602_Team02.html"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Hasani C.", "git": "active", "trello": true, "discord": true, "githubUsername": "4hzzz"}, {"name": "Maret M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Andy T.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Abandoned", "activity": "19d ago", "contribution": "+60/-48", "aheadBehind": "0 / 93", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "5d ago", "contribution": "+60/-48", "aheadBehind": "0 / 31", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Behind", "activity": "10d ago", "contribution": "+12381/-628", "aheadBehind": "0 / 47", "risk": "LOW", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Diverged", "activity": "TODAY", "contribution": "+1776/-945", "aheadBehind": "2 / 7", "risk": "HIGH", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "1d ago", "contribution": "+932/-420", "aheadBehind": "0 / 13", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "TODAY", "contribution": "+1208/-667", "aheadBehind": "0 / 1", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Hasani C.", "workingFrom": "Org Repo / Fork (@4hzzz)", "commits": 3, "additions": 12381, "deletions": 628, "net": 11753}, {"person": "Lesly M.", "workingFrom": "Org repo", "commits": 5, "additions": 1776, "deletions": 945, "net": 831}, {"person": "Rodney F.", "workingFrom": "Org repo", "commits": 8, "additions": 1208, "deletions": 667, "net": 541}, {"person": "Maret M.", "workingFrom": "Org repo", "commits": 6, "additions": 932, "deletions": 420, "net": 512}, {"person": "Andy T.", "workingFrom": "Org repo", "commits": 2, "additions": 60, "deletions": 48, "net": 12}], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 14}, "actions": {"Andy T.": 11, "Hasani C.": 1, "Lesly M.": 13, "Maret M.": 20, "Rodney F.": 18}, "actionBreakdown": {"Andy T.": {"Create card": 1, "Move card": 3, "Complete checklist": 4}, "Hasani C.": {"Comment": 1}, "Lesly M.": {"Move card": 9}, "Maret M.": {"Create card": 1, "Move card": 6, "Complete checklist": 8}, "Rodney F.": {"Create card": 1, "Move card": 8, "Complete checklist": 6}}, "status": "HEALTHY"}, "discord": [{"person": "Lesly M.", "posts": 5, "dates": "Mar 10, Mar 11, Mar 12, Mar 13", "summary": "Researched and implemented deep linking, refined surfaces, and managed branch changes; working on next steps based on feedback. Blocked by firebase dynamics deprecation."}, {"person": "Andy T.", "posts": 4, "dates": "Mar 11, Mar 12, Mar 14, Mar 15", "summary": "Worked on unread messages indicator and tested features; will continue testing and reviewing code. No blockers."}, {"person": "Hasani C.", "posts": 4, "dates": "Mar 9, Mar 11, Mar 12", "summary": "Focused on testing and improving login flow and working with branches; will continue to manage tasks in Trello. No blockers."}, {"person": "Maret M.", "posts": 4, "dates": "Mar 11, Mar 12, Mar 14", "summary": "Developed features for Event Info page and learned about Firebase integration; plans to polish pages and resolve naming display issues. No blockers."}, {"person": "Rodney F.", "posts": 3, "dates": "Mar 9, Mar 12, Mar 14", "summary": "Worked on error handling and deep links while managing work schedule; will continue improving screens. Blocked by work commitments."}], "alerts": [{"type": "warn", "text": "Lesly M. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Lesly M. has a diverged branch (merge conflict likely)."}, {"type": "warn", "text": "Hasani C. has not had branch activity in 10 days."}]};
+    const data = {"report": {"generated": "03-21-2026 - 13:55", "period": "2026-03-09 to 2026-03-15", "cycle": "2602", "week": 6, "team": "2602_Team02", "sourceUrl": "W06_2602_Team02.html"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Hasani C.", "git": "active", "trello": true, "discord": true, "githubUsername": "4hzzz"}, {"name": "Maret M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Andy T.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Abandoned", "activity": "19d ago", "contribution": "+60/-48", "aheadBehind": "0 / 93", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "5d ago", "contribution": "+60/-48", "aheadBehind": "0 / 31", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Behind", "activity": "10d ago", "contribution": "+12381/-628", "aheadBehind": "0 / 47", "risk": "LOW", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Diverged", "activity": "TODAY", "contribution": "+1776/-945", "aheadBehind": "2 / 7", "risk": "HIGH", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "1d ago", "contribution": "+932/-420", "aheadBehind": "0 / 13", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "TODAY", "contribution": "+1208/-667", "aheadBehind": "0 / 1", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Hasani C.", "workingFrom": "Org Repo / Fork (@4hzzz)", "commits": 3, "additions": 12381, "deletions": 628, "net": 11753}, {"person": "Lesly M.", "workingFrom": "Org repo", "commits": 5, "additions": 1776, "deletions": 945, "net": 831}, {"person": "Rodney F.", "workingFrom": "Org repo", "commits": 8, "additions": 1208, "deletions": 667, "net": 541}, {"person": "Maret M.", "workingFrom": "Org repo", "commits": 6, "additions": 932, "deletions": 420, "net": 512}, {"person": "Andy T.", "workingFrom": "Org repo", "commits": 2, "additions": 60, "deletions": 48, "net": 12}], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 14}, "actions": {"Andy T.": 11, "Hasani C.": 1, "Lesly M.": 13, "Maret M.": 20, "Rodney F.": 18}, "actionBreakdown": {"Andy T.": {"Create card": 1, "Move card": 3, "Complete checklist": 4}, "Hasani C.": {"Comment": 1}, "Lesly M.": {"Move card": 9}, "Maret M.": {"Create card": 1, "Move card": 6, "Complete checklist": 8}, "Rodney F.": {"Create card": 1, "Move card": 8, "Complete checklist": 6}}, "status": "HEALTHY"}, "discord": [{"person": "Lesly M.", "posts": 5, "dates": "Mar 10, Mar 11, Mar 12, Mar 13", "summary": "Researched and implemented deep linking, refined surfaces, and managed branch changes; working on next steps based on feedback. Blocked by firebase dynamics deprecation."}, {"person": "Andy T.", "posts": 4, "dates": "Mar 11, Mar 12, Mar 14, Mar 15", "summary": "Worked on unread messages indicator and tested features; will continue testing and reviewing code. No blockers."}, {"person": "Hasani C.", "posts": 4, "dates": "Mar 9, Mar 11, Mar 12", "summary": "Focused on testing and improving login flow and working with branches; will continue to manage tasks in Trello. No blockers."}, {"person": "Maret M.", "posts": 4, "dates": "Mar 11, Mar 12, Mar 14", "summary": "Developed features for Event Info page and learned about Firebase integration; plans to polish pages and resolve naming display issues. No blockers."}, {"person": "Rodney F.", "posts": 3, "dates": "Mar 9, Mar 12, Mar 14", "summary": "Worked on error handling and deep links while managing work schedule; will continue improving screens. Blocked by work commitments."}], "alerts": [{"type": "warn", "text": "Lesly M. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Lesly M. has a diverged branch (merge conflict likely)."}, {"type": "warn", "text": "Hasani C. has not had branch activity in 10 days."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     (function setupHeaderLinks() {
@@ -1072,11 +1075,60 @@
     const RING_WARN = 'var(--warn)';
     const RING_DANGER = 'var(--danger)';
     const RING_DIM = 'var(--surface2)';
+    const MIN_WEEKLY_POINTS = 4;
+    const branchByPerson = {};
+    data.branchHealth.forEach(b => {
+      if (!branchByPerson[b.person]) branchByPerson[b.person] = [];
+      branchByPerson[b.person].push(b);
+    });
+    const filesTouchedByPerson = {};
+    data.filesTouched.forEach(f => { filesTouchedByPerson[f.person] = f; });
+    const discordByPerson = {};
+    data.discord.forEach(d => { discordByPerson[d.person] = d; });
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+    function branchIssueLevel(name) {
+      const rows = branchByPerson[name] || [];
+      if (!rows.length) return 'missing';
+      const statuses = rows.map(r => (r.status || '').toLowerCase());
+      if (statuses.some(s => s.includes('abandoned'))) return 'abandoned';
+      if (statuses.some(s => s.includes('diverged'))) return 'diverged';
+      if (statuses.some(s => s.includes('behind'))) return 'behind';
+      if (statuses.some(s => s.includes('ahead'))) return 'ahead';
+      return 'sync';
+    }
+    function trelloCountFor(name) {
+      return data.trello.actions[name] ?? 0;
+    }
+    function standupCountFor(name) {
+      return (discordByPerson[name] && discordByPerson[name].posts) ? discordByPerson[name].posts : 0;
+    }
+    function progressState(count, minNeeded) {
+      if (count >= minNeeded) return 'ok';
+      if (count <= 0) return 'danger';
+      return 'warn';
+    }
+    function memberGitState(member) {
+      const issue = branchIssueLevel(member.name);
+      if (member.git === 'fork') return 'danger';
+      if (issue === 'abandoned' || issue === 'diverged' || issue === 'missing') return 'danger';
+      if (issue === 'behind') return 'warn';
+      if (issue === 'ahead' || issue === 'sync' || filesTouchedByPerson[member.name]) return 'ok';
+      return member.git ? 'ok' : null;
+    }
     function memberRingSvg(m) {
-      const gitStatus = !m.git ? null : m.git === 'fork' ? 'danger' : 'ok';
-      const trelloStatus = m.trello ? 'ok' : 'warn';
-      const hasDiscord = !!m.discord || (Array.isArray(data.discord) && data.discord.some(d => d.person === m.name));
-      const discordStatus = hasDiscord ? 'ok' : 'warn';
+      const gitStatus = memberGitState(m);
+      const trelloPoints = Math.min(MIN_WEEKLY_POINTS, trelloCountFor(m.name));
+      const standupPoints = Math.min(MIN_WEEKLY_POINTS, standupCountFor(m.name));
+      const trelloStatus = progressState(trelloPoints, MIN_WEEKLY_POINTS);
+      const discordStatus = progressState(standupPoints, MIN_WEEKLY_POINTS);
       const cx = 26; const cy = 26; const r = 21; const stroke = 10;
       const arc = (startAngle, endAngle) => {
         const rad = (deg) => (deg - 90) * Math.PI / 180;
@@ -1087,8 +1139,28 @@
         return `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`;
       };
       const color = (s) => !s ? RING_DIM : s === 'ok' ? RING_OK : s === 'warn' ? RING_WARN : RING_DANGER;
-      const seg = (start, end, status) => `<path fill="none" stroke="${color(status)}" stroke-width="${stroke}" stroke-linecap="round" d="${arc(start, end)}"/>`;
-      return `<svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${seg(225, 315, gitStatus)}${seg(315, 45, trelloStatus)}${seg(45, 135, discordStatus)}</svg>`;
+      const seg = (start, end, status, label) => `<path fill="none" stroke="${color(status)}" stroke-width="${stroke}" stroke-linecap="round" d="${arc(start, end)}"><title>${escapeHtml(label)}</title></path>`;
+      const issue = branchIssueLevel(m.name);
+      const gitLabel = m.git === 'fork'
+        ? 'Git: Working from a fork'
+        : issue === 'abandoned'
+          ? 'Git: Branch is abandoned'
+          : issue === 'diverged'
+            ? 'Git: Branch is diverged'
+            : issue === 'missing'
+              ? 'Git: No tracked personal branch'
+              : issue === 'behind'
+                ? 'Git: Branch is behind dev'
+                : issue === 'ahead'
+                  ? 'Git: Branch is ahead/unmerged'
+                  : 'Git: Branch activity looks okay';
+      const trelloLabel = trelloStatus === 'ok'
+        ? `Trello: Complete (${trelloPoints} of ${MIN_WEEKLY_POINTS} minimum)`
+        : `Trello: Not complete (${trelloPoints} of ${MIN_WEEKLY_POINTS} minimum)`;
+      const discordLabel = discordStatus === 'ok'
+        ? `Standups: Complete (${standupPoints} of ${MIN_WEEKLY_POINTS} minimum)`
+        : `Standups: Not complete (${standupPoints} of ${MIN_WEEKLY_POINTS} minimum)`;
+      return `<svg class="ring-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${seg(225, 315, gitStatus, gitLabel)}${seg(315, 45, trelloStatus, trelloLabel)}${seg(45, 135, discordStatus, discordLabel)}</svg>`;
     }
 
     const totalCommits = data.filesTouched.reduce((a, f) => a + f.commits, 0);
@@ -1098,6 +1170,7 @@
     const engagedCount = data.discord.filter(d => d.posts > 0).length;
     const totalMembers = data.members.length;
     const participationPct = totalMembers ? Math.round((engagedCount / totalMembers) * 100) : 0;
+    const totalTargetPoints = totalMembers * MIN_WEEKLY_POINTS;
 
     const netByPerson = {};
     data.filesTouched.forEach(f => { netByPerson[f.person] = (netByPerson[f.person] || 0) + f.net; });
@@ -1122,7 +1195,7 @@
       standups: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>'
     };
     function leadTrack(metricTitle) {
-      return `<span class="track-dot" title="Start">●</span><div class="track-speed-bar" style="width:0;" title="${metricTitle}"><span class="track-marker track-trophy" aria-hidden="true">🏆</span></div><span class="track-marker car" style="left:20px;" title="${metricTitle}">🚗</span>`;
+      return `<span class="track-dot" title="Start">●</span><div class="track-speed-bar" style="width:0;" title="${metricTitle}"></div><span class="track-marker car" style="left:20px;" title="${metricTitle}">🚗</span>`;
     }
     document.getElementById('leaderboard-v2-root').innerHTML = [
       { label: 'Code', badge: 'code', title: 'Git', first: codeLeads, firstVal: codeLeadVal, secondVal: codeSecondVal },
@@ -1198,9 +1271,10 @@
 
     const gitEngaged = data.filesTouched.length;
     const gitPct = totalMembers ? Math.round((gitEngaged / totalMembers) * 100) : 0;
-    const trelloEngaged = Object.values(data.trello.actions).filter(a => a > 0).length;
-    const trelloPct = totalMembers ? Math.round((trelloEngaged / totalMembers) * 100) : 0;
-    const standupsPct = participationPct;
+    const trelloPoints = data.members.reduce((sum, m) => sum + Math.min(MIN_WEEKLY_POINTS, trelloCountFor(m.name)), 0);
+    const trelloPct = totalTargetPoints ? Math.round((trelloPoints / totalTargetPoints) * 100) : 0;
+    const standupPoints = data.members.reduce((sum, m) => sum + Math.min(MIN_WEEKLY_POINTS, standupCountFor(m.name)), 0);
+    const standupsPct = totalTargetPoints ? Math.round((standupPoints / totalTargetPoints) * 100) : 0;
     const toDeg = pct => (Math.min(100, Math.max(0, pct)) / 100) * 360;
     function wheelTier(pct) {
       if (pct >= 100) return 'wheel-full';
@@ -1293,10 +1367,22 @@
       });
     });
 
+    function memberStampFor(m) {
+      const issue = branchIssueLevel(m.name);
+      if (issue === 'abandoned') return { label: 'Abandoned', cls: 'abandoned', title: 'Branch is abandoned' };
+      if (issue === 'diverged') return { label: 'Diverged', cls: 'diverged', title: 'Branch is diverged' };
+      if (issue === 'missing') return { label: 'Missing', cls: 'missing', title: 'No tracked personal branch' };
+      if (m.git === 'fork') return { label: 'Fork', cls: 'danger', title: 'Working from a fork' };
+      return null;
+    }
     document.getElementById('members-v2-root').innerHTML = data.members.map(m => {
       const stars = allstarsFor(m.name);
-      const starsHtml = stars.length ? `<div class="avatar-stars">${stars.map(s => `<span class="avatar-star" title="${s.title}" aria-label="${s.title}">★</span>`).join('')}</div>` : '';
-      const stamp = m.git === 'fork' ? '<span class="fork-stamp" aria-label="Fork">Fork</span>' : '';
+      const starsHtml = stars.length ? `<div class="avatar-stars">${stars.map(s => `<span class="avatar-star has-tip" data-tip="${escapeHtml(s.title)}" aria-label="${escapeHtml(s.title)}">★</span>`).join('')}</div>` : '';
+      const stampInfo = memberStampFor(m);
+      const stamp = stampInfo ? `<span class="rubber-stamp ${stampInfo.cls}" aria-label="${escapeHtml(stampInfo.label)}" title="${escapeHtml(stampInfo.title)}">${stampInfo.label}</span>` : '';
+      const gitPillState = memberGitState(m);
+      const trelloPillState = progressState(Math.min(MIN_WEEKLY_POINTS, trelloCountFor(m.name)), MIN_WEEKLY_POINTS);
+      const discordPillState = progressState(Math.min(MIN_WEEKLY_POINTS, standupCountFor(m.name)), MIN_WEEKLY_POINTS);
       return `
       <div class="member-row">
         <div class="avatar-ring-wrap">
@@ -1304,15 +1390,15 @@
           <div class="avatar-wrap">
             <img class="avatar" src="${avatarUrl(m)}" alt="" width="44" height="44" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=388bfd&color=fff&size=88'">
           </div>
+          ${starsHtml}
           ${stamp}
         </div>
-        ${starsHtml}
         <div class="info">
           <div class="name">${m.name}</div>
           <div class="meta">
-            <span class="pill ${m.git === 'fork' ? 'danger' : 'ok'}">GIT</span>
-            <span class="pill ${m.trello ? 'ok' : 'warn'}">Trello</span>
-            <span class="pill ${(m.discord || (Array.isArray(data.discord) && data.discord.some(d => d.person === m.name))) ? 'ok' : 'warn'}">Discord</span>
+            <span class="pill ${gitPillState === 'danger' ? 'danger' : gitPillState === 'warn' ? 'warn' : 'ok'}">GIT</span>
+            <span class="pill ${trelloPillState === 'danger' ? 'danger' : trelloPillState === 'warn' ? 'warn' : 'ok'}">Trello</span>
+            <span class="pill ${discordPillState === 'danger' ? 'danger' : discordPillState === 'warn' ? 'warn' : 'ok'}">Discord</span>
           </div>
         </div>
       </div>
@@ -1388,7 +1474,7 @@
           const ratio = totalMembers ? n / totalMembers : 0;
           const barClass = ratio >= 1 ? 'bar-ok' : ratio === 0 ? 'bar-danger' : 'bar-warn';
           const numClass = ratio >= 1 ? 'num-ok' : ratio === 0 ? 'num-danger' : 'num-warn';
-          return `<div class="day-cell ${barClass}" title="${n} of ${totalMembers} (${Math.round(ratio * 100)}%)"><span class="day-label">${dayName} ${key}</span><span class="day-num ${numClass}">${n}</span></div>`;
+          return `<div class="day-cell ${barClass}" title="${n} of ${totalMembers} team members (${Math.round(ratio * 100)}%)"><span class="day-label">${dayName} ${key}</span><span class="day-num ${numClass}">${n}</span></div>`;
         }).join('')}
       </div>
     ` : '';
@@ -1402,24 +1488,38 @@
 
     function branchPanelBorder(b) {
       if (b.isMissing) return 'border-danger';
+      const status = (b.status || '').toLowerCase();
+      if (status.includes('abandoned') || status.includes('diverged')) return 'border-danger';
+      if (status.includes('behind')) return 'border-warn';
       const r = (b.risk || '').toUpperCase();
-      if (r === 'LOW') return 'border-ok';
       if (r === 'HIGH') return 'border-danger';
+      if (r === 'LOW') return 'border-ok';
       return 'border-warn';
     }
 
     function branchStatusDisplay(status, isMissing) {
       if (isMissing) return 'Missing';
       const s = (status || '').toLowerCase();
+      if (s.includes('abandoned')) return 'Abandoned';
+      if (s.includes('diverged')) return 'Diverged';
       if (s.includes('ahead')) return 'Unmerged';
       if (s.includes('behind')) return 'Behind';
       return status || 'Sync';
     }
+    function branchStampFor(b) {
+      if (b.isMissing) return { label: 'Missing', cls: 'missing' };
+      const status = (b.status || '').toLowerCase();
+      if (status.includes('abandoned')) return { label: 'Abandoned', cls: 'abandoned' };
+      if (status.includes('diverged')) return { label: 'Diverged', cls: 'diverged' };
+      return null;
+    }
     document.getElementById('branch-v2-root').innerHTML = branchList.map((b, i) => {
-      const statusClass = b.isMissing ? 'missing' : b.status.toLowerCase().includes('behind') ? 'behind' : b.status.toLowerCase().includes('ahead') ? 'ahead' : 'sync';
+      const statusLower = (b.status || '').toLowerCase();
+      const statusClass = b.isMissing ? 'missing' : (statusLower.includes('abandoned') || statusLower.includes('diverged')) ? 'danger' : statusLower.includes('behind') ? 'behind' : statusLower.includes('ahead') ? 'ahead' : 'sync';
       const statusLabel = branchStatusDisplay(b.status, b.isMissing);
-      const stamp = b.isMissing ? '<span class="rubber-stamp missing" aria-label="Missing">Missing</span>' : '';
-      const statusTextClass = b.isMissing ? 'status-text-missing' : b.status.toLowerCase().includes('behind') ? 'status-text-behind' : b.status.toLowerCase().includes('ahead') ? 'status-text-ahead' : 'status-text-sync';
+      const stampInfo = branchStampFor(b);
+      const stamp = stampInfo ? `<span class="rubber-stamp ${stampInfo.cls}" aria-label="${stampInfo.label}" title="${stampInfo.label}">${stampInfo.label}</span>` : '';
+      const statusTextClass = b.isMissing ? 'status-text-missing' : (statusLower.includes('abandoned') || statusLower.includes('diverged')) ? 'status-text-danger' : statusLower.includes('behind') ? 'status-text-behind' : statusLower.includes('ahead') ? 'status-text-ahead' : 'status-text-sync';
       const statusInPanel = '<span class="' + statusTextClass + '">' + statusLabel + '</span>';
       const detailsHtml = b.isMissing
         ? '<p class="branch-abandoned-note" style="color:var(--danger);font-weight:600;margin:0 0 0.5rem;">No named branch in repo.</p>'
@@ -1452,22 +1552,24 @@
     const maxActions = Math.max(...Object.values(data.trello.actions), 1);
     function trelloBarClass(actions) {
       if (actions === 0) return 'bar-danger';
-      if (actions >= 5) return 'bar-ok';
+      if (actions >= MIN_WEEKLY_POINTS) return 'bar-ok';
       return 'bar-warn';
     }
     document.getElementById('trello-v2-root').innerHTML = Object.entries(data.trello.assignments).map(([name, cards], i) => {
       const actions = data.trello.actions[name] ?? 0;
-      const pct = Math.min(100, (actions / 5) * 100);
+      const progress = Math.min(MIN_WEEKLY_POINTS, actions);
+      const pct = Math.min(100, (progress / MIN_WEEKLY_POINTS) * 100);
       const m = data.members.find(x => x.name === name);
       const src = m ? avatarUrl(m) : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&size=72';
       const stamp = actions === 0 ? '<span class="rubber-stamp no-activity" aria-label="No activity">No activity</span>' : '';
-      const stepsHtml = actions === 0 ? '<h4 class="steps-heading">Steps to resolve</h4><p>Update your Trello cards to reflect work done. Move cards, add comments, or complete checklist items so the team can see your activity.</p>' : '';
+      const stepsHtml = actions < MIN_WEEKLY_POINTS ? '<h4 class="steps-heading">Steps to resolve</h4><p>Need a minimum of 4 cards per week.</p>' : '';
       const breakdown = data.trello.actionBreakdown && data.trello.actionBreakdown[name];
       const actionsListHtml = breakdown && Object.keys(breakdown).length ? '<h4 class="actions-heading">Actions this week</h4><ul>' + Object.entries(breakdown).map(([actionType, count]) => `<li><strong>${actionType}:</strong> ${count}</li>`).join('') + '</ul>' : '';
-      const panelBorder = actions === 0 ? 'border-warn' : (actions >= 5 ? 'border-ok' : 'border-warn');
+      const panelBorder = actions === 0 ? 'border-danger' : (actions >= MIN_WEEKLY_POINTS ? 'border-ok' : 'border-warn');
+      const hoverText = actions < MIN_WEEKLY_POINTS ? `Need a minimum of 4 cards per week (${progress} of ${MIN_WEEKLY_POINTS})` : `Meets the minimum of 4 cards per week (${progress} of ${MIN_WEEKLY_POINTS})`;
       return `
       <div class="activity-row" data-idx="${i}">
-        <div class="row-top" role="button" tabindex="0" aria-expanded="false">
+        <div class="row-top" role="button" tabindex="0" aria-expanded="false" title="${hoverText}">
           <div class="avatar-ring-wrap">
             ${memberRingSvg(m || getMemberForRing(name))}
             <div class="avatar-wrap">
@@ -1478,8 +1580,8 @@
           <div class="activity-name-wrap" style="min-width:0;">
             <div class="activity-name">${name}</div>
           </div>
-          <div class="bar-wrap" style="flex:1"><div class="bar ${trelloBarClass(actions)}" style="width:${pct}%"></div></div>
-          <span class="count ${actions === 0 ? 'zero' : ''}">${actions} actions</span>
+          <div class="bar-wrap" style="flex:1" title="${hoverText}"><div class="bar ${trelloBarClass(actions)}" style="width:${pct}%"></div></div>
+          <span class="count ${actions === 0 ? 'zero' : ''}">${progress} of ${MIN_WEEKLY_POINTS}</span>
           <span class="dropdown-chevron" aria-hidden="true">▼</span>
         </div>
         <div class="dropdown-panel ${panelBorder}">
@@ -1492,11 +1594,9 @@
     `;
     }).join('');
 
-    const discordByPerson = {};
-    data.discord.forEach(d => { discordByPerson[d.person] = d; });
     function standupBarClass(posts) {
       if (posts === 0) return 'bar-danger';
-      if (posts >= 4) return 'bar-ok';
+      if (posts >= MIN_WEEKLY_POINTS) return 'bar-ok';
       return 'bar-warn';
     }
     document.getElementById('discord-v2-root').innerHTML = data.members.map((m, i) => {
@@ -1504,18 +1604,20 @@
       const posts = d ? d.posts : 0;
       const dates = d ? d.dates : '—';
       const summary = d ? d.summary : '';
-      const pct = Math.min(100, (posts / 4) * 100);
+      const progress = Math.min(MIN_WEEKLY_POINTS, posts);
+      const pct = Math.min(100, (progress / MIN_WEEKLY_POINTS) * 100);
       const src = avatarUrl(m);
       const stamp = posts === 0 ? '<span class="rubber-stamp no-activity" aria-label="No activity">No activity</span>' : '';
-      const panelBorder = posts === 0 ? 'border-warn' : (posts >= 4 ? 'border-ok' : 'border-warn');
+      const panelBorder = posts === 0 ? 'border-danger' : (posts >= MIN_WEEKLY_POINTS ? 'border-ok' : 'border-warn');
       const statsHtml = '<h4>Statistics</h4><p><strong>Posts this week:</strong> ' + posts + (d ? ' · <strong>Dates:</strong> ' + dates : '') + '</p>';
       const summaryHtml = summary ? '<h4 class="summary-heading">Summary</h4><p>' + summary + '</p>' : '';
       const stepsHtml = posts === 0
         ? '<h4 class="steps-heading">Steps to resolve</h4><p>No standup posts this week. Consider posting an update in the standups channel so the team knows what you\'re working on.</p>'
-        : (posts < 4 ? '<h4 class="steps-heading">Steps to resolve</h4><p>Try to have at least 4+ posts per week to fill the bar.</p>' : '');
+        : (posts < MIN_WEEKLY_POINTS ? '<h4 class="steps-heading">Steps to resolve</h4><p>Need a minimum of 4 standup posts per week.</p>' : '');
+      const hoverText = posts < MIN_WEEKLY_POINTS ? `Need a minimum of 4 standup posts per week (${progress} of ${MIN_WEEKLY_POINTS})` : `Meets the minimum of 4 standup posts per week (${progress} of ${MIN_WEEKLY_POINTS})`;
       return `
       <div class="activity-row" data-idx="${i}">
-        <div class="row-top" role="button" tabindex="0" aria-expanded="false">
+        <div class="row-top" role="button" tabindex="0" aria-expanded="false" title="${hoverText}">
           <div class="avatar-ring-wrap">
             ${memberRingSvg(m)}
             <div class="avatar-wrap">
@@ -1527,8 +1629,8 @@
             <div class="activity-name">${m.name} · ${posts} post${posts !== 1 ? 's' : ''}</div>
             ${posts > 0 ? '<div class="meta" style="font-size:0.75rem;color:var(--text-muted)">' + dates + '</div>' : ''}
           </div>
-          <div class="bar-wrap" style="width:60px"><div class="bar ${standupBarClass(posts)}" style="width:${pct}%"></div></div>
-          <span style="font-size:0.7rem;color:var(--text-muted);margin-left:0.35rem;white-space:nowrap;">${posts} of 4 min</span>
+          <div class="bar-wrap" style="width:60px" title="${hoverText}"><div class="bar ${standupBarClass(posts)}" style="width:${pct}%"></div></div>
+          <span style="font-size:0.7rem;color:var(--text-muted);margin-left:0.35rem;white-space:nowrap;">${progress} of ${MIN_WEEKLY_POINTS} min</span>
           <span class="dropdown-chevron" aria-hidden="true">▼</span>
         </div>
         <div class="dropdown-panel ${panelBorder}">
@@ -1540,12 +1642,23 @@
     `;
     }).join('');
 
-    document.getElementById('alerts-v2-root').innerHTML = data.alerts.map(a => `
+    function alertDetail(text) {
+      const lower = (text || '').toLowerCase();
+      if (lower.includes('diverged branch')) return 'Follow directions above (Git Branch health drop down)';
+      if (lower.includes('not had branch activity')) return 'Update this branch or remove it if abandoned.';
+      if (lower.includes('no trello activity')) return 'Need a minimum of 4 cards per week.';
+      if (lower.includes('not posted standups')) return 'Need a minimum of 4 standup posts per week.';
+      return '';
+    }
+    document.getElementById('alerts-v2-root').innerHTML = data.alerts.map(a => {
+      const detail = alertDetail(a.text);
+      return `
       <div class="alert-card ${a.type}">
         <div class="icon">${a.type === 'danger' ? '!' : '⚠'}</div>
-        <div class="text">${a.text}</div>
+        <div class="text"><span class="primary">${a.text}</span>${detail ? `<span class="detail">${detail}</span>` : ''}</div>
       </div>
-    `).join('');
+    `;
+    }).join('');
   </script>
 
   <script>
