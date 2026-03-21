@@ -204,7 +204,14 @@ fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab p
                     onFriendsListClick = { selectedTab = 9 }
                 )
                 7 -> com.example.wepartyapp.ui.profile.ProfileSettingsScreenUI( onBack = { selectedTab = 6 } )
-                8 -> NotificationsScreenUI( viewModel = eventViewModel, onBack = { selectedTab = 0 } ) // <-- Added Notifications Screen here
+                8 -> NotificationsScreenUI(
+                    viewModel = eventViewModel,
+                    onBack = { selectedTab = 0 },
+                    onFriendInviteClick = { selectedTab = 9 },
+                    onEventInviteClick = {
+                        selectedTab = 4
+                    }
+                )
                 9 -> com.example.wepartyapp.ui.profile.FriendsListScreenUI( viewModel = eventViewModel, onBack = { selectedTab = 6 } )
             }
         }

@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,7 +30,12 @@ import com.example.wepartyapp.ui.PartyNotification
 import kotlinx.coroutines.delay // <-- Added for the timer loop
 
 @Composable
-fun NotificationsScreenUI(viewModel: EventViewModel, onBack: () -> Unit) {
+fun NotificationsScreenUI(
+    viewModel: EventViewModel,
+    onBack: () -> Unit,
+    onFriendInviteClick: () -> Unit, // <-- Added parameter for friend invite routing
+    onEventInviteClick: () -> Unit   // <-- Added parameter for event dashboard routing
+) {
     val context = LocalContext.current
 
     // Observe the Real list of notifications from Firestore
@@ -168,7 +174,16 @@ fun NotificationsScreenUI(viewModel: EventViewModel, onBack: () -> Unit) {
             ) {
                 items(realNotifications) { notification ->
                     // Pass the whole notification so we can use the timestamp
-                    NotificationCard(notification)
+                    NotificationCard(
+                        notification = notification,
+                        onClick = { // <-- Added Click routing logic
+                            if (notification.title.contains("Friend", ignoreCase = true)) {
+                                onFriendInviteClick()
+                            } else {
+                                onEventInviteClick()
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -176,7 +191,10 @@ fun NotificationsScreenUI(viewModel: EventViewModel, onBack: () -> Unit) {
 }
 
 @Composable
-fun NotificationCard(notification: PartyNotification) {
+fun NotificationCard(
+    notification: PartyNotification,
+    onClick: () -> Unit // <-- Added onClick parameter
+) {
     // 1. Create a local state for the relative time string
     var timeAgo by remember { mutableStateOf(notification.time) }
 
@@ -189,7 +207,9 @@ fun NotificationCard(notification: PartyNotification) {
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }, // <-- Makes the whole card clickable
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {

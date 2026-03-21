@@ -412,10 +412,18 @@ class EventViewModel : ViewModel() {
     // 3. Send a Request
     fun sendFriendRequest(targetUid: String) {
         val currentUserId = auth.currentUser?.uid ?: return
+        val currentUserName = auth.currentUser?.displayName ?: "Someone"
 
         // Use SetOptions.merge() to prevent crashes if the user document is missing
         db.collection("users").document(targetUid)
             .set(mapOf("friendRequests" to FieldValue.arrayUnion(currentUserId)), com.google.firebase.firestore.SetOptions.merge())
+
+        // --- New: Friend request notifications ---
+        sendAppNotification(
+            title = "New Friend Request",
+            message = "$currentUserName sent you a friend request!",
+            allowedUsers = listOf(targetUid)
+        )
     }
 
     // 4. Accept Request (Adds them to your friends, adds you to their friends, removes request)
