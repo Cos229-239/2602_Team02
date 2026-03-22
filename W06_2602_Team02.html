@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.1.39 | Purpose: V2 meeting snapshot dashboard template -->
+<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.1.40 | Purpose: V2 meeting snapshot dashboard template -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meeting Snapshot — Dashboard V2</title>
@@ -160,7 +160,7 @@
     .trello-stat { text-align: center; padding: 0.5rem 1rem; background: var(--surface2); border-radius: var(--radius-sm); min-width: 80px; }
     .trello-stat .num { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
     .trello-stat .lbl { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
-    .member-row .allstar-group { display: inline-flex; align-items: center; gap: 0.2rem; }
+    .member-row .allstar-group { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.2rem; min-height: 1rem; max-width: 100%; }
     .member-row .avatar-star { cursor: default; font-size: 0.58rem; color: #f0c14b; line-height: 1; background: rgba(15,20,25,0.92); border: 1px solid rgba(240,193,75,0.7); border-radius: 999px; padding: 0.15rem 0.2rem; }
     .has-tip { position: relative; z-index: 40; cursor: default; }
     .has-tip:hover::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); background: rgba(15,20,25,0.98); color: var(--text); border: 1px solid var(--surface2); border-radius: 6px; padding: 0.45rem 0.6rem; font-size: 0.72rem; white-space: pre-line; min-width: 11rem; max-width: 16rem; z-index: 9999; box-shadow: 0 10px 24px rgba(0,0,0,0.28); pointer-events: none; text-align: left; }
@@ -188,7 +188,8 @@
     #members-v2-root { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
     @media (max-width: 640px) { #members-v2-root { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 380px) { #members-v2-root { grid-template-columns: 1fr; } }
-    .member-row { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 0.75rem; border: 1px solid var(--surface2); border-radius: var(--radius-sm); background: var(--surface); }
+    .member-row { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; padding: 0.75rem; border: 1px solid var(--surface2); border-radius: var(--radius-sm); background: var(--surface); }
+    .member-row .star-row { width: 100%; display: flex; justify-content: center; min-height: 1rem; }
     .member-row .avatar-ring-wrap { width: 56px; height: 56px; }
     .member-row .avatar-ring-wrap .avatar-wrap { inset: 6px; }
     .member-row .avatar-ring-wrap .avatar { width: 44px; height: 44px; }
@@ -1068,7 +1069,7 @@
     </div>
     </section>
 
-    <div class="page-version" id="page-version">v1.1.39 · Dashboard V2</div>
+    <div class="page-version" id="page-version">v1.1.40 · Dashboard V2</div>
   </div>
   </main>
   </div>
@@ -1121,7 +1122,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-21-2026 - 21:09", "period": "2026-03-09 to 2026-03-15", "cycle": "2602", "week": 6, "team": "2602_Team02", "sourceUrl": "W06_2602_Team02_v1.html"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Hasani C.", "git": "active", "trello": true, "discord": true, "githubUsername": "4hzzz"}, {"name": "Maret M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Andy T.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Inactive", "activity": "19d ago", "contribution": "+60/-48", "aheadBehind": "0 / 93", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "5d ago", "contribution": "+60/-48", "aheadBehind": "0 / 31", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Behind", "activity": "10d ago", "contribution": "+12381/-628", "aheadBehind": "0 / 47", "risk": "LOW", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Diverged", "activity": "TODAY", "contribution": "+1776/-945", "aheadBehind": "2 / 7", "risk": "HIGH", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "1d ago", "contribution": "+932/-420", "aheadBehind": "0 / 13", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "TODAY", "contribution": "+1208/-667", "aheadBehind": "0 / 1", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Hasani C.", "workingFrom": "Org Repo / Fork (@4hzzz)", "commits": 3, "additions": 12381, "deletions": 628, "net": 11753}, {"person": "Lesly M.", "workingFrom": "Org repo", "commits": 5, "additions": 1776, "deletions": 945, "net": 831}, {"person": "Rodney F.", "workingFrom": "Org repo", "commits": 8, "additions": 1208, "deletions": 667, "net": 541}, {"person": "Maret M.", "workingFrom": "Org repo", "commits": 6, "additions": 932, "deletions": 420, "net": 512}, {"person": "Andy T.", "workingFrom": "Org repo", "commits": 2, "additions": 60, "deletions": 48, "net": 12}], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 14}, "actions": {"Andy T.": 11, "Hasani C.": 1, "Lesly M.": 13, "Maret M.": 20, "Rodney F.": 18}, "actionBreakdown": {"Andy T.": {"Create card": 1, "Move card": 3, "Complete checklist": 4}, "Hasani C.": {"Comment": 1}, "Lesly M.": {"Move card": 9}, "Maret M.": {"Create card": 1, "Move card": 6, "Complete checklist": 8}, "Rodney F.": {"Create card": 1, "Move card": 8, "Complete checklist": 6}}, "status": "HEALTHY"}, "discord": [{"person": "Lesly M.", "posts": 5, "dates": "Mar 10, Mar 11, Mar 12, Mar 13", "summary": "Researched and implemented deep linking, refined surfaces, and managed branch changes; working on next steps based on feedback. Blocked by firebase dynamics deprecation."}, {"person": "Andy T.", "posts": 4, "dates": "Mar 11, Mar 12, Mar 14, Mar 15", "summary": "Worked on unread messages indicator and tested features; will continue testing and reviewing code. No blockers."}, {"person": "Hasani C.", "posts": 4, "dates": "Mar 9, Mar 11, Mar 12", "summary": "Focused on testing and improving login flow and working with branches; will continue to manage tasks in Trello. No blockers."}, {"person": "Maret M.", "posts": 4, "dates": "Mar 11, Mar 12, Mar 14", "summary": "Developed features for Event Info page and learned about Firebase integration; plans to polish pages and resolve naming display issues. No blockers."}, {"person": "Rodney F.", "posts": 3, "dates": "Mar 9, Mar 12, Mar 14", "summary": "Worked on error handling and deep links while managing work schedule; will continue improving screens. Blocked by work commitments."}], "alerts": [{"type": "warn", "text": "Lesly M. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Lesly M. has a diverged branch (merge conflict likely)."}, {"type": "warn", "text": "Hasani C. branch has not had activity in 10 days."}]};
+    const data = {"report": {"generated": "03-21-2026 - 21:12", "period": "2026-03-09 to 2026-03-15", "cycle": "2602", "week": 6, "team": "2602_Team02", "sourceUrl": "W06_2602_Team02_v1.html"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Hasani C.", "git": "active", "trello": true, "discord": true, "githubUsername": "4hzzz"}, {"name": "Maret M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Andy T.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Inactive", "activity": "19d ago", "contribution": "+60/-48", "aheadBehind": "0 / 93", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "5d ago", "contribution": "+60/-48", "aheadBehind": "0 / 31", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Behind", "activity": "10d ago", "contribution": "+12381/-628", "aheadBehind": "0 / 47", "risk": "LOW", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Diverged", "activity": "TODAY", "contribution": "+1776/-945", "aheadBehind": "2 / 7", "risk": "HIGH", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "1d ago", "contribution": "+932/-420", "aheadBehind": "0 / 13", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "TODAY", "contribution": "+1208/-667", "aheadBehind": "0 / 1", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Hasani C.", "workingFrom": "Org Repo / Fork (@4hzzz)", "commits": 3, "additions": 12381, "deletions": 628, "net": 11753}, {"person": "Lesly M.", "workingFrom": "Org repo", "commits": 5, "additions": 1776, "deletions": 945, "net": 831}, {"person": "Rodney F.", "workingFrom": "Org repo", "commits": 8, "additions": 1208, "deletions": 667, "net": 541}, {"person": "Maret M.", "workingFrom": "Org repo", "commits": 6, "additions": 932, "deletions": 420, "net": 512}, {"person": "Andy T.", "workingFrom": "Org repo", "commits": 2, "additions": 60, "deletions": 48, "net": 12}], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 14}, "actions": {"Andy T.": 11, "Hasani C.": 1, "Lesly M.": 13, "Maret M.": 20, "Rodney F.": 18}, "actionBreakdown": {"Andy T.": {"Create card": 1, "Move card": 3, "Complete checklist": 4}, "Hasani C.": {"Comment": 1}, "Lesly M.": {"Move card": 9}, "Maret M.": {"Create card": 1, "Move card": 6, "Complete checklist": 8}, "Rodney F.": {"Create card": 1, "Move card": 8, "Complete checklist": 6}}, "status": "HEALTHY"}, "discord": [{"person": "Lesly M.", "posts": 5, "dates": "Mar 10, Mar 11, Mar 12, Mar 13", "summary": "Researched and implemented deep linking, refined surfaces, and managed branch changes; working on next steps based on feedback. Blocked by firebase dynamics deprecation."}, {"person": "Andy T.", "posts": 4, "dates": "Mar 11, Mar 12, Mar 14, Mar 15", "summary": "Worked on unread messages indicator and tested features; will continue testing and reviewing code. No blockers."}, {"person": "Hasani C.", "posts": 4, "dates": "Mar 9, Mar 11, Mar 12", "summary": "Focused on testing and improving login flow and working with branches; will continue to manage tasks in Trello. No blockers."}, {"person": "Maret M.", "posts": 4, "dates": "Mar 11, Mar 12, Mar 14", "summary": "Developed features for Event Info page and learned about Firebase integration; plans to polish pages and resolve naming display issues. No blockers."}, {"person": "Rodney F.", "posts": 3, "dates": "Mar 9, Mar 12, Mar 14", "summary": "Worked on error handling and deep links while managing work schedule; will continue improving screens. Blocked by work commitments."}], "alerts": [{"type": "warn", "text": "Lesly M. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Lesly M. has a diverged branch (merge conflict likely)."}, {"type": "warn", "text": "Hasani C. branch has not had activity in 10 days."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     (function setupHeaderLinks() {
@@ -1610,12 +1611,13 @@
       const discordPillState = progressState(Math.min(MIN_WEEKLY_POINTS, standupCountFor(m.name)), MIN_WEEKLY_POINTS);
       return `
       <div class="member-row">
-        <div class="avatar-ring-wrap">
-          ${memberRingSvg(m)}
-          <div class="avatar-wrap">
-            <img class="avatar" src="${avatarUrl(m)}" alt="" width="44" height="44" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=388bfd&color=fff&size=88'">
-          </div>
-          ${stamp}
+          <div class="star-row">${starsHtml}</div>
+          <div class="avatar-ring-wrap">
+            ${memberRingSvg(m)}
+            <div class="avatar-wrap">
+              <img class="avatar" src="${avatarUrl(m)}" alt="" width="44" height="44" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=388bfd&color=fff&size=88'">
+            </div>
+            ${stamp}
         </div>
         <div class="info">
           <div class="name">${m.name}</div>
@@ -1623,7 +1625,6 @@
             <span class="pill ${gitPillState === 'danger' ? 'danger' : gitPillState === 'warn' ? 'warn' : 'ok'}">GIT</span>
             <span class="pill ${trelloPillState === 'danger' ? 'danger' : trelloPillState === 'warn' ? 'warn' : 'ok'}">Trello</span>
             <span class="pill ${discordPillState === 'danger' ? 'danger' : discordPillState === 'warn' ? 'warn' : 'ok'}">Discord</span>
-            ${starsHtml}
           </div>
           <button type="button" class="member-toggle" aria-expanded="false">Badges + Stars</button>
         </div>

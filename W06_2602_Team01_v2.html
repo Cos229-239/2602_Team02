@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.1.39 | Purpose: V2 meeting snapshot dashboard template -->
+<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.1.40 | Purpose: V2 meeting snapshot dashboard template -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meeting Snapshot — Dashboard V2</title>
@@ -160,7 +160,7 @@
     .trello-stat { text-align: center; padding: 0.5rem 1rem; background: var(--surface2); border-radius: var(--radius-sm); min-width: 80px; }
     .trello-stat .num { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
     .trello-stat .lbl { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
-    .member-row .allstar-group { display: inline-flex; align-items: center; gap: 0.2rem; }
+    .member-row .allstar-group { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.2rem; min-height: 1rem; max-width: 100%; }
     .member-row .avatar-star { cursor: default; font-size: 0.58rem; color: #f0c14b; line-height: 1; background: rgba(15,20,25,0.92); border: 1px solid rgba(240,193,75,0.7); border-radius: 999px; padding: 0.15rem 0.2rem; }
     .has-tip { position: relative; z-index: 40; cursor: default; }
     .has-tip:hover::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); background: rgba(15,20,25,0.98); color: var(--text); border: 1px solid var(--surface2); border-radius: 6px; padding: 0.45rem 0.6rem; font-size: 0.72rem; white-space: pre-line; min-width: 11rem; max-width: 16rem; z-index: 9999; box-shadow: 0 10px 24px rgba(0,0,0,0.28); pointer-events: none; text-align: left; }
@@ -188,7 +188,8 @@
     #members-v2-root { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
     @media (max-width: 640px) { #members-v2-root { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 380px) { #members-v2-root { grid-template-columns: 1fr; } }
-    .member-row { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 0.75rem; border: 1px solid var(--surface2); border-radius: var(--radius-sm); background: var(--surface); }
+    .member-row { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; padding: 0.75rem; border: 1px solid var(--surface2); border-radius: var(--radius-sm); background: var(--surface); }
+    .member-row .star-row { width: 100%; display: flex; justify-content: center; min-height: 1rem; }
     .member-row .avatar-ring-wrap { width: 56px; height: 56px; }
     .member-row .avatar-ring-wrap .avatar-wrap { inset: 6px; }
     .member-row .avatar-ring-wrap .avatar { width: 44px; height: 44px; }
@@ -1068,7 +1069,7 @@
     </div>
     </section>
 
-    <div class="page-version" id="page-version">v1.1.39 · Dashboard V2</div>
+    <div class="page-version" id="page-version">v1.1.40 · Dashboard V2</div>
   </div>
   </main>
   </div>
@@ -1121,7 +1122,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-21-2026 - 21:09", "period": "2026-03-09 to 2026-03-15", "cycle": "2602", "week": 6, "team": "2602_Team01", "sourceUrl": "W06_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "1d ago", "contribution": "+319/-128", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 2, "additions": 319, "deletions": 128, "net": 191}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 6}, "actionBreakdown": {"Daniel W.": {"Create card": 1, "Move card": 5}}, "status": "HEALTHY"}, "discord": [], "alerts": [{"type": "warn", "text": "Daniel W. has not posted standups this week. Post daily standups in the team standup channel."}]};
+    const data = {"report": {"generated": "03-21-2026 - 21:12", "period": "2026-03-09 to 2026-03-15", "cycle": "2602", "week": 6, "team": "2602_Team01", "sourceUrl": "W06_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "1d ago", "contribution": "+319/-128", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 2, "additions": 319, "deletions": 128, "net": 191}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 6}, "actionBreakdown": {"Daniel W.": {"Create card": 1, "Move card": 5}}, "status": "HEALTHY"}, "discord": [], "alerts": [{"type": "warn", "text": "Daniel W. has not posted standups this week. Post daily standups in the team standup channel."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     (function setupHeaderLinks() {
@@ -1610,12 +1611,13 @@
       const discordPillState = progressState(Math.min(MIN_WEEKLY_POINTS, standupCountFor(m.name)), MIN_WEEKLY_POINTS);
       return `
       <div class="member-row">
-        <div class="avatar-ring-wrap">
-          ${memberRingSvg(m)}
-          <div class="avatar-wrap">
-            <img class="avatar" src="${avatarUrl(m)}" alt="" width="44" height="44" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=388bfd&color=fff&size=88'">
-          </div>
-          ${stamp}
+          <div class="star-row">${starsHtml}</div>
+          <div class="avatar-ring-wrap">
+            ${memberRingSvg(m)}
+            <div class="avatar-wrap">
+              <img class="avatar" src="${avatarUrl(m)}" alt="" width="44" height="44" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=388bfd&color=fff&size=88'">
+            </div>
+            ${stamp}
         </div>
         <div class="info">
           <div class="name">${m.name}</div>
@@ -1623,7 +1625,6 @@
             <span class="pill ${gitPillState === 'danger' ? 'danger' : gitPillState === 'warn' ? 'warn' : 'ok'}">GIT</span>
             <span class="pill ${trelloPillState === 'danger' ? 'danger' : trelloPillState === 'warn' ? 'warn' : 'ok'}">Trello</span>
             <span class="pill ${discordPillState === 'danger' ? 'danger' : discordPillState === 'warn' ? 'warn' : 'ok'}">Discord</span>
-            ${starsHtml}
           </div>
           <button type="button" class="member-toggle" aria-expanded="false">Badges + Stars</button>
         </div>
