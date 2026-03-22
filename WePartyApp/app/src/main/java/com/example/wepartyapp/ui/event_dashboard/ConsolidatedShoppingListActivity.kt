@@ -92,17 +92,19 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(                                                           //pg icon
+                //Page icon
+                Icon(
                     imageVector = Icons.Default.ShoppingCart,
                     contentDescription = null,
                     Modifier.size(80.dp),
                     tint = Color(0xFFBF6363)
                 )
-                Text(                                                           //pg title
+                //Page title
+                Text(
                     text = "Consolidated",
                     fontSize = 45.sp
                 )
-                Text(                                                           //pg title
+                Text(
                     text = "Shopping List",
                     fontSize = 45.sp
                 )

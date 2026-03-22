@@ -58,7 +58,8 @@ import com.example.wepartyapp.ui.PartyItem
 @Composable
 fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel, viewItemModel: EventViewModel) {
 
-    var item by remember {                                                  //start with an empty string
+    //mutable var that'll store user input - starts off empty
+    var item by remember {
         mutableStateOf("")
     }
 
@@ -97,7 +98,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
             }
         }
     ) { innerpadding ->
-        Box(                                                                    //outer most layer
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFFFE9EA))
@@ -114,7 +115,8 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { navController.popBackStack() }) {           //back to events btn
+                    //Back to events page btn
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null,
@@ -132,21 +134,24 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(                                                           //pg icon
+                    //Page Icon
+                    Icon(
                         imageVector = Icons.Default.List,
                         contentDescription = null,
                         Modifier.size(70.dp),
                         tint = Color(0xFFBF6363)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text(                                                           //pg title
+                    //Page Title
+                    Text(
                         text = "Add Items",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 30.sp
                     )
                 }
                 Spacer(modifier = Modifier.height(20.dp))
-                Row(                                                               //add items section
+                // --Add items section--
+                Row(
                     modifier = Modifier
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
