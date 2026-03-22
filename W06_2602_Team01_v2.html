@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.1.38 | Purpose: V2 meeting snapshot dashboard template -->
+<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.1.39 | Purpose: V2 meeting snapshot dashboard template -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meeting Snapshot — Dashboard V2</title>
@@ -1068,7 +1068,7 @@
     </div>
     </section>
 
-    <div class="page-version" id="page-version">v1.1.38 · Dashboard V2</div>
+    <div class="page-version" id="page-version">v1.1.39 · Dashboard V2</div>
   </div>
   </main>
   </div>
@@ -1121,7 +1121,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-21-2026 - 20:57", "period": "2026-03-09 to 2026-03-15", "cycle": "2602", "week": 6, "team": "2602_Team01", "sourceUrl": "W06_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "1d ago", "contribution": "+319/-128", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 2, "additions": 319, "deletions": 128, "net": 191}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 6}, "actionBreakdown": {"Daniel W.": {"Create card": 1, "Move card": 5}}, "status": "HEALTHY"}, "discord": [], "alerts": [{"type": "warn", "text": "Daniel W. has not posted standups this week. Post daily standups in the team standup channel."}]};
+    const data = {"report": {"generated": "03-21-2026 - 21:09", "period": "2026-03-09 to 2026-03-15", "cycle": "2602", "week": 6, "team": "2602_Team01", "sourceUrl": "W06_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "1d ago", "contribution": "+319/-128", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 2, "additions": 319, "deletions": 128, "net": 191}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 6}, "actionBreakdown": {"Daniel W.": {"Create card": 1, "Move card": 5}}, "status": "HEALTHY"}, "discord": [], "alerts": [{"type": "warn", "text": "Daniel W. has not posted standups this week. Post daily standups in the team standup channel."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     (function setupHeaderLinks() {
@@ -1332,6 +1332,36 @@
       const row = discordMapFor(dataset)[name];
       return row && row.posts ? row.posts : 0;
     }
+    function standupDatesForDataset(dataset, name) {
+      const row = discordMapFor(dataset)[name];
+      if (!row || !row.dates) return [];
+      if (Array.isArray(row.dates)) return row.dates;
+      return String(row.dates).split(/\s*,\s*/).reduce((acc, token, index, arr) => {
+        if (index % 2 === 0 && arr[index + 1]) acc.push(token + ', ' + arr[index + 1]);
+        return acc;
+      }, []);
+    }
+    function hasConsecutiveStandupDays(dataset, name, minDays) {
+      const yearMatch = String((dataset.report && dataset.report.period) || '').match(/\b(20\d{2})-\d{2}-\d{2}\b/);
+      const year = yearMatch ? yearMatch[1] : '2026';
+      const dayValues = standupDatesForDataset(dataset, name)
+        .map(label => Date.parse(label + ' ' + year))
+        .filter(value => !Number.isNaN(value))
+        .map(value => Math.floor(value / 86400000))
+        .sort((a, b) => a - b);
+      if (!dayValues.length) return false;
+      let streak = 1;
+      for (let i = 1; i < dayValues.length; i += 1) {
+        if (dayValues[i] === dayValues[i - 1]) continue;
+        if (dayValues[i] === dayValues[i - 1] + 1) {
+          streak += 1;
+          if (streak >= minDays) return true;
+        } else {
+          streak = 1;
+        }
+      }
+      return streak >= minDays;
+    }
     function branchIssueLevelForDataset(dataset, name) {
       const rows = branchMapFor(dataset)[name] || [];
       if (!rows.length) return 'missing';
@@ -1360,6 +1390,7 @@
       const standups = standupCountForDataset(dataset, name);
       if (branches.length && !hasHardGitIssue && !hasSoftGitIssue) b.push({ key: 'sync', title: 'In Sync Star', description: 'No current Git branch warnings this week.' });
       if (recentBranch) b.push({ key: 'current', title: 'Current Branch Star', description: 'Recent branch activity within the last few days.' });
+      if (hasConsecutiveStandupDays(dataset, name, 4)) b.push({ key: 'standup-streak', title: 'Standup Streak Star', description: 'Posted standups on 4 or more consecutive days this week.' });
       if (!hasHardGitIssue && trelloActions >= MIN_WEEKLY_POINTS && standups >= MIN_WEEKLY_POINTS) b.push({ key: 'consistent', title: 'Consistent Contributor Star', description: 'Met the weekly minimums across Git, Trello, and Standups.' });
       if (!hasHardGitIssue && !hasSoftGitIssue && trelloActions >= MIN_WEEKLY_POINTS && standups >= MIN_WEEKLY_POINTS) b.push({ key: 'zero-miss', title: 'Zero Misses Star', description: 'No Git warnings and no Trello or Standup minimums missed this week.' });
       if (!hasHardGitIssue && !hasSoftGitIssue && trelloActions >= MIN_WEEKLY_POINTS && standups >= MIN_WEEKLY_POINTS) b.push({ key: 'build-ready', title: 'Build Ready Star', description: 'Branch is clean and all core weekly expectations were met.' });
