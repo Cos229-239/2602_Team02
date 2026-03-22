@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.1.41 | Purpose: V2 meeting snapshot dashboard template -->
+<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.1.42 | Purpose: V2 meeting snapshot dashboard template -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meeting Snapshot — Dashboard V2</title>
@@ -114,6 +114,7 @@
     .leaderboard-row .row-badge.badge-code svg { color: #58a6ff; }
     .leaderboard-row .row-badge.badge-trello svg { color: #0079bf; }
     .leaderboard-row .row-badge.badge-standups svg { color: #5865f2; }
+    .leaderboard-row .row-badge.badge-stars { color: #f0c14b; font-size: 0.95rem; font-weight: 800; }
     .leaderboard-reveal { text-align: center; padding: 1.5rem; }
     .leaderboard-reveal button { padding: 0.6rem 1.25rem; font-size: 0.9rem; font-weight: 600; font-family: inherit; color: var(--bg); background: var(--accent); border: none; border-radius: var(--radius); cursor: pointer; }
     .leaderboard-reveal button:hover { filter: brightness(1.1); }
@@ -1069,7 +1070,7 @@
     </div>
     </section>
 
-    <div class="page-version" id="page-version">v1.1.41 · Dashboard V2</div>
+    <div class="page-version" id="page-version">v1.1.42 · Dashboard V2</div>
   </div>
   </main>
   </div>
@@ -1122,7 +1123,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-21-2026 - 21:13", "period": "2026-03-16 to 2026-03-22", "cycle": "2602", "week": 7, "team": "2602_Team02", "sourceUrl": "W07_2602_Team02_v1.html"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Hasani C.", "git": "active", "trello": false, "discord": true, "githubUsername": "4hzzz"}, {"name": "Maret M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Andy T.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Inactive", "activity": "19d ago", "contribution": "\u2014", "aheadBehind": "0 / 93", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "5d ago", "contribution": "\u2014", "aheadBehind": "0 / 31", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Behind", "activity": "10d ago", "contribution": "+880/-356", "aheadBehind": "0 / 47", "risk": "LOW", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Diverged", "activity": "TODAY", "contribution": "+2322/-931", "aheadBehind": "2 / 7", "risk": "HIGH", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "1d ago", "contribution": "+206/-98", "aheadBehind": "0 / 13", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "TODAY", "contribution": "+3792/-1028", "aheadBehind": "0 / 1", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Rodney F.", "workingFrom": "Org repo", "commits": 8, "additions": 3792, "deletions": 1028, "net": 2764}, {"person": "Lesly M.", "workingFrom": "Org repo", "commits": 14, "additions": 2322, "deletions": 931, "net": 1391}, {"person": "Hasani C.", "workingFrom": "Org Repo / Fork (@4hzzz)", "commits": 3, "additions": 880, "deletions": 356, "net": 524}, {"person": "Maret M.", "workingFrom": "Org repo", "commits": 5, "additions": 206, "deletions": 98, "net": 108}], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 14}, "actions": {"Andy T.": 4, "Hasani C.": 0, "Lesly M.": 16, "Maret M.": 4, "Rodney F.": 46}, "actionBreakdown": {"Andy T.": {"Create card": 1, "Move card": 2}, "Lesly M.": {"Move card": 10, "Complete checklist": 1}, "Maret M.": {"Move card": 3, "Comment": 1}, "Rodney F.": {"Create card": 2, "Move card": 19, "Comment": 2, "Complete checklist": 15}}, "status": "HEALTHY"}, "discord": [{"person": "Hasani C.", "posts": 5, "dates": "Mar 16, Mar 18, Mar 19", "summary": "Checked project progress, resolved branch issues, worked on code cleanup, and focused on authentication improvements."}, {"person": "Lesly M.", "posts": 5, "dates": "Mar 17, Mar 18, Mar 20", "summary": "Worked extensively on the edit events page and polished the event info screen. Managed Trello updates and code cleanup."}, {"person": "Rodney F.", "posts": 5, "dates": "Mar 17, Mar 18, Mar 19, Mar 20, Mar 21", "summary": "Worked on the friends list feature, conducted Trello updates, and began implementing friend request notifications."}, {"person": "Andy T.", "posts": 4, "dates": "Mar 16, Mar 19, Mar 21", "summary": "Reviewed and researched notifications for messaging. Planned and began scripting the feature."}, {"person": "Maret M.", "posts": 3, "dates": "Mar 18, Mar 20", "summary": "Polished various screens and implemented filtering for upcoming event cards while planning additional cleanup."}], "alerts": [{"type": "warn", "text": "Hasani C. has no Trello activity this week. Update cards to reflect work done."}, {"type": "warn", "text": "Lesly M. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Lesly M. has a diverged branch (merge conflict likely)."}, {"type": "warn", "text": "Hasani C. branch has not had activity in 10 days."}]};
+    const data = {"report": {"generated": "03-21-2026 - 21:18", "period": "2026-03-16 to 2026-03-22", "cycle": "2602", "week": 7, "team": "2602_Team02", "sourceUrl": "W07_2602_Team02_v1.html"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Hasani C.", "git": "active", "trello": false, "discord": true, "githubUsername": "4hzzz"}, {"name": "Maret M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Andy T.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Inactive", "activity": "19d ago", "contribution": "\u2014", "aheadBehind": "0 / 93", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "5d ago", "contribution": "\u2014", "aheadBehind": "0 / 31", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Behind", "activity": "10d ago", "contribution": "+880/-356", "aheadBehind": "0 / 47", "risk": "LOW", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Diverged", "activity": "TODAY", "contribution": "+2322/-931", "aheadBehind": "2 / 7", "risk": "HIGH", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "1d ago", "contribution": "+206/-98", "aheadBehind": "0 / 13", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "TODAY", "contribution": "+3792/-1028", "aheadBehind": "0 / 1", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Rodney F.", "workingFrom": "Org repo", "commits": 8, "additions": 3792, "deletions": 1028, "net": 2764}, {"person": "Lesly M.", "workingFrom": "Org repo", "commits": 14, "additions": 2322, "deletions": 931, "net": 1391}, {"person": "Hasani C.", "workingFrom": "Org Repo / Fork (@4hzzz)", "commits": 3, "additions": 880, "deletions": 356, "net": 524}, {"person": "Maret M.", "workingFrom": "Org repo", "commits": 5, "additions": 206, "deletions": 98, "net": 108}], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 14}, "actions": {"Andy T.": 4, "Hasani C.": 0, "Lesly M.": 16, "Maret M.": 4, "Rodney F.": 46}, "actionBreakdown": {"Andy T.": {"Create card": 1, "Move card": 2}, "Lesly M.": {"Move card": 10, "Complete checklist": 1}, "Maret M.": {"Move card": 3, "Comment": 1}, "Rodney F.": {"Create card": 2, "Move card": 19, "Comment": 2, "Complete checklist": 15}}, "status": "HEALTHY"}, "discord": [{"person": "Hasani C.", "posts": 5, "dates": "Mar 16, Mar 18, Mar 19", "summary": "Checked project progress, resolved branch issues, worked on code cleanup, and focused on authentication improvements."}, {"person": "Lesly M.", "posts": 5, "dates": "Mar 17, Mar 18, Mar 20", "summary": "Worked extensively on the edit events page and polished the event info screen. Managed Trello updates and code cleanup."}, {"person": "Rodney F.", "posts": 5, "dates": "Mar 17, Mar 18, Mar 19, Mar 20, Mar 21", "summary": "Worked on the friends list feature, conducted Trello updates, and began implementing friend request notifications."}, {"person": "Andy T.", "posts": 4, "dates": "Mar 16, Mar 19, Mar 21", "summary": "Reviewed and researched notifications for messaging. Planned and began scripting the feature."}, {"person": "Maret M.", "posts": 3, "dates": "Mar 18, Mar 20", "summary": "Polished various screens and implemented filtering for upcoming event cards while planning additional cleanup."}], "alerts": [{"type": "warn", "text": "Hasani C. has no Trello activity this week. Update cards to reflect work done."}, {"type": "warn", "text": "Lesly M. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Lesly M. has a diverged branch (merge conflict likely)."}, {"type": "warn", "text": "Hasani C. branch has not had activity in 10 days."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     (function setupHeaderLinks() {
@@ -1417,25 +1418,35 @@
     const BADGE_LOGOS = {
       code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>',
       trello: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-8 2h6v8h-6V5zm-2 0v8H3V5h6z"/></svg>',
-      standups: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>'
+      standups: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>',
+      stars: '★'
     };
     function leadTrack(metricTitle, tieText) {
       return `<span class="track-dot" title="Start">●</span><div class="track-speed-bar" style="width:0;" title="${metricTitle}">${tieText ? `<span class="track-tie-label">${escapeHtml(tieText)}</span>` : ''}</div><span class="track-marker car" style="left:20px;" title="${metricTitle}">🚗</span>`;
     }
-    document.getElementById('leaderboard-v2-root').innerHTML = [
-      { label: 'Code', badge: 'code', title: 'Git', first: codeLeads, firstVal: codeLeadVal, secondVal: codeSecondVal },
-      { label: 'Trello', badge: 'trello', title: 'Trello', first: trelloLeads, firstVal: trelloLeadVal, secondVal: trelloSecondVal },
-      { label: 'Standups', badge: 'standups', title: 'Standups', first: standupsLeads, firstVal: standupsLeadVal, secondVal: standupsSecondVal }
-    ].map(r => {
-      const leadPct = r.firstVal ? (r.firstVal === r.secondVal ? 100 : (1 - r.secondVal / r.firstVal) * 100) : 0;
-      const names = Array.isArray(r.first) ? r.first : (r.first ? [r.first] : []);
-      const nameText = names.length ? names.join(' & ') : '—';
-      const firstContent = names.length ? `<span class="row-name">${nameText}</span>` : '<span class="row-name">—</span>';
-      const badgeEl = `<span class="row-badge badge-${r.badge}" title="${r.title}" aria-label="${r.title}">${BADGE_LOGOS[r.badge]}</span>`;
-      const labelText = r.label === 'Code' ? '#1 in Git' : r.label === 'Trello' ? '#1 in Trello' : '#1 in Standups';
-      const tieText = names.length > 1 ? tieLabel(names.length) : '';
-      return `<div class="leaderboard-row label-visible" data-lead-pct="${Math.min(100, Math.max(0, leadPct))}">${badgeEl}<span class="row-label">${labelText}</span><div class="row-track-wrap">${leadTrack(r.title, tieText)}</div><span class="row-first">${firstContent}</span></div>`;
-    }).join('');
+    function renderLeaderboard(lifetimeTotals) {
+      const weeklyStarCounts = {};
+      data.members.forEach(m => { weeklyStarCounts[m.name] = allstarsFor(m.name).length; });
+      const weeklyStarsLead = computeLeadState(weeklyStarCounts);
+      const lifetimeLead = computeLeadState(lifetimeTotals || weeklyStarCounts);
+      document.getElementById('leaderboard-v2-root').innerHTML = [
+        { badge: 'code', title: 'Git', labelText: '#1 in Git', first: codeLeads, firstVal: codeLeadVal, secondVal: codeSecondVal },
+        { badge: 'trello', title: 'Trello', labelText: '#1 in Trello', first: trelloLeads, firstVal: trelloLeadVal, secondVal: trelloSecondVal },
+        { badge: 'standups', title: 'Standups', labelText: '#1 in Standups', first: standupsLeads, firstVal: standupsLeadVal, secondVal: standupsSecondVal },
+        { badge: 'stars', title: 'Weekly Stars', labelText: '#1 in Weekly Stars', first: weeklyStarsLead.leads, firstVal: weeklyStarsLead.leadVal, secondVal: weeklyStarsLead.secondVal },
+        { badge: 'stars', title: 'Lifetime Stars', labelText: '#1 Lifetime Allstar', first: lifetimeLead.leads, firstVal: lifetimeLead.leadVal, secondVal: lifetimeLead.secondVal }
+      ].map(r => {
+        const labelText = r.labelText;
+        const leadPct = r.firstVal ? (r.firstVal === r.secondVal ? 100 : (1 - r.secondVal / r.firstVal) * 100) : 0;
+        const names = Array.isArray(r.first) ? r.first : (r.first ? [r.first] : []);
+        const nameText = names.length ? names.join(' & ') : '—';
+        const firstContent = names.length ? `<span class="row-name">${nameText}</span>` : '<span class="row-name">—</span>';
+        const badgeEl = `<span class="row-badge badge-${r.badge}" title="${r.title}" aria-label="${r.title}">${BADGE_LOGOS[r.badge]}</span>`;
+        const tieText = names.length > 1 ? tieLabel(names.length) : '';
+        return `<div class="leaderboard-row label-visible" data-lead-pct="${Math.min(100, Math.max(0, leadPct))}">${badgeEl}<span class="row-label">${labelText}</span><div class="row-track-wrap">${leadTrack(r.title, tieText)}</div><span class="row-first">${firstContent}</span></div>`;
+      }).join('');
+    }
+    renderLeaderboard();
 
     function playCheer() {
       try {
@@ -1501,6 +1512,7 @@
         const total = totals[name] || 0;
         el.innerHTML = `<span class="star-icon">★</span><span class="star-num">${total}</span>`;
       });
+      renderLeaderboard(totals);
     }
 
     document.getElementById('overview-root').innerHTML = `
