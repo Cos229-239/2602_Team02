@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.1.48 | Purpose: V2 meeting snapshot dashboard template -->
+<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.1.49 | Purpose: V2 meeting snapshot dashboard template -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meeting Snapshot — Dashboard V2</title>
@@ -129,8 +129,8 @@
     .leaderboard-row .row-track-wrap { flex: 1 1 140px; min-width: 100px; height: 24px; background: var(--surface2); border-radius: 999px; position: relative; padding-left: 20px; padding-right: 12px; box-sizing: border-box; }
     .leaderboard-row .row-track-wrap .track-dot { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); font-size: 0.65rem; color: var(--text-muted); z-index: 2; }
     .leaderboard-row .row-track-wrap .track-speed-bar { position: absolute; top: 2px; bottom: 2px; left: 20px; background: var(--success); border-radius: 999px; z-index: 1; min-width: 4px; transition: none; overflow: visible; display: flex; align-items: center; justify-content: center; }
-    .leaderboard-row.stars-row .row-track-wrap .track-speed-bar { background: linear-gradient(90deg, #c08b00, #f0c14b); }
-    .leaderboard-row.stars-row .row-track-wrap { box-shadow: inset 0 0 0 1px rgba(240,193,75,0.18); }
+    .leaderboard-row.stars-row .row-track-wrap .track-speed-bar { background: var(--success); }
+    .leaderboard-row.stars-row .row-track-wrap { box-shadow: inset 0 0 0 1px rgba(63,185,80,0.18); }
     .leaderboard-row .row-track-wrap .track-tie-label { color: #fff; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em; text-shadow: 0 1px 2px rgba(0,0,0,0.35); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.18s ease; padding: 0 0.55rem; }
     .leaderboard-row .row-track-wrap .track-speed-bar.tie-visible .track-tie-label { opacity: 1; }
     .leaderboard-row .row-track-wrap .track-marker.car { position: absolute; left: 20px; top: 50%; transform: translateY(-50%) scaleX(-1); font-size: 0.75rem; z-index: 2; transition: none; }
@@ -1084,7 +1084,7 @@
     </div>
     </section>
 
-    <div class="page-version" id="page-version">v1.1.48 · Dashboard V2</div>
+    <div class="page-version" id="page-version">v1.1.49 · Dashboard V2</div>
   </div>
   </main>
   </div>
@@ -1137,7 +1137,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-21-2026 - 21:40", "period": "2026-03-02 to 2026-03-08", "cycle": "2602", "week": 5, "team": "2602_Team01", "sourceUrl": "W05_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "1d ago", "contribution": "+527/-158", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 4, "additions": 527, "deletions": 158, "net": 369}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 37}, "actionBreakdown": {"Daniel W.": {"Create card": 8, "Move card": 29}}, "status": "HEALTHY"}, "discord": [], "alerts": [{"type": "warn", "text": "Daniel W. has not posted standups this week. Post daily standups in the team standup channel."}]};
+    const data = {"report": {"generated": "03-21-2026 - 21:41", "period": "2026-03-02 to 2026-03-08", "cycle": "2602", "week": 5, "team": "2602_Team01", "sourceUrl": "W05_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "1d ago", "contribution": "+527/-158", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 4, "additions": 527, "deletions": 158, "net": 369}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 37}, "actionBreakdown": {"Daniel W.": {"Create card": 8, "Move card": 29}}, "status": "HEALTHY"}, "discord": [], "alerts": [{"type": "warn", "text": "Daniel W. has not posted standups this week. Post daily standups in the team standup channel."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     (function setupHeaderLinks() {
