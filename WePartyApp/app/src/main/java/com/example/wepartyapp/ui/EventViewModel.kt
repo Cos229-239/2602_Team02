@@ -75,6 +75,12 @@ data class FriendProfile(
     val appUserId: String = ""
 )
 
+// --- Dietary Summary Blueprint ---
+data class GroupDietarySummary(
+    val tallies: Map<String, Int> = emptyMap(),
+    val customNotes: List<String> = emptyList()
+)
+
 class EventViewModel : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
@@ -103,9 +109,13 @@ class EventViewModel : ViewModel() {
     private val _friendRequests = MutableStateFlow<List<FriendProfile>>(emptyList())
     val friendRequests: StateFlow<List<FriendProfile>> = _friendRequests.asStateFlow()
 
-    // NEW: State to hold Suggested Friends (Friends of Friends)
+    // State to hold Suggested Friends (Friends of Friends)
     private val _suggestedFriends = MutableStateFlow<List<FriendProfile>>(emptyList())
     val suggestedFriends: StateFlow<List<FriendProfile>> = _suggestedFriends.asStateFlow()
+
+    // --- Group Dietary Summary State ---
+    private val _groupDietarySummary = MutableStateFlow(GroupDietarySummary())
+    val groupDietarySummary: StateFlow<GroupDietarySummary> = _groupDietarySummary.asStateFlow()
 
     // We cache the text fields here so they survive navigation between screens
     var eventId by mutableStateOf("") // Holds the pre-generated ID for FlowLinks
@@ -412,10 +422,18 @@ class EventViewModel : ViewModel() {
     // 3. Send a Request
     fun sendFriendRequest(targetUid: String) {
         val currentUserId = auth.currentUser?.uid ?: return
+        val currentUserName = auth.currentUser?.displayName ?: "Someone"
 
         // Use SetOptions.merge() to prevent crashes if the user document is missing
         db.collection("users").document(targetUid)
             .set(mapOf("friendRequests" to FieldValue.arrayUnion(currentUserId)), com.google.firebase.firestore.SetOptions.merge())
+
+        // --- New: Friend request notifications ---
+        sendAppNotification(
+            title = "New Friend Request",
+            message = "$currentUserName sent you a friend request!",
+            allowedUsers = listOf(targetUid)
+        )
     }
 
     // 4. Accept Request (Adds them to your friends, adds you to their friends, removes request)
@@ -482,9 +500,10 @@ class EventViewModel : ViewModel() {
     // Sends a new message and updates the event's "last message" snippet
     fun sendMessage(eventId: String, text: String) {
         val user = auth.currentUser ?: return
+        val currentUserName = user.displayName ?: "User"
         val messageData = hashMapOf(
             "senderId" to user.uid,
-            "senderName" to (user.displayName ?: "User"),
+            "senderName" to currentUserName,
             "text" to text,
             "timestamp" to System.currentTimeMillis()
         )
@@ -492,14 +511,31 @@ class EventViewModel : ViewModel() {
         db.collection("events").document(eventId).collection("messages").add(messageData)
             .addOnSuccessListener {
                 // Sync the last message back to the event document for the inbox preview
-                db.collection("events").document(eventId).update(
-                    mapOf(
-                        "lastMessage" to text,
-                        "lastMessageTime" to messageData["timestamp"],
-                        "lastSenderId" to user.uid,
-                        "readByUsers.${user.uid}" to messageData["timestamp"] // Mark as read for sender
+                db.collection("events").document(eventId).get().addOnSuccessListener { doc ->
+                    val eventName = doc.getString("name") ?: "a party"
+                    val hostId = doc.getString("hostId") ?: ""
+                    val guests = doc.get("invitedGuests") as? List<String> ?: emptyList()
+                    
+                    // Notify everyone except the sender
+                    val recipients = (guests + hostId).distinct().filter { it != user.uid }
+                    
+                    if (recipients.isNotEmpty()) {
+                        sendAppNotification(
+                            title = "New Message in $eventName",
+                            message = "$currentUserName: $text",
+                            allowedUsers = recipients
+                        )
+                    }
+
+                    db.collection("events").document(eventId).update(
+                        mapOf(
+                            "lastMessage" to text,
+                            "lastMessageTime" to messageData["timestamp"],
+                            "lastSenderId" to user.uid,
+                            "readByUsers.${user.uid}" to messageData["timestamp"] // Mark as read for sender
+                        )
                     )
-                )
+                }
             }
     }
 
@@ -637,11 +673,14 @@ class EventViewModel : ViewModel() {
     // Toggles the acquisition status of a party item (checks/unchecks)
     fun toggleItemCheck(eventId: String, item: PartyItem) {
         val user = auth.currentUser ?: return
-        val updatedItems = events.value?.find { it.id == eventId }?.eventItems?.map {
+        val currentUserName = user.displayName ?: "Someone"
+        val event = events.value?.find { it.id == eventId } ?: return
+        
+        val updatedItems = event.eventItems.map {
             if (it.name == item.name) {
                 // Claim the item if no one has it yet
                 if (it.boughtBy == null) {
-                    it.copy(boughtBy = user.uid, boughtByName = user.displayName ?: "User")
+                    it.copy(boughtBy = user.uid, boughtByName = currentUserName)
                 } 
                 // Unclaim only if the current user is the one who bought it
                 else if (it.boughtBy == user.uid) {
@@ -653,7 +692,7 @@ class EventViewModel : ViewModel() {
             } else {
                 it
             }
-        } ?: return
+        }
 
         // Push the updated item array back to Firestore
         val mappedItems = updatedItems.map {
@@ -664,7 +703,21 @@ class EventViewModel : ViewModel() {
                 "boughtByName" to it.boughtByName
             )
         }
-        db.collection("events").document(eventId).update("items", mappedItems)
+        db.collection("events").document(eventId).update("items", mappedItems).addOnSuccessListener {
+            // --- Notification logic for claimed items ---
+            val isNewlyClaimed = updatedItems.find { it.name == item.name }?.boughtBy == user.uid
+            
+            if (isNewlyClaimed) {
+                val recipients = (event.invitedGuests + event.hostId).distinct().filter { it != user.uid }
+                if (recipients.isNotEmpty()) {
+                    sendAppNotification(
+                        title = "Item Claimed!",
+                        message = "$currentUserName picked up ${item.name} for ${event.name}!",
+                        allowedUsers = recipients
+                    )
+                }
+            }
+        }
     }
 
     // --- Checklist Functions for Existing Events ---
@@ -703,6 +756,59 @@ class EventViewModel : ViewModel() {
         db.collection("events").document(eventId).update("items", mappedItems)
     }
 
+    // --- Group Dietary Summary Logic ---
+    fun fetchGroupDietarySummary(guestUids: List<String>) {
+        if (guestUids.isEmpty()) {
+            _groupDietarySummary.value = GroupDietarySummary()
+            return
+        }
+
+        db.collection("users").whereIn("uid", guestUids).get()
+            .addOnSuccessListener { snapshots ->
+                val newTallies = mutableMapOf<String, Int>()
+                val notes = mutableListOf<String>()
+
+                val standardKeys = listOf(
+                    "noOnions", "noKetchup", "noMushrooms", "extraMayo",
+                    "glutenFree", "dairyFree", "nutAllergy", "shellfishAllergy",
+                    "vegetarian", "vegan", "halal", "keto"
+                )
+
+                for (doc in snapshots.documents) {
+                    val prefs = doc.get("dietaryPreferences") as? Map<String, Any> ?: continue
+
+                    standardKeys.forEach { key ->
+                        if (prefs[key] == true) {
+                            newTallies[key] = (newTallies[key] ?: 0) + 1
+                        }
+                    }
+
+                    val note = prefs["otherNotes"] as? String
+                    if (!note.isNullOrBlank()) {
+                        notes.add("${doc.getString("name") ?: "Guest"}: $note")
+                    }
+                }
+                _groupDietarySummary.value = GroupDietarySummary(newTallies, notes)
+            }
+    }
+
+    // --- Invite More People Button Logic ---
+    fun inviteMoreGuests(eventId: String, newGuestList: List<String>) {
+        if (eventId.isEmpty()) return
+
+        // We use arrayUnion so we don't overwrite current guests
+        db.collection("events").document(eventId)
+            .update("invitedGuests", FieldValue.arrayUnion(*newGuestList.toTypedArray()))
+            .addOnSuccessListener {
+                // Send alert to new guests
+                sendAppNotification(
+                    title = "You're Invited!",
+                    message = "You've been added to a party! Tap to see details.",
+                    allowedUsers = newGuestList
+                )
+            }
+    }
+
     // Internal helper to create a secure notification entry
     private fun sendAppNotification(title: String, message: String, allowedUsers: List<String>) {
         val notificationMap = hashMapOf(
@@ -716,19 +822,18 @@ class EventViewModel : ViewModel() {
         db.collection("notifications").add(notificationMap)
     }
 
-    // Deletes an event from the Firestore database
+    // --- Deletes an event completely and safely via its unique ID ---
     fun deleteEvent(event: PartyEvent) {
-        val dateString = event.date?.toString() ?: ""
-        db.collection("events")
-            .whereEqualTo("name", event.name)
-            .whereEqualTo("time", event.time)
-            .whereEqualTo("date", dateString)
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    document.reference.delete()
-                }
-            }
+        if (event.id.isNotEmpty()) {
+            db.collection("events").document(event.id).delete()
+        }
+    }
+
+    // --- Removes a specific notification from a user's inbox ---
+    fun dismissNotification(notificationId: String) {
+        if (notificationId.isNotEmpty()) {
+            db.collection("notifications").document(notificationId).delete()
+        }
     }
 
     // Helper to turn timestamps into user-friendly text like "Yesterday" or "1 hour ago"

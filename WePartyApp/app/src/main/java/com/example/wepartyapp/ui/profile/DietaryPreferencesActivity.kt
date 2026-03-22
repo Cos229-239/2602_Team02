@@ -1,12 +1,15 @@
 package com.example.wepartyapp.ui.profile
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState // <-- Added for scrolling
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll // <-- Added for scrolling
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +22,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.wepartyapp.R
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 @Composable
 fun DietaryPreferencesScreenUI(onBack: () -> Unit) {
@@ -49,6 +55,9 @@ fun DietaryPreferencesScreenUI(onBack: () -> Unit) {
     var halal by remember { mutableStateOf(sharedPref.getBoolean("halal", false)) }
     var keto by remember { mutableStateOf(sharedPref.getBoolean("keto", false)) }
 
+    // --- Custom Text Field for unlisted allergies ---
+    var otherNotes by remember { mutableStateOf(sharedPref.getString("otherNotes", "") ?: "") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -57,13 +66,28 @@ fun DietaryPreferencesScreenUI(onBack: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
+        // --- Back Button Row ---
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.Black,
+                    modifier = Modifier.size(30.dp)
+                )
+            }
+        }
+
         // TOP: Logo
         Image(
             painter = painterResource(id = R.drawable.app_logo),
             contentDescription = "Logo",
             modifier = Modifier
-                .size(120.dp)
-                .padding(top = 16.dp)
+                .size(100.dp)
+                .padding(top = 8.dp)
         )
 
         // MIDDLE: Content & Toggles
@@ -107,7 +131,7 @@ fun DietaryPreferencesScreenUI(onBack: () -> Unit) {
                 PreferenceToggle("No Mushrooms", noMushrooms) { noMushrooms = it }
                 PreferenceToggle("Extra Mayo", extraMayo) { extraMayo = it }
 
-                Divider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray)
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray)
 
                 // --- CATEGORY 2: Allergies & Intolerances ---
                 Text(
@@ -121,7 +145,7 @@ fun DietaryPreferencesScreenUI(onBack: () -> Unit) {
                 PreferenceToggle("Nut Allergy", nutAllergy) { nutAllergy = it }
                 PreferenceToggle("Shellfish Allergy", shellfishAllergy) { shellfishAllergy = it }
 
-                Divider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray)
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray)
 
                 // --- CATEGORY 3: Diets & Lifestyles ---
                 Text(
@@ -134,6 +158,31 @@ fun DietaryPreferencesScreenUI(onBack: () -> Unit) {
                 PreferenceToggle("Vegan", vegan) { vegan = it }
                 PreferenceToggle("Halal", halal) { halal = it }
                 PreferenceToggle("Keto", keto) { keto = it }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray)
+
+                // --- Other Notes ---
+                Text(
+                    text = "Other Notes / Custom Allergies",
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFB65C5C),
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 8.dp)
+                )
+                OutlinedTextField(
+                    value = otherNotes,
+                    onValueChange = { otherNotes = it },
+                    placeholder = { Text("e.g. Allergic to strawberries") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .height(100.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFFB65C5C),
+                        unfocusedBorderColor = Color.Gray
+                    )
+                )
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
 
@@ -156,15 +205,49 @@ fun DietaryPreferencesScreenUI(onBack: () -> Unit) {
                     putBoolean("vegan", vegan)
                     putBoolean("halal", halal)
                     putBoolean("keto", keto)
-                    apply() // apply() saves it asynchronously in the background
+
+                    putString("otherNotes", otherNotes)
+                    apply()
                 }
+
+                // --- Sync preferences to Firestore ---
+                val currentUser = FirebaseAuth.getInstance().currentUser
+                if (currentUser != null) {
+                    val db = FirebaseFirestore.getInstance()
+
+                    // Bundle all the preferences into a neat Map
+                    val dietaryMap = mapOf(
+                        "noOnions" to noOnions,
+                        "noKetchup" to noKetchup,
+                        "noMushrooms" to noMushrooms,
+                        "extraMayo" to extraMayo,
+                        "glutenFree" to glutenFree,
+                        "dairyFree" to dairyFree,
+                        "nutAllergy" to nutAllergy,
+                        "shellfishAllergy" to shellfishAllergy,
+                        "vegetarian" to vegetarian,
+                        "vegan" to vegan,
+                        "halal" to halal,
+                        "keto" to keto,
+                        "otherNotes" to otherNotes
+                    )
+
+                    // Save them to a nested object in the user's document
+                    db.collection("users").document(currentUser.uid)
+                        .set(mapOf("dietaryPreferences" to dietaryMap), SetOptions.merge())
+                }
+
+                // --- UX Confirmation ---
+                Toast.makeText(context, "Preferences Saved!", Toast.LENGTH_SHORT).show()
 
                 // 4. Navigate back to the Home screen
                 onBack()
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4081)),
             shape = RoundedCornerShape(12.dp),
-            modifier = Modifier.fillMaxWidth().height(50.dp) // Made button full width to match other screens
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp) // Made button full width to match other screens
         ) {
             Text("Save", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         }

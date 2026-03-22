@@ -1,8 +1,8 @@
 package com.example.wepartyapp.ui.create_event
 
-import android.app.Activity // <-- Added
-import android.content.Intent // <-- Added
-import android.widget.Toast // <-- Added for dynamic error popup
+import android.app.Activity
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -44,7 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext // <-- Added
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -52,17 +52,21 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.EventViewModel
-import com.example.wepartyapp.ui.home.MainActivity // <-- Added
+import com.example.wepartyapp.ui.home.MainActivity
 
-// Invite Friends Screen
+// --- Mode-Aware Invite Friends Screen ---
 @Composable
-fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventViewModel) {
+fun InviteFriendsScreenUI(
+    navController: NavController? = null,
+    viewItemModel: EventViewModel,
+    existingEventId: String? = null // <-- Null for new events, ID for existing ones
+) {
 
     // --- Updated for FlowLinks Deep Linking ---
-    val uniqueEventId = viewItemModel.eventId ?: "temp-id"
+    val uniqueEventId = existingEventId ?: viewItemModel.eventId ?: "temp-id"
     var urlLink = "https://wepartyapp-8a3a7-flowlinks.web.app/$uniqueEventId"
 
-    val context = LocalContext.current // <-- Grab context for the Intent
+    val context = LocalContext.current
 
     // --- New: State to hold friends and selections ---
     val friendsList by viewItemModel.friendsList.collectAsState()
@@ -73,11 +77,13 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
         viewItemModel.fetchFriends()
     }
 
-    // --- Form Validation ---
-    val isFormComplete = viewItemModel.eventName.isNotBlank() &&
-            viewItemModel.eventDate.isNotBlank() &&
-            viewItemModel.eventTime.isNotBlank() &&
-            viewItemModel.eventAddress.isNotBlank()
+    // --- Form Validation (Only required if creating new event) ---
+    val isFormComplete = existingEventId != null || (
+            viewItemModel.eventName.isNotBlank() &&
+                    viewItemModel.eventDate.isNotBlank() &&
+                    viewItemModel.eventTime.isNotBlank() &&
+                    viewItemModel.eventAddress.isNotBlank()
+            )
 
     Scaffold(
         topBar = {
@@ -124,8 +130,10 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    //back to add items page btn
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = {
+                        if (navController != null) navController.popBackStack()
+                        else (context as? Activity)?.finish()
+                    }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null,
@@ -133,7 +141,7 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                         )
                     }
                     Text(
-                        text = "Add Items",
+                        text = if (existingEventId != null) "Manage Guests" else "Add Items",
                         fontSize = 20.sp
                     )
                 }
@@ -143,7 +151,6 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    //Page icon
                     Icon(
                         imageVector = Icons.Default.AccountCircle,
                         contentDescription = null,
@@ -151,16 +158,15 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                         tint = Color(0xFFBF6363)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    //Page Title
                     Text(
-                        text = "Invite Friends",
+                        text = if (existingEventId != null) "Invite More" else "Invite Friends",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 30.sp
                     )
                 }
                 Spacer(modifier = Modifier.height(30.dp))
 
-                // --- New: In-App Friends Selection ---
+                // --- In-App Friends Selection ---
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -175,7 +181,6 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                     if (friendsList.isEmpty()) {
                         Text("You haven't added any friends yet.", color = Color.Gray, fontSize = 14.sp)
                     } else {
-                        // Horizontally scrolling list of friend chips
                         LazyRow(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -185,7 +190,6 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
 
                                 Surface(
                                     modifier = Modifier.clickable {
-                                        // Toggle Selection
                                         selectedFriendUids = if (isSelected) {
                                             selectedFriendUids - friend.uid
                                         } else {
@@ -238,7 +242,6 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                         modifier = Modifier
                             .fillMaxWidth()
                     ) {
-                        //display url only
                         OutlinedTextField(
                             modifier = Modifier.weight(1f),
                             value = urlLink,
@@ -249,14 +252,13 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                     Spacer(modifier = Modifier.height(10.dp))
                     Button(
                         onClick = {
-                        val sendIntent: Intent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            putExtra(Intent.EXTRA_TEXT, "Check out this new event!: $urlLink")
-                            type = "text/plain"
-                        }
-                        val shareIntent = Intent.createChooser(sendIntent, null)
-                        context.startActivity(shareIntent)
-                    },
+                            val sendIntent: Intent = Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(Intent.EXTRA_TEXT, "Check out this new event!: $urlLink")
+                                type = "text/plain"
+                            }
+                            context.startActivity(Intent.createChooser(sendIntent, null))
+                        },
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                         colors = ButtonDefaults.buttonColors(Color(0xFFFA8989))
                         ) {
@@ -265,20 +267,24 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                 }
             }
 
-            // --- Complete Button ---
+            // --- Complete / Update Button ---
             Button(
                 onClick = {
                     if (isFormComplete) {
-                        // --- New: Pass the selected friends over to the ViewModel before saving ---
-                        viewItemModel.eventInvitedGuests = selectedFriendUids.toList()
-
-                        viewItemModel.saveEventData()
-                        // Explicitly return to Main Activity and kill this one
-                        val intent = Intent(context, MainActivity::class.java)
-                        intent.flags =
-                            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                        context.startActivity(intent)
-                        (context as? Activity)?.finish()
+                        if (existingEventId != null) {
+                            // MODE: Update existing guest list
+                            viewItemModel.inviteMoreGuests(existingEventId, selectedFriendUids.toList())
+                            Toast.makeText(context, "Invites sent!", Toast.LENGTH_SHORT).show()
+                            (context as? Activity)?.finish()
+                        } else {
+                            // MODE: Creating new event
+                            viewItemModel.eventInvitedGuests = selectedFriendUids.toList()
+                            viewItemModel.saveEventData()
+                            context.startActivity(Intent(context, MainActivity::class.java).apply {
+                                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                            })
+                            (context as? Activity)?.finish()
+                        }
                     } else {
                         // Figure out exactly what is missing to tell the user
                         val missingFields = mutableListOf<String>()
@@ -292,8 +298,6 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                         Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
                     }
                 },
-                // We remove 'enabled = isFormComplete' so the button is always clickable,
-                // allowing our Toast to actually fire. Instead, we manually swap the colors below to fake the disabled look!
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isFormComplete) Color(0xFFFA8989) else Color.LightGray
                 ),
@@ -302,7 +306,7 @@ fun InviteFriendsScreenUI(navController: NavController, viewItemModel: EventView
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Complete Event",
+                    text = if (existingEventId != null) "Send Invites" else "Complete Event",
                     color = if (isFormComplete) Color.Black else Color.DarkGray
                 )
             }

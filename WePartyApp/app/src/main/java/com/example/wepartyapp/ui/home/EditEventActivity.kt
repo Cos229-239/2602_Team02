@@ -3,12 +3,15 @@ package com.example.wepartyapp.ui.home
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,14 +21,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,6 +55,8 @@ import androidx.core.view.WindowCompat
 import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.EventViewModel
 import com.example.wepartyapp.ui.create_event.EventDetailsScreenUI
+import com.example.wepartyapp.ui.create_event.InviteFriendsActivity
+import com.google.firebase.auth.FirebaseAuth
 import kotlin.getValue
 
 class EditEventActivity : ComponentActivity() {
@@ -80,18 +90,39 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
     val events = eventViewModel.events.observeAsState(emptyList())
     val currEvent = events.value.find { it.name == eventName }
 
-    // add host verification steps - they will only be able to edit the event if they are the host
-    // might have to be added in main activity not here...
+    // --- The "Ghost Event" Fix ---
+    if (currEvent == null) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFFFE9EA))
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator(color = Color(0xFFB65C5C))
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "Loading event details...", color = Color.Gray)
+        }
+        return
+    }
+
+    // --- Host verification logic ---
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+    val isHost = currEvent.hostId == currentUserId
 
     //helps with rerendering - text fields were reverting to og data everytime the date+time fields were clicked
     LaunchedEffect(currEvent) {
-        //saving the current event's info to our shared view model's vars to be able to display + change
-        eventViewModel.eventName = currEvent?.name.toString()
-        eventViewModel.eventSummary = currEvent?.summary.toString()
-        eventViewModel.eventDate = currEvent?.date.toString()
-        eventViewModel.eventTime = currEvent?.time.toString()
-        eventViewModel.eventAddress = currEvent?.address.toString()
-        eventViewModel.eventId = currEvent?.id.toString()
+        // --- The "Literal Null" Fix ---
+        // Using .let guarantees we don't accidentally save the word "null" into the text fields
+        currEvent.let { event ->
+            eventViewModel.eventName = event.name
+            eventViewModel.eventSummary = event.summary
+            eventViewModel.eventDate = event.date?.toString() ?: ""
+            eventViewModel.eventTime = event.time
+            eventViewModel.eventAddress = event.address
+            eventViewModel.eventId = event.id
+        }
     }
 
     Scaffold(
@@ -175,26 +206,81 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 30.sp,
                     )
+
+                    // --- Show a warning if a non-host tries to view this page ---
+                    if (!isHost) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Only the host can edit these details.",
+                            color = Color.Red,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
+
+                // --- Invite Friends Section (Host Only) ---
+                if (isHost) {
+                    OutlinedButton(
+                        onClick = {
+                            val intent = Intent(context, InviteFriendsActivity::class.java)
+                            intent.putExtra("EVENT_ID", currEvent.id)
+                            intent.putExtra("IS_EDIT_MODE", true)
+                            context.startActivity(intent)
+                        },
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, Color(0xFFBF6363))
+                    ) {
+                        Icon(Icons.Default.Person, contentDescription = null, tint = Color(0xFFBF6363))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Manage Guest List", color = Color(0xFFBF6363))
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
                 //next step - cleaning up code - try calling the composable EventsDetailScreenUI to see if that works - it does
+
+                // We still show the fields so they can see them, but the save button below is protected
                 EventDetailsScreenUI(eventViewModel)
             }
+
+            // --- Next Button with Error Handling & Host Verification ---
             Button(
                 onClick = {
+                    if (!isHost) {
+                        Toast.makeText(context, "Only the host can save changes.", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
+                    // --- Check for empty required fields ---
+                    if (eventViewModel.eventName.isBlank()) {
+                        Toast.makeText(context, "Event Name cannot be empty!", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
                     eventViewModel.updateEventInfo(eventViewModel.eventId)
+                    Toast.makeText(context, "Event updated successfully!", Toast.LENGTH_SHORT).show()
+
                     val intent = Intent(context, MainActivity::class.java)
                     intent.flags =
                         Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                     context.startActivity(intent)
                     (context as? Activity)?.finish()
                 },
-                colors = ButtonDefaults.buttonColors(Color(0xFFFA8989)),
+                // Turn the button gray if they aren't the host so they know it's disabled
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isHost) Color(0xFFFA8989) else Color.LightGray
+                ),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(16.dp)
             ) {
-                Text(text = "Save", color = Color.Black)
+                Text(
+                    text = "Save",
+                    color = if (isHost) Color.Black else Color.DarkGray
+                )
             }
         }
     }

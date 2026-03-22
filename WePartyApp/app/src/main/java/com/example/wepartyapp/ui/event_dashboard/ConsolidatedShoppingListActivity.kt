@@ -7,8 +7,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,19 +33,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-//import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wepartyapp.ui.EventViewModel
 import com.example.wepartyapp.ui.PartyItem
-//import com.example.wepartyapp.ui.create_event.AddItemsScreenUI
-//import com.example.wepartyapp.ui.create_event.CreateEventRoutes
-//import com.example.wepartyapp.ui.create_event.CreateEventScreenUI
-//import com.example.wepartyapp.ui.create_event.InviteFriendsScreenUI
-//import com.example.wepartyapp.ui.home.MainScreen
+import com.google.firebase.auth.FirebaseAuth
 import java.time.LocalDate
-//import kotlin.getValue
 
 class ConsolidatedShoppingListActivity : ComponentActivity() {
     private val eventViewModel: EventViewModel by viewModels()
@@ -63,8 +60,20 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
     val events by viewModel.events.observeAsState(emptyList())
     val today = LocalDate.now()
 
+    // --- 1. Grab current user for security filtering ---
+    val auth = FirebaseAuth.getInstance()
+    val currentUserId = auth.currentUser?.uid
+
+    // --- 2. Filter for Date and Participation ---
     val sortedEvents = events
-        .filter { it.date == null || it.date >= today }
+        .filter { event ->
+            val isUpcoming = event.date == null || event.date >= today
+
+            val amIParticipating = currentUserId != null &&
+                    (event.hostId == currentUserId || event.invitedGuests.contains(currentUserId))
+
+            isUpcoming && amIParticipating
+        }
         .sortedBy { it.date }
 
     Box(
@@ -101,13 +110,35 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
                 )
             }
             Spacer(modifier = Modifier.height(20.dp))
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                items(sortedEvents) { event ->
-                    EventDetails(eventID = event.id, eventName = event.name, eventItemsList = event.eventItems)
-                    Spacer(modifier = Modifier.height(20.dp))
+
+            // --- The "Ghost Town" Fix ---
+            if (sortedEvents.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "You don't have any upcoming parties yet!",
+                        fontSize = 16.sp,
+                        color = Color.Gray
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    items(sortedEvents) { event ->
+                        EventDetails(eventID = event.id, eventName = event.name, eventItemsList = event.eventItems)
+                        Spacer(modifier = Modifier.height(20.dp))
+                    }
+
+                    // --- The "Hidden Bottom" Fix ---
+                    item {
+                        Spacer(modifier = Modifier.height(80.dp))
+                    }
                 }
             }
         }
@@ -121,39 +152,65 @@ fun EventDetails(eventID: String, eventName: String, eventItemsList: List<PartyI
         modifier = Modifier
             .fillMaxWidth()
             .border(1.dp, Color.Gray, RoundedCornerShape(5.dp))
+            .background(Color.White) // Added a white background to make the cards pop against the pink
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Text(
-                text = eventName,
-                fontSize = 20.sp,
-                textDecoration = TextDecoration.Underline
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            Column() {
-                for (item in eventItemsList) {
-                    Text(
-                        text = item.name,
-                        fontSize = 18.sp
-                    )
+            // --- The "Text Collision" Fix ---
+            // Changed from a raw text element to a Row so the Event Name never overlaps the Button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    text = eventName,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.weight(1f).padding(end = 8.dp)
+                )
+
+                Button(
+                    onClick = {
+                        val intent = Intent(context, EditItemActivity::class.java)
+                        intent.putExtra("Event_ID", eventID)    //passing event id to be able to find the specific event in edit item screen
+                        context.startActivity(intent)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
+                    modifier = Modifier.height(36.dp) // Keeps the button from getting too tall
+                ) {
+                    Text(text = "Edit", color = Color.Black)
                 }
             }
-        }
-        Button(
-            onClick = {
-                val intent = Intent(context, EditItemActivity::class.java)
-                intent.putExtra("Event_ID", eventID)    //passing event id to be able to find the specific event in edit item screen
-                context.startActivity(intent)
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(16.dp)
-        ) {
-            Text(text = "edit", color = Color.Black)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Items List
+            Column {
+                if (eventItemsList.isEmpty()) {
+                    Text(text = "No items added yet.", fontSize = 16.sp, color = Color.Gray)
+                } else {
+                    for (item in eventItemsList) {
+                        // --- The "Messy Text" Continuity Fix ---
+                        val displayName = item.name.replaceFirstChar {
+                            if (it.isLowerCase()) it.titlecase() else it.toString()
+                        }
+
+                        Row(modifier = Modifier.padding(bottom = 6.dp)) {
+                            Text(text = "• ", fontSize = 18.sp, color = Color(0xFFBF6363))
+                            Text(
+                                text = displayName,
+                                fontSize = 18.sp,
+                                color = Color.DarkGray
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }

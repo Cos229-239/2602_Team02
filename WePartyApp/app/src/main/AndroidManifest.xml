@@ -86,6 +86,8 @@
         <activity
             android:name=".ui.event_dashboard.ChatRoomActivity"
             android:exported="false" />
+        <activity android:name=".ui.create_event.InviteFriendsActivity"
+            android:exported="false"/>
 
         <service
             android:name=".service.MyFirebaseMessagingService"

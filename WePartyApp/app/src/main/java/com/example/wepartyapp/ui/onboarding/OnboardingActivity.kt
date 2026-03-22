@@ -1,5 +1,6 @@
 package com.example.wepartyapp.ui.onboarding
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -46,6 +47,10 @@ class OnboardingActivity : ComponentActivity() {
         setContent {
             OnboardingScreenUI(
                 onFinish = {
+                    // Save a permanent flag to the phone so we know they completed the tutorial
+                    val prefs = getSharedPreferences("WePartyPrefs", Context.MODE_PRIVATE)
+                    prefs.edit().putBoolean("HAS_SEEN_ONBOARDING", true).apply()
+
                     // Navigate directly to the Main Dashboard
                     val intent = Intent(this@OnboardingActivity, MainActivity::class.java)
                     // Clear the back stack so they can't go back to onboarding

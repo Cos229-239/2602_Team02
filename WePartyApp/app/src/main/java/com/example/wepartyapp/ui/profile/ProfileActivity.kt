@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -382,6 +381,12 @@ fun ProfileSettingsScreenUI(onBack: () -> Unit) {
         // Save Button
         Button(
             onClick = {
+                // --- The "Nameless Ghost" Fix ---
+                if (nickname.trim().isEmpty()) {
+                    Toast.makeText(context, "Nickname cannot be empty!", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+
                 if (isUploading) return@Button
                 isUploading = true
 
@@ -487,6 +492,17 @@ fun FriendsListScreenUI(
             },
             placeholder = { Text("Search by Email, Phone, or UserID...") },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+            // --- The "Stuck Search" Fix ---
+            trailingIcon = {
+                if (isSearching) {
+                    IconButton(onClick = {
+                        searchQuery = ""
+                        isSearching = false
+                    }) {
+                        Icon(Icons.Default.Close, contentDescription = "Clear Search")
+                    }
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -498,38 +514,41 @@ fun FriendsListScreenUI(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- Display Area ---
-        if (isSearching) {
-            Text("Search Results", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
-
-            if (searchResults.isEmpty() && searchQuery.isNotBlank()) {
-                Text("No users found.", color = Color.Gray)
-            } else {
-                LazyColumn {
-                    items(items = searchResults, key = { it.uid }) { user ->
-                        val isAlreadyFriend = friendsList.any { it.uid == user.uid }
-
-                        FriendRow(
-                            friend = user,
-                            actionIcon = if (isAlreadyFriend) null else Icons.Default.Add,
-                            onActionClick = {
-                                if (!isAlreadyFriend) {
-                                    viewModel.sendFriendRequest(user.uid)
-                                    Toast.makeText(context, "Request Sent!", Toast.LENGTH_SHORT).show()
-                                    searchQuery = ""
-                                    isSearching = false
-                                }
-                            }
-                        )
+        // --- The "Nested Scrolling" Fix ---
+        LazyColumn(
+            modifier = Modifier.weight(1f)
+        ) {
+            if (isSearching) {
+                item {
+                    Text("Search Results", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+                    if (searchResults.isEmpty() && searchQuery.isNotBlank()) {
+                        Text("No users found.", color = Color.Gray, modifier = Modifier.padding(bottom = 16.dp))
                     }
                 }
-            }
-        } else {
-            // --- 1. Pending Requests Section ---
-            if (friendRequests.isNotEmpty()) {
-                Text("Friend Requests (${friendRequests.size})", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
-                LazyColumn {
-                    items(items = friendRequests, key = { it.uid }) { requester ->
+
+                items(items = searchResults, key = { "search_${it.uid}" }) { user ->
+                    val isAlreadyFriend = friendsList.any { it.uid == user.uid }
+
+                    FriendRow(
+                        friend = user,
+                        actionIcon = if (isAlreadyFriend) null else Icons.Default.Add,
+                        onActionClick = {
+                            if (!isAlreadyFriend) {
+                                viewModel.sendFriendRequest(user.uid)
+                                Toast.makeText(context, "Request Sent!", Toast.LENGTH_SHORT).show()
+                                searchQuery = ""
+                                isSearching = false
+                            }
+                        }
+                    )
+                }
+            } else {
+                // --- 1. Pending Requests Section ---
+                if (friendRequests.isNotEmpty()) {
+                    item {
+                        Text("Friend Requests (${friendRequests.size})", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+                    }
+                    items(items = friendRequests, key = { "req_${it.uid}" }) { requester ->
                         Card(
                             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                             colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -566,20 +585,20 @@ fun FriendsListScreenUI(
                             }
                         }
                     }
+                    item { Spacer(modifier = Modifier.height(16.dp)) }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-            }
 
-            // --- 2. Suggested Friends Section ---
-            if (suggestedFriends.isNotEmpty()) {
-                Text(
-                    text = "Suggested Friends",
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
+                // --- 2. Suggested Friends Section ---
+                if (suggestedFriends.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = "Suggested Friends",
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
 
-                LazyColumn {
-                    items(items = suggestedFriends, key = { it.uid }) { suggested ->
+                    items(items = suggestedFriends, key = { "sugg_${it.uid}" }) { suggested ->
                         FriendRow(
                             friend = suggested,
                             actionIcon = Icons.Default.Add,
@@ -589,24 +608,24 @@ fun FriendsListScreenUI(
                             }
                         )
                     }
+                    item { Spacer(modifier = Modifier.height(16.dp)) }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-            }
 
-            // --- 3. My Friends Section ---
-            Text("My Friends (${friendsList.size})", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+                // --- 3. My Friends Section ---
+                item {
+                    Text("My Friends (${friendsList.size})", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
 
-            if (friendsList.isEmpty()) {
-                Text("You haven't added any friends yet. Use the search bar above to find them by email, phone, or UserID!", color = Color.Gray)
-            } else {
-                LazyColumn {
-                    items(items = friendsList, key = { it.uid }) { friend ->
-                        FriendRow(
-                            friend = friend,
-                            actionIcon = Icons.Default.Delete,
-                            onActionClick = { viewModel.removeFriend(friend.uid) }
-                        )
+                    if (friendsList.isEmpty()) {
+                        Text("You haven't added any friends yet. Use the search bar above to find them by email, phone, or UserID!", color = Color.Gray)
                     }
+                }
+
+                items(items = friendsList, key = { "friend_${it.uid}" }) { friend ->
+                    FriendRow(
+                        friend = friend,
+                        actionIcon = Icons.Default.Delete,
+                        onActionClick = { viewModel.removeFriend(friend.uid) }
+                    )
                 }
             }
         }
