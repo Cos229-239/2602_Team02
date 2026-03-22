@@ -500,9 +500,10 @@ class EventViewModel : ViewModel() {
     // Sends a new message and updates the event's "last message" snippet
     fun sendMessage(eventId: String, text: String) {
         val user = auth.currentUser ?: return
+        val currentUserName = user.displayName ?: "User"
         val messageData = hashMapOf(
             "senderId" to user.uid,
-            "senderName" to (user.displayName ?: "User"),
+            "senderName" to currentUserName,
             "text" to text,
             "timestamp" to System.currentTimeMillis()
         )
@@ -510,14 +511,31 @@ class EventViewModel : ViewModel() {
         db.collection("events").document(eventId).collection("messages").add(messageData)
             .addOnSuccessListener {
                 // Sync the last message back to the event document for the inbox preview
-                db.collection("events").document(eventId).update(
-                    mapOf(
-                        "lastMessage" to text,
-                        "lastMessageTime" to messageData["timestamp"],
-                        "lastSenderId" to user.uid,
-                        "readByUsers.${user.uid}" to messageData["timestamp"] // Mark as read for sender
+                db.collection("events").document(eventId).get().addOnSuccessListener { doc ->
+                    val eventName = doc.getString("name") ?: "a party"
+                    val hostId = doc.getString("hostId") ?: ""
+                    val guests = doc.get("invitedGuests") as? List<String> ?: emptyList()
+                    
+                    // Notify everyone except the sender
+                    val recipients = (guests + hostId).distinct().filter { it != user.uid }
+                    
+                    if (recipients.isNotEmpty()) {
+                        sendAppNotification(
+                            title = "New Message in $eventName",
+                            message = "$currentUserName: $text",
+                            allowedUsers = recipients
+                        )
+                    }
+
+                    db.collection("events").document(eventId).update(
+                        mapOf(
+                            "lastMessage" to text,
+                            "lastMessageTime" to messageData["timestamp"],
+                            "lastSenderId" to user.uid,
+                            "readByUsers.${user.uid}" to messageData["timestamp"] // Mark as read for sender
+                        )
                     )
-                )
+                }
             }
     }
 
@@ -655,11 +673,14 @@ class EventViewModel : ViewModel() {
     // Toggles the acquisition status of a party item (checks/unchecks)
     fun toggleItemCheck(eventId: String, item: PartyItem) {
         val user = auth.currentUser ?: return
-        val updatedItems = events.value?.find { it.id == eventId }?.eventItems?.map {
+        val currentUserName = user.displayName ?: "Someone"
+        val event = events.value?.find { it.id == eventId } ?: return
+        
+        val updatedItems = event.eventItems.map {
             if (it.name == item.name) {
                 // Claim the item if no one has it yet
                 if (it.boughtBy == null) {
-                    it.copy(boughtBy = user.uid, boughtByName = user.displayName ?: "User")
+                    it.copy(boughtBy = user.uid, boughtByName = currentUserName)
                 } 
                 // Unclaim only if the current user is the one who bought it
                 else if (it.boughtBy == user.uid) {
@@ -671,7 +692,7 @@ class EventViewModel : ViewModel() {
             } else {
                 it
             }
-        } ?: return
+        }
 
         // Push the updated item array back to Firestore
         val mappedItems = updatedItems.map {
@@ -682,7 +703,21 @@ class EventViewModel : ViewModel() {
                 "boughtByName" to it.boughtByName
             )
         }
-        db.collection("events").document(eventId).update("items", mappedItems)
+        db.collection("events").document(eventId).update("items", mappedItems).addOnSuccessListener {
+            // --- Notification logic for claimed items ---
+            val isNewlyClaimed = updatedItems.find { it.name == item.name }?.boughtBy == user.uid
+            
+            if (isNewlyClaimed) {
+                val recipients = (event.invitedGuests + event.hostId).distinct().filter { it != user.uid }
+                if (recipients.isNotEmpty()) {
+                    sendAppNotification(
+                        title = "Item Claimed!",
+                        message = "$currentUserName picked up ${item.name} for ${event.name}!",
+                        allowedUsers = recipients
+                    )
+                }
+            }
+        }
     }
 
     // --- Checklist Functions for Existing Events ---
