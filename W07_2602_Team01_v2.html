@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.1.47 | Purpose: V2 meeting snapshot dashboard template -->
+<!-- Filename: meeting-snapshot-dashboard-v2.html | Version: v1.1.48 | Purpose: V2 meeting snapshot dashboard template -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meeting Snapshot — Dashboard V2</title>
@@ -166,14 +166,14 @@
     .member-row .allstar-group { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.14rem; min-height: 0.9rem; max-width: 100%; }
     .member-row .avatar-star { cursor: default; font-size: 0.54rem; color: #f0c14b; line-height: 1; background: rgba(15,20,25,0.92); border: 1px solid rgba(240,193,75,0.7); border-radius: 999px; padding: 0.12rem 0.17rem; }
     .member-row .avatar-star.badge-code { color: #58a6ff; border-color: rgba(88,166,255,0.7); background: rgba(16,30,46,0.92); }
-    .member-row .avatar-star.badge-trello { color: #4fd1c5; border-color: rgba(79,209,197,0.72); background: rgba(10,34,38,0.92); }
+    .member-row .avatar-star.badge-trello { color: #fb923c; border-color: rgba(251,146,60,0.74); background: rgba(52,28,10,0.92); }
     .member-row .avatar-star.badge-standups { color: #a78bfa; border-color: rgba(167,139,250,0.72); background: rgba(28,22,46,0.92); }
-    .member-row .avatar-star.badge-sync { color: #7dd3fc; border-color: rgba(125,211,252,0.72); background: rgba(10,31,44,0.92); }
-    .member-row .avatar-star.badge-build-ready { color: #f472b6; border-color: rgba(244,114,182,0.72); background: rgba(46,18,36,0.92); }
-    .member-row .avatar-star.badge-zero-miss { color: #c4b5fd; border-color: rgba(196,181,253,0.72); background: rgba(30,24,44,0.92); }
-    .member-row .avatar-star.badge-current { color: #38bdf8; border-color: rgba(56,189,248,0.72); background: rgba(9,30,43,0.92); }
-    .member-row .avatar-star.badge-consistent { color: #22d3ee; border-color: rgba(34,211,238,0.72); background: rgba(8,35,43,0.92); }
-    .member-row .avatar-star.badge-standup-streak { color: #f9a8d4; border-color: rgba(249,168,212,0.78); background: rgba(47,22,37,0.92); }
+    .member-row .avatar-star.badge-sync { color: #f472b6; border-color: rgba(244,114,182,0.72); background: rgba(46,18,36,0.92); }
+    .member-row .avatar-star.badge-build-ready { color: #c084fc; border-color: rgba(192,132,252,0.72); background: rgba(40,19,50,0.92); }
+    .member-row .avatar-star.badge-zero-miss { color: #f9a8d4; border-color: rgba(249,168,212,0.74); background: rgba(47,22,37,0.92); }
+    .member-row .avatar-star.badge-current { color: #60a5fa; border-color: rgba(96,165,250,0.72); background: rgba(14,28,47,0.92); }
+    .member-row .avatar-star.badge-consistent { color: #fdba74; border-color: rgba(253,186,116,0.74); background: rgba(54,33,12,0.92); }
+    .member-row .avatar-star.badge-standup-streak { color: #fde047; border-color: rgba(253,224,71,0.78); background: rgba(54,45,9,0.92); }
     .has-tip { position: relative; z-index: 40; cursor: default; }
     .has-tip:hover::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); background: rgba(15,20,25,0.98); color: var(--text); border: 1px solid var(--surface2); border-radius: 6px; padding: 0.45rem 0.6rem; font-size: 0.72rem; white-space: pre-line; min-width: 11rem; max-width: 16rem; z-index: 9999; box-shadow: 0 10px 24px rgba(0,0,0,0.28); pointer-events: none; text-align: left; }
     .has-tip:hover::before { content: ''; position: absolute; left: 50%; bottom: calc(100% + 2px); transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--surface2); z-index: 9998; pointer-events: none; }
@@ -1084,7 +1084,7 @@
     </div>
     </section>
 
-    <div class="page-version" id="page-version">v1.1.47 · Dashboard V2</div>
+    <div class="page-version" id="page-version">v1.1.48 · Dashboard V2</div>
   </div>
   </main>
   </div>
@@ -1137,7 +1137,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-21-2026 - 21:34", "period": "2026-03-16 to 2026-03-22", "cycle": "2602", "week": 7, "team": "2602_Team01", "sourceUrl": "W07_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "1d ago", "contribution": "+299/-95", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 2, "additions": 299, "deletions": 95, "net": 204}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 2}, "actionBreakdown": {"Daniel W.": {"Create card": 1, "Move card": 1}}, "status": "HEALTHY"}, "discord": [], "alerts": [{"type": "warn", "text": "Daniel W. has not posted standups this week. Post daily standups in the team standup channel."}]};
+    const data = {"report": {"generated": "03-21-2026 - 21:40", "period": "2026-03-16 to 2026-03-22", "cycle": "2602", "week": 7, "team": "2602_Team01", "sourceUrl": "W07_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "1d ago", "contribution": "+299/-95", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 2, "additions": 299, "deletions": 95, "net": 204}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 2}, "actionBreakdown": {"Daniel W.": {"Create card": 1, "Move card": 1}}, "status": "HEALTHY"}, "discord": [], "alerts": [{"type": "warn", "text": "Daniel W. has not posted standups this week. Post daily standups in the team standup channel."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     (function setupHeaderLinks() {
