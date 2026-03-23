@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -92,14 +93,14 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                //Page icon
+                //Page Icon
                 Icon(
                     imageVector = Icons.Default.ShoppingCart,
                     contentDescription = null,
                     Modifier.size(80.dp),
                     tint = Color(0xFFBF6363)
                 )
-                //Page title
+                //Page Title
                 Text(
                     text = "Consolidated",
                     fontSize = 45.sp
@@ -109,7 +110,7 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
                     fontSize = 45.sp
                 )
             }
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(25.dp))
 
             // --- The "Ghost Town" Fix ---
             if (sortedEvents.isEmpty()) {
@@ -148,11 +149,13 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
 @Composable
 fun EventDetails(eventID: String, eventName: String, eventItemsList: List<PartyItem>) {
     val context = LocalContext.current
+    //Changed the event box background and border to make the box popping more subtle - the white seemed too intense for the colors we currently have
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, Color.Gray, RoundedCornerShape(5.dp))
-            .background(Color.White) // Added a white background to make the cards pop against the pink
+            .border(1.dp, Color(0xFFBF6363), RoundedCornerShape(5.dp))
+            .shadow(elevation = 5.dp, shape = RoundedCornerShape(5.dp))
+            .background(color = Color(0xFFFFD4D6)) // Added a white background to make the cards pop against the pink^
     ) {
         Column(
             modifier = Modifier
@@ -187,7 +190,7 @@ fun EventDetails(eventID: String, eventName: String, eventItemsList: List<PartyI
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             // Items List
             Column {
@@ -205,7 +208,7 @@ fun EventDetails(eventID: String, eventName: String, eventItemsList: List<PartyI
                             Text(
                                 text = displayName,
                                 fontSize = 18.sp,
-                                color = Color.DarkGray
+                                color = Color.Black
                             )
                         }
                     }

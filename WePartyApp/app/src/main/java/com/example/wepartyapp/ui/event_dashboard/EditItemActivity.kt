@@ -257,6 +257,8 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
                     }
                 }
 
+                Spacer(modifier = Modifier.height(5.dp))
+
                 LaunchedEffect(priceResult.value) {
                     when (val result = priceResult.value) {
                         is NetworkResponse.Success -> {
@@ -293,7 +295,7 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
                             val displayName = partyItem.name.replaceFirstChar {
                                 if (it.isLowerCase()) it.titlecase() else it.toString()
                             }
-                            Text(text = displayName, modifier = Modifier.weight(1f))
+                            Text(text = displayName, modifier = Modifier.weight(1f), fontSize = 15.sp)
 
                             // Style the loading/error text nicely
                             Text(

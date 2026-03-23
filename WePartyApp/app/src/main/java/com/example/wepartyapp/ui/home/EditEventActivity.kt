@@ -185,7 +185,7 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
                     }
                     Text(
                         text = "Home",
-                        fontSize = 15.sp
+                        fontSize = 20.sp
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
