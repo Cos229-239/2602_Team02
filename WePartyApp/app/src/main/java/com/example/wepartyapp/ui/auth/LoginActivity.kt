@@ -20,9 +20,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions // <-- Added
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator // <-- Added for loading spinner
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -44,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction // <-- Added
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat // <-- Added
@@ -150,6 +156,7 @@ fun LoginScreenUI(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     val focusManager = LocalFocusManager.current // <-- Controls moving between fields
 
@@ -208,7 +215,7 @@ fun LoginScreenUI(
             value = password,
             onValueChange = { password = it },
             placeholder = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             // Set keyboard to show "Done" instead of enter
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
@@ -221,6 +228,14 @@ fun LoginScreenUI(
                     if (!isLoading) onLoginClick(email, password) // Only click if not already loading
                 }
             ),
+            trailingIcon = { // <-- Added: The eye icon to toggle visibility
+                val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                val description = if (passwordVisible) "Hide password" else "Show password"
+
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = image, contentDescription = description, tint = Color.Gray)
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),
@@ -255,7 +270,7 @@ fun LoginScreenUI(
             )
         }
 
-        // --- Updated: Button with Loading State ---
+        // --- Button with Loading State ---
         Button(
             onClick = { onLoginClick(email, password) },
             modifier = Modifier

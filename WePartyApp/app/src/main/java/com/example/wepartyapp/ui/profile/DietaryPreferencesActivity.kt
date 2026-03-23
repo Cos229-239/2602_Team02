@@ -81,16 +81,7 @@ fun DietaryPreferencesScreenUI(onBack: () -> Unit) {
             }
         }
 
-        // TOP: Logo
-        Image(
-            painter = painterResource(id = R.drawable.app_logo),
-            contentDescription = "Logo",
-            modifier = Modifier
-                .size(100.dp)
-                .padding(top = 8.dp)
-        )
-
-        // MIDDLE: Content & Toggles
+        // Content & Toggles
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -186,7 +177,7 @@ fun DietaryPreferencesScreenUI(onBack: () -> Unit) {
             }
         }
 
-        // BOTTOM: Navigation & Save
+        // Navigation & Save
         Button(
             onClick = {
                 // 3. Write the current toggle states to SharedPreferences

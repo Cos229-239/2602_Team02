@@ -199,7 +199,7 @@ fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab p
                     onEditProfileClick = { selectedTab = 7 },
                     onFriendsListClick = { selectedTab = 9 }
                 )
-                7 -> com.example.wepartyapp.ui.profile.ProfileSettingsScreenUI( onBack = { selectedTab = 6 } )
+                7 -> com.example.wepartyapp.ui.profile.ProfileSettingsScreenUI( viewModel = eventViewModel, onBack = { selectedTab = 6 } )
                 8 -> NotificationsScreenUI(
                     viewModel = eventViewModel,
                     onBack = { selectedTab = 0 },
