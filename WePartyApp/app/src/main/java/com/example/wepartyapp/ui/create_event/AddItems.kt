@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -57,7 +58,8 @@ import com.example.wepartyapp.ui.PartyItem
 @Composable
 fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel, viewItemModel: EventViewModel) {
 
-    var item by remember {                                                  //start with an empty string
+    //mutable var that'll store user input - starts off empty
+    var item by remember {
         mutableStateOf("")
     }
 
@@ -96,7 +98,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
             }
         }
     ) { innerpadding ->
-        Box(                                                                    //outer most layer
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFFFE9EA))
@@ -113,7 +115,8 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { navController.popBackStack() }) {           //back to events btn
+                    //Back to events page btn
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null,
@@ -131,21 +134,24 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(                                                           //pg icon
+                    //Page Icon
+                    Icon(
                         imageVector = Icons.Default.List,
                         contentDescription = null,
                         Modifier.size(70.dp),
                         tint = Color(0xFFBF6363)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text(                                                           //pg title
+                    //Page Title
+                    Text(
                         text = "Add Items",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 30.sp
                     )
                 }
                 Spacer(modifier = Modifier.height(20.dp))
-                Row(                                                               //add items section
+                // --Add items section--
+                Row(
                     modifier = Modifier
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -161,12 +167,27 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                     Spacer(modifier = Modifier.width(16.dp))
                     Button(
                         onClick = {
-                            if (item.isNotBlank()) {
-                                viewItemModel.addItems(PartyItem(name = item, price = "Loading..."))
-                                viewModel.getData(item)                              //trigger api before resetting item string
-                                item =
-                                    ""                                            //resetting item to an empty string
+                            // --- Instantly force the input to lowercase and trim spaces ---
+                            val trimmedItem = item.trim().lowercase()
+
+                            // --- Check for empty input ---
+                            if (trimmedItem.isBlank()) {
+                                Toast.makeText(context, "Please type an item name first.", Toast.LENGTH_SHORT).show()
+                                return@Button
                             }
+
+                            // --- Check for duplicates ---
+                            // ignoreCase = true prevents adding "Chips" if "chips" is already there
+                            val alreadyExists = _itemList.any { it.name.equals(trimmedItem, ignoreCase = true) }
+                            if (alreadyExists) {
+                                Toast.makeText(context, "That item is already on the list!", Toast.LENGTH_SHORT).show()
+                                return@Button
+                            }
+
+                            // If it passes the checks, add it
+                            viewItemModel.addItems(PartyItem(name = trimmedItem, price = "Loading..."))
+                            viewModel.getData(trimmedItem)
+                            item = ""
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
                     ) {
@@ -177,59 +198,67 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                 LaunchedEffect(priceResult.value) {
                     when (val result = priceResult.value) {
                         is NetworkResponse.Success -> {
-                            val exactPrice =
-                                result.data // The ViewModel now hands us the exact string directly
+                            // --- We now use the Pair from the ViewModel ---
+                            val itemName = result.data.first
+                            val exactPrice = result.data.second
 
-                            val ogList = viewItemModel._items.value
-                            val mutableCopy = ogList.toMutableList()
-                            val index = mutableCopy.indexOfLast { it.price == "Loading..." }
-                            if (index != -1) {
-                                viewItemModel.updatePrice(mutableCopy[index].name, exactPrice)
-                            }
+                            viewItemModel.updatePrice(itemName, exactPrice)
                         }
 
                         is NetworkResponse.Error -> {
-                            val ogList = viewItemModel._items.value
-                            val mutableCopy = ogList.toMutableList()
-                            val index = mutableCopy.indexOfLast { it.price == "Loading..." }
-                            if (index != -1) {
-                                viewItemModel.updatePrice(mutableCopy[index].name, "Unavailable")
-                                Toast.makeText(
-                                    context,
-                                    "Could not fetch price for item.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                            // --- Safely display an error toast instead of corrupting the list ---
+                            Toast.makeText(context, "Could not fetch price.", Toast.LENGTH_SHORT).show()
                         }
 
                         else -> {}
                     }
                 }
-                val _itemList by viewItemModel._items.collectAsState()
+
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .weight(1f)
                 ) {
-                    items(_itemList) {
+                    items(_itemList, key = { it.name }) { currentItem ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                                .padding(vertical = 8.dp, horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = it.name)
-
-                            // Styled price text based on its status
-                            Text(
-                                text = it.price,
-                                color = when (it.price) {
-                                    "Unavailable" -> Color.Red
-                                    "Loading..." -> Color.Gray
-                                    else -> Color.Black
+                            // Item Details Column
+                            Column(modifier = Modifier.weight(1f)) {
+                                // Capitalize just the first letter for UI presentation
+                                val displayName = currentItem.name.replaceFirstChar {
+                                    if (it.isLowerCase()) it.titlecase() else it.toString()
                                 }
-                            )
+                                Text(text = displayName, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+
+                                // Styled price text based on its status
+                                Text(
+                                    text = currentItem.price,
+                                    fontSize = 14.sp,
+                                    color = when (currentItem.price) {
+                                        "Unavailable", "Not Found" -> Color.Red
+                                        "Loading..." -> Color.Gray
+                                        else -> Color(0xFFBF6363)
+                                    }
+                                )
+                            }
+
+                            // --- Delete Button ---
+                            IconButton(onClick = {
+                                viewItemModel.removeItem(currentItem)
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Remove Item",
+                                    tint = Color.Gray
+                                )
+                            }
                         }
-                        Divider()
+                        Divider(color = Color.LightGray, thickness = 0.5.dp)
                     }
                 }
             }

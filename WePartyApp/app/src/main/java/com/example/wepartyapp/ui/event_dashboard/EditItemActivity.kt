@@ -3,6 +3,7 @@ package com.example.wepartyapp.ui.event_dashboard
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -18,7 +19,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -49,7 +49,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-//import androidx.navigation.NavController
 import com.example.wepartyapp.ui.EventViewModel
 import com.example.wepartyapp.ui.ItemPriceViewModel
 import com.example.wepartyapp.ui.api.NetworkResponse
@@ -62,13 +61,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wepartyapp.ui.PartyItem
-//import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.home.MainActivity
-import com.google.firebase.auth.FirebaseAuth // <-- Added Firebase Auth Import
+import com.google.firebase.auth.FirebaseAuth
 import java.time.LocalDate
-//import kotlin.getValue
+
 
 class EditItemActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,11 +102,13 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
     val events by viewItemModel.events.observeAsState(emptyList())
     val today = LocalDate.now()
 
+    val _itemList by viewItemModel._items.collectAsState()
+
     val sortedEvents = events
         .filter { it.date == null || it.date >= today }
         .sortedBy { it.date }
 
-    // --- NEW: Host verification logic ---
+    // --- Host verification logic ---
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
     val currentEvent = events.find { it.id == eventID }
     val isHost = currentEvent?.hostId == currentUserId
@@ -230,11 +230,26 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
                     Spacer(modifier = Modifier.width(16.dp))
                     Button(
                         onClick = {
-                            if (item.isNotBlank()) {
-                                viewItemModel.addItems(PartyItem(name = item, price = "Loading..."))
-                                viewPriceModel.getData(item)
-                                item = ""
+                            // --- Instantly force the input to lowercase and trim spaces ---
+                            val trimmedItem = item.trim().lowercase()
+
+                            // --- Check for empty input ---
+                            if (trimmedItem.isBlank()) {
+                                Toast.makeText(context, "Please type an item name first.", Toast.LENGTH_SHORT).show()
+                                return@Button
                             }
+
+                            // --- Check for duplicates ---
+                            val alreadyExists = _itemList.any { it.name.equals(trimmedItem, ignoreCase = true) }
+                            if (alreadyExists) {
+                                Toast.makeText(context, "That item is already on the list!", Toast.LENGTH_SHORT).show()
+                                return@Button
+                            }
+
+                            // If it passes validation, add it
+                            viewItemModel.addItems(PartyItem(name = trimmedItem, price = "Loading..."))
+                            viewPriceModel.getData(trimmedItem)
+                            item = ""
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
                     ) {
@@ -245,32 +260,26 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
                 LaunchedEffect(priceResult.value) {
                     when (val result = priceResult.value) {
                         is NetworkResponse.Success -> {
-                            val exactPrice = result.data?.toString() ?: "Not Found"
+                            // --- We now use the Pair from the ViewModel ---
+                            val itemName = result.data.first
+                            val exactPrice = result.data.second
 
-                            val ogList = viewItemModel._items.value
-                            val mutableCopy = ogList.toMutableList()
-                            val index = mutableCopy.indexOfLast { it.price == "Loading..." }
-                            if (index != -1) {
-                                viewItemModel.updatePrice(mutableCopy[index].name, exactPrice)
-                            }
+                            viewItemModel.updatePrice(itemName, exactPrice)
                         }
 
                         is NetworkResponse.Error -> {
-                            val ogList = viewItemModel._items.value
-                            val mutableCopy = ogList.toMutableList()
-                            val index = mutableCopy.indexOfLast { it.price == "Loading..." }
-                            if (index != -1) {
-                                viewItemModel.updatePrice(mutableCopy[index].name, "Not Found")
-                            }
+                            // --- Safely display an error toast instead of corrupting the list ---
+                            Toast.makeText(context, "Could not fetch price.", Toast.LENGTH_SHORT).show()
                         }
 
                         else -> {}
                     }
                 }
-                val _itemList by viewItemModel._items.collectAsState()
+
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .weight(1f)
                 ) {
                     items(_itemList) { partyItem ->
                         Row(
@@ -280,10 +289,23 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = partyItem.name, modifier = Modifier.weight(1f))
-                            Text(text = partyItem.price)
+                            // Capitalize just the first letter for UI presentation
+                            val displayName = partyItem.name.replaceFirstChar {
+                                if (it.isLowerCase()) it.titlecase() else it.toString()
+                            }
+                            Text(text = displayName, modifier = Modifier.weight(1f))
 
-                            // --- NEW: Only show the delete button if they are the host! ---
+                            // Style the loading/error text nicely
+                            Text(
+                                text = partyItem.price,
+                                color = when (partyItem.price) {
+                                    "Not Found", "Unavailable" -> Color.Red
+                                    "Loading..." -> Color.Gray
+                                    else -> Color.Black
+                                }
+                            )
+
+                            // --- Only show the delete button if they are the host ---
                             if (isHost) {
                                 Spacer(modifier = Modifier.width(16.dp))
                                 IconButton(

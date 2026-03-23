@@ -5,13 +5,13 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels // <-- Added to easily grab the ViewModel
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState // <-- Added for scrolling
-import androidx.compose.foundation.verticalScroll // <-- Added for scrolling
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -19,10 +19,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState // <-- Added for LiveData
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -31,7 +30,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.wepartyapp.R
-import com.example.wepartyapp.ui.EventViewModel // <-- Import your ViewModel
+import com.example.wepartyapp.ui.EventViewModel
+import com.example.wepartyapp.ui.event_dashboard.ChatRoomActivity
+import com.google.firebase.auth.FirebaseAuth
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -52,17 +53,26 @@ class CalendarActivity : ComponentActivity() {
 @Composable
 fun CalendarScreenUI(viewModel: EventViewModel) {
     val context = LocalContext.current
-    val scrollState = rememberScrollState() // <-- Added to track scroll position
+    val scrollState = rememberScrollState()
 
-    // 1. Observe the LIST of events from Firebase
+    // 1. Observe the list of events from Firebase
     val events by viewModel.events.observeAsState(emptyList())
+
+    // --- Grab the current user's ID ---
+    val auth = FirebaseAuth.getInstance()
+    val currentUserId = auth.currentUser?.uid
 
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
 
-    // 2. Check if the currently selected date matches ANY event in our list
-    // --- Upgrade: Filter for ALL events on the selected day ---
-    val dailyEvents = events.filter { it.date == selectedDate }
+    // --- 2. Create a filtered list of only MY events (Am I host or guest) ---
+    val myEvents = events.filter { event ->
+        currentUserId != null &&
+                (event.hostId == currentUserId || event.invitedGuests.contains(currentUserId))
+    }
+
+    // --- Filter for all events on the selected day from the secure list ---
+    val dailyEvents = myEvents.filter { it.date == selectedDate }
 
     val monthTitleFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.US)
     val selectedDateFormatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.US)
@@ -71,19 +81,19 @@ fun CalendarScreenUI(viewModel: EventViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFFFE9EA))
-            .verticalScroll(scrollState) // <-- This makes the whole screen scrollable
+            .verticalScroll(scrollState)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top // Changed to Top so items don't float weirdly when scrolling
+        verticalArrangement = Arrangement.Top
     ) {
 
-        // 1. LOGO (Now Smaller)
+        // 1. LOGO
         Image(
             painter = painterResource(id = R.drawable.app_logo),
             contentDescription = "WeParty Logo",
             modifier = Modifier
                 .fillMaxWidth()
-                .height(140.dp), // <-- Reduced from 220.dp
+                .height(140.dp),
             contentScale = ContentScale.Fit
         )
 
@@ -135,13 +145,13 @@ fun CalendarScreenUI(viewModel: EventViewModel) {
 
                 HorizontalDivider(thickness = 1.dp, color = Color.LightGray, modifier = Modifier.padding(vertical = 12.dp))
 
-                // Grid: Pass a list of all event dates so the grid can highlight multiple days
-                val allEventDates = events.mapNotNull { it.date }
+                // --- Pass only the SECURELY filtered event dates to the grid ---
+                val allEventDates = myEvents.mapNotNull { it.date }
 
                 CalendarGrid(
                     currentMonth = currentMonth,
                     selectedDate = selectedDate,
-                    eventDates = allEventDates, // Pass the list!
+                    eventDates = allEventDates,
                     onDateSelected = { selectedDate = it }
                 )
             }
@@ -150,20 +160,34 @@ fun CalendarScreenUI(viewModel: EventViewModel) {
         Spacer(modifier = Modifier.height(24.dp))
 
         // 4. DAILY EVENTS SECTION
-        Text(
-            text = "Events on ${selectedDate.format(selectedDateFormatter)}",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
+        Column(
             modifier = Modifier
                 .align(Alignment.Start)
                 .padding(start = 4.dp, bottom = 12.dp)
-        )
+        ) {
+            Text(
+                text = "Events on ${selectedDate.format(selectedDateFormatter)}",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
 
-        // --- Upgrade: Show multiple cards OR an empty state ---
+            // ---  Only show the "Tap to Chat" hint if there's actually a party ---
+            if (dailyEvents.isNotEmpty()) {
+                Text(
+                    text = "Tap to Chat & See Details",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Black
+                )
+            }
+        }
+
+        // --- Show multiple cards or an empty state ---
         if (dailyEvents.isNotEmpty()) {
             dailyEvents.forEach { event ->
                 EventDetailsCard(
+                    eventId = event.id,
                     eventName = event.name,
                     eventTime = event.time,
                     eventAddress = event.address,
@@ -195,18 +219,33 @@ fun CalendarScreenUI(viewModel: EventViewModel) {
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp)) // Bottom padding so it doesn't hug the screen edge
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
-// --- New: A clean Card UI to hold the event info ---
+// ---  Clickable Card UI that routes to the Chat Message ---
 @Composable
-fun EventDetailsCard(eventName: String, eventTime: String, eventAddress: String, context: android.content.Context) {
+fun EventDetailsCard(
+    eventId: String,
+    eventName: String,
+    eventTime: String,
+    eventAddress: String,
+    context: android.content.Context
+) {
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                // --- Open the specific chat for this party ---
+                val intent = Intent(context, ChatRoomActivity::class.java).apply {
+                    putExtra("EVENT_ID", eventId)
+                    putExtra("EVENT_NAME", eventName)
+                }
+                context.startActivity(intent)
+            }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -229,6 +268,7 @@ fun EventDetailsCard(eventName: String, eventTime: String, eventAddress: String,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2979FF), // Google Blue
                     modifier = Modifier.clickable {
+                        // Launch Maps independently if they click the address text specifically
                         val gmmIntentUri = Uri.parse("geo:0,0?q=${Uri.encode(eventAddress)}")
                         val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
                         mapIntent.setPackage("com.google.android.apps.maps")
@@ -248,24 +288,21 @@ fun EventDetailsCard(eventName: String, eventTime: String, eventAddress: String,
 fun CalendarGrid(
     currentMonth: YearMonth,
     selectedDate: LocalDate,
-    eventDates: List<LocalDate>, // <-- Changed to accept a list of dates
+    eventDates: List<LocalDate>,
     onDateSelected: (LocalDate) -> Unit
 ) {
     val daysInMonth = currentMonth.lengthOfMonth()
     val firstDayOfWeek = currentMonth.atDay(1).dayOfWeek.value
     val emptyDaysBefore = if (firstDayOfWeek == 7) 0 else firstDayOfWeek
 
-    // We calculate all the days we need to show (including empty ones)
     val totalGridItems = emptyDaysBefore + daysInMonth
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        // We chunk the days into groups of 7 to create "Rows" manually
         for (i in 0 until totalGridItems step 7) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 for (j in 0 until 7) {
                     val index = i + j
                     if (index < emptyDaysBefore || index >= totalGridItems) {
-                        // Empty spacer for days before/after the month
                         Spacer(modifier = Modifier.weight(1f).aspectRatio(1f).padding(4.dp))
                     } else {
                         val dayNumber = index - emptyDaysBefore + 1
@@ -283,7 +320,7 @@ fun CalendarGrid(
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
-                                .weight(1f) // Takes equal width in the row
+                                .weight(1f)
                                 .aspectRatio(1f)
                                 .padding(4.dp)
                                 .background(color = backgroundColor, shape = CircleShape)
@@ -302,59 +339,3 @@ fun CalendarGrid(
         }
     }
 }
-
-//// Updated to be non-lazy for scrolling compatibility
-//@Composable
-//fun CalendarGrid(
-//    currentMonth: YearMonth,
-//    selectedDate: LocalDate,
-//    eventDate: LocalDate?, // <-- accepts nulls
-//    onDateSelected: (LocalDate) -> Unit
-//) {
-//    val daysInMonth = currentMonth.lengthOfMonth()
-//    val firstDayOfWeek = currentMonth.atDay(1).dayOfWeek.value
-//    val emptyDaysBefore = if (firstDayOfWeek == 7) 0 else firstDayOfWeek
-//    val totalGridItems = emptyDaysBefore + daysInMonth
-//
-//    Column(modifier = Modifier.fillMaxWidth()) {
-//        for (i in 0 until totalGridItems step 7) {
-//            Row(modifier = Modifier.fillMaxWidth()) {
-//                for (j in 0 until 7) {
-//                    val index = i + j
-//                    if (index < emptyDaysBefore || index >= totalGridItems) {
-//                        Spacer(modifier = Modifier.weight(1f).aspectRatio(1f).padding(4.dp))
-//                    } else {
-//                        val dayNumber = index - emptyDaysBefore + 1
-//                        val date = currentMonth.atDay(dayNumber)
-//                        val isSelected = date == selectedDate
-//                        val isEvent = eventDate != null && date == eventDate
-//
-//                        val backgroundColor = when {
-//                            isEvent -> Color(0xFF00C853)
-//                            isSelected -> Color(0xFF2979FF)
-//                            else -> Color.Transparent
-//                        }
-//                        val textColor = if (isSelected || isEvent) Color.White else Color.Black
-//
-//                        Box(
-//                            contentAlignment = Alignment.Center,
-//                            modifier = Modifier
-//                                .weight(1f)
-//                                .aspectRatio(1f)
-//                                .padding(4.dp)
-//                                .background(color = backgroundColor, shape = CircleShape)
-//                                .clickable { onDateSelected(date) }
-//                        ) {
-//                            Text(
-//                                text = dayNumber.toString(),
-//                                color = textColor,
-//                                fontSize = 16.sp,
-//                                fontWeight = if (isSelected || isEvent) FontWeight.Bold else FontWeight.Normal
-//                            )
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
