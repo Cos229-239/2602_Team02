@@ -20,9 +20,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -43,6 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
@@ -188,18 +194,18 @@ class SignUpActivity : ComponentActivity() {
 // SignUp Screen UI
 @Composable
 fun SignUpScreenUI(
-    isLoading: Boolean, // <-- Added
-    errorMessage: String?, // <-- Added
-    // --- Updated Signature to accept new fields ---
+    isLoading: Boolean,
+    errorMessage: String?,
     onSignUpClick: (String, String, String, String, String) -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
     // State variables holding what the user types
     var name by remember { mutableStateOf("") }
-    var appUserId by remember { mutableStateOf("") } // <-- New
-    var phone by remember { mutableStateOf("") }     // <-- New
+    var appUserId by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     val focusManager = LocalFocusManager.current
 
@@ -217,7 +223,7 @@ fun SignUpScreenUI(
             painter = painterResource(id = R.drawable.app_logo),
             contentDescription = "WeParty Logo",
             modifier = Modifier
-                .size(120.dp) // Slightly reduced size to fit new fields on smaller screens
+                .size(120.dp)
                 .padding(bottom = 16.dp)
         )
 
@@ -327,7 +333,7 @@ fun SignUpScreenUI(
             value = password,
             onValueChange = { password = it },
             placeholder = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Done
@@ -338,6 +344,14 @@ fun SignUpScreenUI(
                     if (!isLoading) onSignUpClick(name, appUserId, phone, email, password)
                 }
             ),
+            trailingIcon = {
+                val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                val description = if (passwordVisible) "Hide password" else "Show password"
+
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = image, contentDescription = description, tint = Color.Gray)
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),

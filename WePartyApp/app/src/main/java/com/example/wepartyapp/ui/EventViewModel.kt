@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.tasks.Tasks
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -852,6 +853,45 @@ class EventViewModel : ViewModel() {
             else -> {
                 val sdf = java.text.SimpleDateFormat("MMM. d, yyyy", java.util.Locale.getDefault())
                 sdf.format(java.util.Date(timestamp))
+            }
+        }
+    }
+
+    // --- Account Deletion Logic with Re-authentication ---
+    fun deleteUserAccount(password: String, onResult: (Boolean, String?) -> Unit) {
+        val user = auth.currentUser
+        val email = user?.email
+
+        if (user == null || email == null) {
+            onResult(false, "No user is currently logged in.")
+            return
+        }
+
+        val uid = user.uid
+
+        // 1. Re-authenticate the user first to prevent the "Recent Login Required" error
+        val credential = EmailAuthProvider.getCredential(email, password)
+        user.reauthenticate(credential).addOnCompleteListener { reauthTask ->
+            if (reauthTask.isSuccessful) {
+                // 2. Auth successful! Delete their profile document from Firestore
+                db.collection("users").document(uid).delete()
+                    .addOnSuccessListener {
+                        // 3. Once the database is clean, delete their actual Auth account
+                        user.delete()
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    onResult(true, null) // Success!
+                                } else {
+                                    onResult(false, task.exception?.localizedMessage)
+                                }
+                            }
+                    }
+                    .addOnFailureListener { e ->
+                        onResult(false, e.localizedMessage ?: "Failed to delete user data from database.")
+                    }
+            } else {
+                // Re-authentication failed
+                onResult(false, "Incorrect password. Please try again.")
             }
         }
     }
