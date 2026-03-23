@@ -25,6 +25,9 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,6 +38,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
@@ -42,6 +49,7 @@ import coil.compose.AsyncImage
 import com.example.wepartyapp.ui.auth.LoginActivity
 import com.example.wepartyapp.ui.EventViewModel
 import com.example.wepartyapp.ui.FriendProfile
+import com.example.wepartyapp.ui.onboarding.OnboardingActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
@@ -180,6 +188,18 @@ fun ProfileScreenUI(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // --- App Tutorial Row ---
+            ProfileMenuRow(
+                icon = Icons.Default.PlayArrow,
+                title = "App Tutorial",
+                subtitle = "Replay the introductory walkthrough",
+                onClick = {
+                    context.startActivity(Intent(context, OnboardingActivity::class.java))
+                }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             ProfileMenuRow(
                 icon = Icons.Default.Close,
                 title = "Log out",
@@ -192,7 +212,10 @@ fun ProfileScreenUI(
 
 // --- Profile Settings ---
 @Composable
-fun ProfileSettingsScreenUI(onBack: () -> Unit) {
+fun ProfileSettingsScreenUI(
+    viewModel: EventViewModel,
+    onBack: () -> Unit
+) {
     val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
     val currentUser = auth.currentUser
@@ -236,7 +259,7 @@ fun ProfileSettingsScreenUI(onBack: () -> Unit) {
         }
     }
 
-    // --- New: The Selection Dialog ---
+    // --- The Selection Dialog ---
     if (showImageSourceDialog) {
         AlertDialog(
             onDismissRequest = { showImageSourceDialog = false },
@@ -430,10 +453,127 @@ fun ProfileSettingsScreenUI(onBack: () -> Unit) {
                 Text("Save Changes", color = Color.White, fontWeight = FontWeight.Bold)
             }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // --- Account Deletion Section ---
+        DeleteAccountSection(viewModel = viewModel)
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
-// --- New: Friends List Screen ---
+// --- Dedicated Composable for Account Deletion ---
+@Composable
+fun DeleteAccountSection(viewModel: EventViewModel) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var isDeleting by remember { mutableStateOf(false) }
+    var password by remember { mutableStateOf("") } // <-- State for the password
+    var passwordVisible by remember { mutableStateOf(false) } // <-- Toggle State
+    val context = LocalContext.current
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // The Trigger Button
+        OutlinedButton(
+            onClick = {
+                password = ""
+                passwordVisible = false
+                showDeleteDialog = true
+            },
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFD32F2F)),
+            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD32F2F))
+        ) {
+            Text("Delete Account", fontWeight = FontWeight.Bold)
+        }
+    }
+
+    // The Confirmation Dialog
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { if (!isDeleting) showDeleteDialog = false },
+            title = {
+                Text(text = "Delete Account?", fontWeight = FontWeight.Bold, color = Color(0xFFD32F2F))
+            },
+            text = {
+                Column {
+                    Text(text = "Are you sure you want to permanently delete your WeParty account? This action cannot be undone and all your profile data will be lost.")
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(text = "Please enter your password to confirm:", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // --- Password Input Field ---
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        placeholder = { Text("Password") },
+                        singleLine = true,
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        trailingIcon = {
+                            val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                            val description = if (passwordVisible) "Hide password" else "Show password"
+
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(imageVector = image, contentDescription = description, tint = Color.Gray)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !isDeleting,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFFD32F2F),
+                            cursorColor = Color(0xFFD32F2F)
+                        )
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        isDeleting = true
+                        // Pass the typed password to the ViewModel
+                        viewModel.deleteUserAccount(password) { success, errorMessage ->
+                            isDeleting = false
+                            if (success) {
+                                showDeleteDialog = false
+                                Toast.makeText(context, "Account deleted.", Toast.LENGTH_SHORT).show()
+
+                                // Boot them back to the Login Screen
+                                val intent = Intent(context, LoginActivity::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                context.startActivity(intent)
+                            } else {
+                                // Show error but keep dialog open so they can re-type password
+                                Toast.makeText(context, errorMessage ?: "Error deleting account", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)),
+                    enabled = !isDeleting && password.isNotBlank()
+                ) {
+                    if (isDeleting) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                    } else {
+                        Text("Yes, Delete", color = Color.White)
+                    }
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { showDeleteDialog = false },
+                    enabled = !isDeleting
+                ) {
+                    Text("Cancel", color = Color.Black)
+                }
+            }
+        )
+    }
+}
+
+// --- Friends List Screen ---
 @Composable
 fun FriendsListScreenUI(
     viewModel: EventViewModel,
