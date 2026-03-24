@@ -55,6 +55,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.foundation.lazy.grid.GridCells // <-- Added for LazyGrid Layout
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid// <-- Added for LazyGrid Layout
 import androidx.compose.foundation.lazy.grid.items // <-- Added for LazyGrid Layout
+import androidx.compose.material.icons.filled.Celebration
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.draw.shadow
 import com.example.wepartyapp.ui.event_dashboard.EventInboxScreen
@@ -546,14 +548,14 @@ fun NavigationBar(
 
         // - Consolidated Lists -
         NavigationItem(
-            icon = Icons.Default.CheckCircle,
+            icon = Icons.Default.List,
             label = "Lists",
             selected = selectedTab == 3
         ) { onTabSelected(3) }
 
         // - Events -
         NavigationItem(
-            icon = Icons.Default.Edit,
+            icon = Icons.Default.Celebration,
             label = "Events",
             selected = selectedTab == 4
         ) { onTabSelected(4) }

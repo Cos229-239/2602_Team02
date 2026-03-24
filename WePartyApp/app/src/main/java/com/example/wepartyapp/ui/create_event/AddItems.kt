@@ -18,9 +18,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -136,7 +136,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                 ) {
                     //Page Icon
                     Icon(
-                        imageVector = Icons.Default.List,
+                        imageVector = Icons.Default.AddShoppingCart,
                         contentDescription = null,
                         Modifier.size(70.dp),
                         tint = Color(0xFFBF6363)

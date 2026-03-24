@@ -157,7 +157,7 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel, showErrors: Boolean = fa
         }
         Spacer(modifier = Modifier.height(20.dp))
 
-        // --- Summart (Not Required, no error checking) ---
+        // --- Summary (Not Required, no error checking) ---
         Text(
             text = "Summary:",
             fontSize = 20.sp,

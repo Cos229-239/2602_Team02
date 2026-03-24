@@ -90,7 +90,8 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 //Page Icon
