@@ -21,9 +21,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.FamilyRestroom
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -141,7 +141,7 @@ fun InviteFriendsScreenUI(
                         )
                     }
                     Text(
-                        text = if (existingEventId != null) "Manage Guests" else "Add Items",
+                        text = if (existingEventId != null) "Edit Event" else "Add Items",
                         fontSize = 20.sp
                     )
                 }
@@ -152,9 +152,9 @@ fun InviteFriendsScreenUI(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
-                        imageVector = Icons.Default.AccountCircle,
+                        imageVector = Icons.Default.FamilyRestroom,
                         contentDescription = null,
-                        Modifier.size(60.dp),
+                        Modifier.size(65.dp),
                         tint = Color(0xFFBF6363)
                     )
                     Spacer(modifier = Modifier.height(10.dp))

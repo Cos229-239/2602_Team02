@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -181,9 +181,9 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                 ) {
                     //Page Icon
                     Icon(
-                        imageVector = Icons.Default.Create,
+                        imageVector = Icons.Default.Event,
                         contentDescription = null,
-                        Modifier.size(60.dp),
+                        Modifier.size(65.dp),
                         tint = Color(0xFFBF6363)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
