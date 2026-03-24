@@ -179,7 +179,8 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(                                                           //pg icon
+                    //Page Icon
+                    Icon(
                         imageVector = Icons.Default.Create,
                         contentDescription = null,
                         Modifier.size(60.dp),
@@ -187,7 +188,7 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        //pg title
+                        //Page Title
                         text = "Create Event",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 30.sp,

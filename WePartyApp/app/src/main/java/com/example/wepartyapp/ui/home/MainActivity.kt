@@ -105,6 +105,26 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+            // --- Ask for Notification Permission on Android 13+ ---
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                val permissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+                    contract = androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+                ) { isGranted ->
+                    if (!isGranted) {
+                        android.util.Log.d("Permissions", "User denied notifications.")
+                    }
+                }
+
+                androidx.compose.runtime.LaunchedEffect(Unit) {
+                    val permissionCheck = androidx.core.content.ContextCompat.checkSelfPermission(
+                        this@MainActivity,
+                        android.Manifest.permission.POST_NOTIFICATIONS
+                    )
+                    if (permissionCheck != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                        permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                }
+            }
             // --- Added This: Pass the starting tab to the screen ---
             MainScreen(initialTab = startTab)
         }
@@ -207,7 +227,7 @@ fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab p
                     onEditProfileClick = { selectedTab = 7 },
                     onFriendsListClick = { selectedTab = 9 }
                 )
-                7 -> com.example.wepartyapp.ui.profile.ProfileSettingsScreenUI( onBack = { selectedTab = 6 } )
+                7 -> com.example.wepartyapp.ui.profile.ProfileSettingsScreenUI( viewModel = eventViewModel, onBack = { selectedTab = 6 } )
                 8 -> NotificationsScreenUI(
                     viewModel = eventViewModel,
                     onBack = { selectedTab = 0 },
@@ -746,7 +766,8 @@ fun updateDeviceToken() {
 
         // 3. Package the token up
         val tokenData = hashMapOf(
-            "fcmToken" to token
+            "fcmToken" to token,
+            "timeZone" to java.util.TimeZone.getDefault().id // <-- Grabs the phone's timezone
         )
 
         // 4. Save it to Firestore using the user's exact UID

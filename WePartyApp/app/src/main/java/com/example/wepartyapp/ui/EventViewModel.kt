@@ -1,5 +1,8 @@
 package com.example.wepartyapp.ui
 
+import com.google.firebase.firestore.Filter
+import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -7,6 +10,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.tasks.Tasks
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -43,9 +47,9 @@ data class PartyEvent(
     val invitedGuests: List<String> = emptyList(),
 
     // - Guest Attendance -
-    val attending: List<String> = emptyList(),
-    val maybe: List<String> = emptyList(),
-    val declined: List<String> = emptyList(),
+    val attending: Map<String, String> = emptyMap(),
+    val maybe: Map<String, String> = emptyMap(),
+    val declined: Map<String, String> = emptyMap(),
 
     val eventItems: List<PartyItem> = emptyList()
 )
@@ -64,7 +68,8 @@ data class ChatMessage(
     val senderId: String = "",
     val senderName: String = "",
     val text: String = "",
-    val timestamp: Long = 0L
+    val timestamp: Long = 0L,
+    val appUserId: String = ""
 )
 
 // --- Friend Blueprint ---
@@ -97,6 +102,10 @@ class EventViewModel : ViewModel() {
     // --- Chat State ---
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages: StateFlow<List<ChatMessage>> = _messages.asStateFlow()
+
+    // --- Photos State ---
+    private val _eventPhotos = MutableStateFlow<List<String>>(emptyList())
+    val eventPhotos: StateFlow<List<String>> = _eventPhotos.asStateFlow()
 
     // --- Friends State ---
     private val _friendsList = MutableStateFlow<List<FriendProfile>>(emptyList())
@@ -169,35 +178,54 @@ class EventViewModel : ViewModel() {
     }
 
     private fun fetchEventsFromFirebase() {
-        db.collection("events").addSnapshotListener { snapshot, error ->
-            if (error != null || snapshot == null) {
-                return@addSnapshotListener
-            }
+        val currentUserId = auth.currentUser?.uid
+        if (currentUserId == null) {
+            _events.value = emptyList()
+            return
+        }
 
-            val eventList = mutableListOf<PartyEvent>()
+        // Ask Firebase specifically for events where the user is the Host or a Guest
+        db.collection("events")
+            .where(
+                Filter.or(
+                    Filter.equalTo("hostId", currentUserId),
+                    Filter.arrayContains("invitedGuests", currentUserId)
+                )
+            )
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) {
+                    return@addSnapshotListener
+                }
 
-            // 3. Loop through every event in the database
-            for (document in snapshot.documents) {
-                val id = document.id
-                val name = document.getString("name") ?: "Unknown Event"
-                val time = document.getString("time") ?: "TBD"
-                val summary = document.getString("summary") ?: ""
-                val address = document.getString("address") ?: "TBD"
-                val dateString = document.getString("date")
-                val lastMsg = document.getString("lastMessage")
-                val lastMsgTime = document.getLong("lastMessageTime")
-                val lastSender = document.getString("lastSenderId")
-                
-                // Read the readByUsers map safely
-                val readByUsersRaw = document.get("readByUsers") as? Map<String, Any> ?: emptyMap()
-                val readByUsers = readByUsersRaw.mapValues { it.value as? Long ?: 0L }
+                val eventList = mutableListOf<PartyEvent>()
 
-                val fetchedHostId = document.getString("hostId") ?: ""
-                val fetchedGuests = document.get("invitedGuests") as? List<String> ?: emptyList()
+                // Loop through every event we are allowed to see
+                for (document in snapshot.documents) {
+                    val id = document.id
+                    val name = document.getString("name") ?: "Unknown Event"
+                    val time = document.getString("time") ?: "TBD"
+                    val summary = document.getString("summary") ?: ""
+                    val address = document.getString("address") ?: "TBD"
+                    val dateString = document.getString("date")
+                    val lastMsg = document.getString("lastMessage")
+                    val lastMsgTime = document.getLong("lastMessageTime")
+                    val lastSender = document.getString("lastSenderId")
 
-                val attending = document.get("attending") as? List<String> ?: emptyList()
-                val maybe = document.get("maybe") as? List<String> ?: emptyList()
-                val declined = document.get("declined") as? List<String> ?: emptyList()
+                    // Read the readByUsers map safely
+                    val readByUsersRaw = document.get("readByUsers") as? Map<String, Any> ?: emptyMap()
+                    val readByUsers = readByUsersRaw.mapValues { it.value as? Long ?: 0L }
+
+                    val fetchedHostId = document.getString("hostId") ?: ""
+                    val fetchedGuests = document.get("invitedGuests") as? List<String> ?: emptyList()
+
+                    val attendingRaw = document.get("attending") as? Map<String, Any> ?: emptyMap()
+                    val attending = attendingRaw.mapValues { it.value.toString() }
+
+                    val maybeRaw = document.get("maybe") as? Map<String, Any> ?: emptyMap()
+                    val maybe = maybeRaw.mapValues { it.value.toString() }
+
+                    val declinedRaw = document.get("declined") as? Map<String, Any> ?: emptyMap()
+                    val declined = declinedRaw.mapValues { it.value.toString() }
 
                 var date: LocalDate? = null
                 if (!dateString.isNullOrEmpty()) {
@@ -490,7 +518,8 @@ class EventViewModel : ViewModel() {
                         senderId = doc.getString("senderId") ?: "",
                         senderName = doc.getString("senderName") ?: "Anonymous",
                         text = doc.getString("text") ?: "",
-                        timestamp = doc.getLong("timestamp") ?: 0L
+                        timestamp = doc.getLong("timestamp") ?: 0L,
+                        appUserId = doc.getString("appUserId") ?: ""
                     )
                 }
                 _messages.value = msgs
@@ -500,25 +529,84 @@ class EventViewModel : ViewModel() {
     // Sends a new message and updates the event's "last message" snippet
     fun sendMessage(eventId: String, text: String) {
         val user = auth.currentUser ?: return
-        val messageData = hashMapOf(
-            "senderId" to user.uid,
-            "senderName" to (user.displayName ?: "User"),
-            "text" to text,
-            "timestamp" to System.currentTimeMillis()
-        )
+        val currentUserName = user.displayName ?: "User"
+
+        // --- Fetch the user's custom @ID from the database before sending ---
+        db.collection("users").document(user.uid).get().addOnSuccessListener { userDoc ->
+            val appUserId = userDoc.getString("appUserId") ?: ""
+
+            val messageData = hashMapOf(
+                "senderId" to user.uid,
+                "senderName" to currentUserName,
+                "text" to text,
+                "timestamp" to System.currentTimeMillis(),
+                "appUserId" to appUserId
+            )
 
         db.collection("events").document(eventId).collection("messages").add(messageData)
             .addOnSuccessListener {
                 // Sync the last message back to the event document for the inbox preview
-                db.collection("events").document(eventId).update(
-                    mapOf(
-                        "lastMessage" to text,
-                        "lastMessageTime" to messageData["timestamp"],
-                        "lastSenderId" to user.uid,
-                        "readByUsers.${user.uid}" to messageData["timestamp"] // Mark as read for sender
-                    )
-                )
+                db.collection("events").document(eventId).get().addOnSuccessListener { doc ->
+                    val eventName = doc.getString("name") ?: "a party"
+                    val hostId = doc.getString("hostId") ?: ""
+                    val guests = doc.get("invitedGuests") as? List<String> ?: emptyList()
+                    
+                    // Notify everyone except the sender
+                    val recipients = (guests + hostId).distinct().filter { it != user.uid }
+                    
+                    if (recipients.isNotEmpty()) {
+                        sendAppNotification(
+                            title = "New Message in $eventName",
+                            message = "$currentUserName: $text",
+                            allowedUsers = recipients
+                        )
+                    }
+
+                        db.collection("events").document(eventId).update(
+                            mapOf(
+                                "lastMessage" to text,
+                                "lastMessageTime" to messageData["timestamp"],
+                                "lastSenderId" to user.uid,
+                                "readByUsers.${user.uid}" to messageData["timestamp"] // Mark as read for sender
+                            )
+                        )
+                    }
+                }
+        }
+    }
+
+    // --- Photo Functions ---
+    // Starts listening for photos attached to this event
+    fun listenToEventPhotos(eventId: String) {
+        db.collection("events").document(eventId).collection("photos")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) return@addSnapshotListener
+                val urls = snapshot.documents.mapNotNull { it.getString("url") }
+                _eventPhotos.value = urls
             }
+    }
+
+    // Uploads a photo to Firebase Storage and then saves the link in Firestore
+    fun uploadPhotoToEvent(eventId: String, imageUri: Uri, context: Context) {
+        val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference
+            .child("event_photos/$eventId/${System.currentTimeMillis()}.jpg")
+
+        val inputStream = context.contentResolver.openInputStream(imageUri) ?: return
+
+        storageRef.putStream(inputStream).addOnSuccessListener {
+            storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                val photoData = hashMapOf(
+                    "url" to downloadUri.toString(),
+                    "uploaderId" to (auth.currentUser?.uid ?: ""),
+                    "timestamp" to System.currentTimeMillis()
+                )
+                // Save the link in a sub-collection under the event
+                db.collection("events").document(eventId).collection("photos").add(photoData)
+            }
+        }.addOnFailureListener {
+            android.widget.Toast.makeText(context, "Upload failed: ${it.message}", android.widget.Toast.LENGTH_SHORT).show()
+        }
     }
 
     // Marks an event's chat as read for the current user
@@ -551,9 +639,9 @@ class EventViewModel : ViewModel() {
             "readByUsers" to mapOf(currentUserId to System.currentTimeMillis()), // Mark as read for creator
             "hostId" to currentUserId,
             "invitedGuests" to eventInvitedGuests, // <-- Updated to save selected friends!
-            "attending" to emptyList<String>(),
-            "maybe" to emptyList<String>(),
-            "declined" to emptyList<String>()
+            "attending" to emptyMap<String, String>(),
+            "maybe" to emptyMap<String, String>(),
+            "declined" to emptyMap<String, String>()
         )
 
         // Use .document(eventId).set() instead of .add() to guarantee the ID matches the deep link
@@ -625,22 +713,23 @@ class EventViewModel : ViewModel() {
     fun updateAttendance(eventId: String, status: String) {
 
         val user = auth.currentUser ?: return
-        val userName = if (user.displayName.isNullOrBlank()) "User" else user.displayName!!
+        val uid = user.uid
+        val name = user.displayName ?: "User"
 
         val event = events.value?.find { it.id == eventId } ?: return
 
-        val attending = event.attending.toMutableList()
-        val maybe = event.maybe.toMutableList()
-        val declined = event.declined.toMutableList()
+        val attending = event.attending.toMutableMap()
+        val maybe = event.maybe.toMutableMap()
+        val declined = event.declined.toMutableMap()
 
-        attending.remove(userName)
-        maybe.remove(userName)
-        declined.remove(userName)
+        attending.remove(uid)
+        maybe.remove(uid)
+        declined.remove(uid)
 
         when (status) {
-            "attending" -> attending.add(userName)
-            "maybe" -> maybe.add(userName)
-            "declined" -> declined.add(userName)
+            "attending" -> attending[uid] = name
+            "maybe" -> maybe[uid] = name
+            "declined" -> declined[uid] = name
         }
 
         db.collection("events").document(eventId).update(
@@ -655,11 +744,14 @@ class EventViewModel : ViewModel() {
     // Toggles the acquisition status of a party item (checks/unchecks)
     fun toggleItemCheck(eventId: String, item: PartyItem) {
         val user = auth.currentUser ?: return
-        val updatedItems = events.value?.find { it.id == eventId }?.eventItems?.map {
+        val currentUserName = user.displayName ?: "Someone"
+        val event = events.value?.find { it.id == eventId } ?: return
+        
+        val updatedItems = event.eventItems.map {
             if (it.name == item.name) {
                 // Claim the item if no one has it yet
                 if (it.boughtBy == null) {
-                    it.copy(boughtBy = user.uid, boughtByName = user.displayName ?: "User")
+                    it.copy(boughtBy = user.uid, boughtByName = currentUserName)
                 } 
                 // Unclaim only if the current user is the one who bought it
                 else if (it.boughtBy == user.uid) {
@@ -671,7 +763,7 @@ class EventViewModel : ViewModel() {
             } else {
                 it
             }
-        } ?: return
+        }
 
         // Push the updated item array back to Firestore
         val mappedItems = updatedItems.map {
@@ -682,7 +774,21 @@ class EventViewModel : ViewModel() {
                 "boughtByName" to it.boughtByName
             )
         }
-        db.collection("events").document(eventId).update("items", mappedItems)
+        db.collection("events").document(eventId).update("items", mappedItems).addOnSuccessListener {
+            // --- Notification logic for claimed items ---
+            val isNewlyClaimed = updatedItems.find { it.name == item.name }?.boughtBy == user.uid
+            
+            if (isNewlyClaimed) {
+                val recipients = (event.invitedGuests + event.hostId).distinct().filter { it != user.uid }
+                if (recipients.isNotEmpty()) {
+                    sendAppNotification(
+                        title = "Item Claimed!",
+                        message = "$currentUserName picked up ${item.name} for ${event.name}!",
+                        allowedUsers = recipients
+                    )
+                }
+            }
+        }
     }
 
     // --- Checklist Functions for Existing Events ---
@@ -817,6 +923,45 @@ class EventViewModel : ViewModel() {
             else -> {
                 val sdf = java.text.SimpleDateFormat("MMM. d, yyyy", java.util.Locale.getDefault())
                 sdf.format(java.util.Date(timestamp))
+            }
+        }
+    }
+
+    // --- Account Deletion Logic with Re-authentication ---
+    fun deleteUserAccount(password: String, onResult: (Boolean, String?) -> Unit) {
+        val user = auth.currentUser
+        val email = user?.email
+
+        if (user == null || email == null) {
+            onResult(false, "No user is currently logged in.")
+            return
+        }
+
+        val uid = user.uid
+
+        // 1. Re-authenticate the user first to prevent the "Recent Login Required" error
+        val credential = EmailAuthProvider.getCredential(email, password)
+        user.reauthenticate(credential).addOnCompleteListener { reauthTask ->
+            if (reauthTask.isSuccessful) {
+                // 2. Auth successful! Delete their profile document from Firestore
+                db.collection("users").document(uid).delete()
+                    .addOnSuccessListener {
+                        // 3. Once the database is clean, delete their actual Auth account
+                        user.delete()
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    onResult(true, null) // Success!
+                                } else {
+                                    onResult(false, task.exception?.localizedMessage)
+                                }
+                            }
+                    }
+                    .addOnFailureListener { e ->
+                        onResult(false, e.localizedMessage ?: "Failed to delete user data from database.")
+                    }
+            } else {
+                // Re-authentication failed
+                onResult(false, "Incorrect password. Please try again.")
             }
         }
     }
