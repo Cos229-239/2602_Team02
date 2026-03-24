@@ -1137,7 +1137,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-24-2026 - 13:56", "period": "2026-03-02 to 2026-03-08", "cycle": "2602", "week": 5, "team": "2602_Team01", "sourceUrl": "W05_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "1d ago", "contribution": "+527/-158", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 4, "additions": 527, "deletions": 158, "net": 369}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 37}, "actionBreakdown": {"Daniel W.": {"Create card": 8, "Move card": 29}}, "status": "HEALTHY"}, "discord": [], "alerts": [{"type": "warn", "text": "Daniel W. has not posted standups this week. Post daily standups in the team standup channel."}]};
+    const data = {"report": {"generated": "03-24-2026 - 15:01", "period": "2026-03-02 to 2026-03-08", "cycle": "2602", "week": 5, "team": "2602_Team01", "sourceUrl": "W05_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "4d ago", "contribution": "+527/-158", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 4, "additions": 527, "deletions": 158, "net": 369}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 37}, "actionBreakdown": {"Daniel W.": {"Create card": 8, "Move card": 29}}, "status": "HEALTHY"}, "discord": [], "alerts": [{"type": "warn", "text": "Daniel W. has not posted standups this week. Post daily standups in the team standup channel."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     (function setupHeaderLinks() {
@@ -1994,10 +1994,14 @@
       const lower = (text || '').toLowerCase();
       if (lower.includes('diverged branch')) return 'Follow directions above (Git Branch health drop down)';
       if (lower.includes('inactive branch')) return 'Follow directions above (Git Branch health drop down)';
-      if (lower.includes('stale branch')) return 'Follow directions above (Git Branch health drop down)';
+      if (lower.includes('stale branch')) return 'Push to Git and refresh your branch activity.';
       if (lower.includes('no trello activity')) return 'Need a minimum of 4 actions per week.';
       if (lower.includes('not posted standups')) return 'Need a minimum of 4 standup posts per week.';
       return '';
+    }
+    function alertPerson(text) {
+      const match = String(text || '').match(/^([A-Za-z]+(?:\s+[A-Za-z]\.)?)/);
+      return match ? match[1].trim() : 'Team';
     }
     function buildNormalizedAlerts() {
       const normalized = [];
@@ -2033,13 +2037,37 @@
       });
       return normalized;
     }
-    document.getElementById('alerts-v2-root').innerHTML = buildNormalizedAlerts().map(a => {
-      const primary = (a.text || '').replace(/\s*Follow directions above\.?$/i, '').trim();
-      const detail = alertDetail(primary);
+    function buildGroupedAlerts() {
+      const groups = [];
+      const groupMap = new Map();
+      buildNormalizedAlerts().forEach(a => {
+        const primary = (a.text || '').replace(/\s*Follow directions above\.?$/i, '').trim();
+        const person = alertPerson(primary);
+        const key = `${a.type}|${person}`.toLowerCase();
+        if (!groupMap.has(key)) {
+          const group = { type: a.type, person, items: [] };
+          groupMap.set(key, group);
+          groups.push(group);
+        }
+        const group = groupMap.get(key);
+        if (!group.items.some(item => item.text === primary)) {
+          group.items.push({ text: primary, detail: alertDetail(primary) });
+        }
+      });
+      return groups;
+    }
+    document.getElementById('alerts-v2-root').innerHTML = buildGroupedAlerts().map(group => {
+      const cycle = data.report && data.report.cycle ? String(data.report.cycle) : '----';
+      const week = data.report && data.report.week ? String(data.report.week).padStart(2, '0') : '--';
+      const title = `${group.person} · Week ${week} · Cycle ${cycle}`;
+      const items = group.items.map(item => `<li>${item.text}${item.detail ? `<div>${item.detail}</div>` : ''}</li>`).join('');
       return `
-      <div class="alert-card ${a.type}">
-        <div class="icon">${a.type === 'danger' ? '!' : '⚠'}</div>
-        <div class="text"><span class="primary">${primary}</span>${detail ? `<span class="detail">${detail}</span>` : ''}</div>
+      <div class="alert-card ${group.type}">
+        <div class="icon">${group.type === 'danger' ? '!' : '⚠'}</div>
+        <div class="text">
+          <span class="primary">${title}</span>
+          <span class="detail"><ul style="margin:0.35rem 0 0;padding-left:1rem;">${items}</ul></span>
+        </div>
       </div>
     `;
     }).join('');
