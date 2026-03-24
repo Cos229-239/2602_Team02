@@ -61,7 +61,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class SignUpActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
-    private val db = FirebaseFirestore.getInstance() // <-- New: Firestore instance for uniqueness check
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +85,7 @@ class SignUpActivity : ComponentActivity() {
             SignUpScreenUI(
                 isLoading = isLoading, // Pass state down
                 errorMessage = errorMessage, // Pass state down
-                // --- Updated: Added appUserId and phone inputs ---
+                // --- appUserId and phone inputs ---
                 onSignUpClick = { nameInput, appUserIdInput, phoneInput, emailInput, passwordInput ->
                     val name = nameInput.trim()
 
@@ -158,8 +158,20 @@ class SignUpActivity : ComponentActivity() {
                                             db.collection("users").document(user.uid)
                                                 .set(userMap)
                                                 .addOnSuccessListener {
-                                                    startActivity(Intent(this, OnboardingActivity::class.java))
-                                                    finish()
+                                                    // --- Send Verification Email and Sign Out ---
+                                                    user.sendEmailVerification().addOnCompleteListener { verifyTask ->
+                                                        if (verifyTask.isSuccessful) {
+                                                            Toast.makeText(this@SignUpActivity, "Verification email sent! Check your inbox.", Toast.LENGTH_LONG).show()
+                                                        } else {
+                                                            Toast.makeText(this@SignUpActivity, "Failed to send verification email.", Toast.LENGTH_SHORT).show()
+                                                        }
+
+                                                        // Sign them out immediately so they can't bypass the lock
+                                                        auth.signOut()
+
+                                                        // Send them back to the Login screen to await verification
+                                                        finish()
+                                                    }
                                                 }
                                         }
 
@@ -167,7 +179,7 @@ class SignUpActivity : ComponentActivity() {
                                         // Unlock the UI
                                         isLoading = false
 
-                                        // --- Added: Human-readable error translations ---
+                                        // --- Human-readable error translations ---
                                         val exceptionMsg = task.exception?.message ?: ""
                                         errorMessage = when {
                                             exceptionMsg.contains("email address is already in use", ignoreCase = true) -> "An account with this email already exists."
@@ -257,7 +269,7 @@ fun SignUpScreenUI(
             )
         )
 
-        // --- New: UserID Field ---
+        // --- UserID Field ---
         TextField(
             value = appUserId,
             onValueChange = { appUserId = it },
@@ -280,7 +292,7 @@ fun SignUpScreenUI(
             )
         )
 
-        // --- New: Phone Number Field ---
+        // --- Phone Number Field ---
         TextField(
             value = phone,
             onValueChange = { phone = it },

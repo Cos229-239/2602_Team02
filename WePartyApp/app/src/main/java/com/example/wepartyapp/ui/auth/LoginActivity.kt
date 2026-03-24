@@ -1,75 +1,91 @@
 package com.example.wepartyapp.ui.auth
 
-import android.app.Activity // <-- Added
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
-import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height // <-- Added for fixed button height
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions // <-- Added
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator // <-- Added for loading spinner
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect // <-- Added
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection // <-- Added
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager // <-- Added
-import androidx.compose.ui.platform.LocalView // <-- Added
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction // <-- Added
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat // <-- Added
+import androidx.core.view.WindowCompat
 import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.home.MainActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
 
 class LoginActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
+    private val db = FirebaseFirestore.getInstance()
 
     public override fun onStart() {
         super.onStart()
         auth = FirebaseAuth.getInstance()
 
-        // If user already logged in, go straight to Main
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+            currentUser.reload().addOnCompleteListener {
+                if (currentUser.isEmailVerified) {
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish()
+                } else {
+                    auth.signOut()
+                }
+            }
         }
     }
 
@@ -78,7 +94,6 @@ class LoginActivity : ComponentActivity() {
         auth = FirebaseAuth.getInstance()
 
         setContent {
-            // --- Status Bar Fix ---
             val view = LocalView.current
             if (!view.isInEditMode) {
                 SideEffect {
@@ -87,21 +102,43 @@ class LoginActivity : ComponentActivity() {
                 }
             }
 
-            // --- Added: State variables to control the UI ---
             var isLoading by remember { mutableStateOf(false) }
             var errorMessage by remember { mutableStateOf<String?>(null) }
 
+            val googleSignInLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.StartActivityForResult()
+            ) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                    try {
+                        val account = task.getResult(ApiException::class.java)!!
+                        firebaseAuthWithGoogle(account.idToken!!) { success, errorMsg ->
+                            isLoading = false
+                            if (success) {
+                                startActivity(Intent(this, MainActivity::class.java))
+                                finish()
+                            } else {
+                                errorMessage = errorMsg
+                            }
+                        }
+                    } catch (e: ApiException) {
+                        isLoading = false
+                        errorMessage = "Google sign-in failed."
+                    }
+                } else {
+                    isLoading = false
+                }
+            }
+
             LoginScreenUI(
-                isLoading = isLoading, // Pass state down
-                errorMessage = errorMessage, // Pass state down
+                isLoading = isLoading,
+                errorMessage = errorMessage,
                 onLoginClick = { emailInput, passwordInput ->
                     val email = emailInput.trim()
                     val password = passwordInput.trim()
 
-                    // Reset state on new attempt
                     errorMessage = null
 
-                    // Basic validation (prevents dumb "invalid" issues)
                     if (email.isEmpty() || password.isEmpty()) {
                         errorMessage = "Please enter both email and password."
                         return@LoginScreenUI
@@ -112,19 +149,23 @@ class LoginActivity : ComponentActivity() {
                         return@LoginScreenUI
                     }
 
-                    // Lock the UI
                     isLoading = true
 
                     auth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this) { task ->
-                            // Unlock the UI
                             isLoading = false
 
                             if (task.isSuccessful) {
-                                startActivity(Intent(this, MainActivity::class.java))
-                                finish()
+                                val user = auth.currentUser
+
+                                if (user != null && user.isEmailVerified) {
+                                    startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                                    finish()
+                                } else {
+                                    auth.signOut()
+                                    errorMessage = "Please verify your email before logging in. Check your inbox!"
+                                }
                             } else {
-                                // --- Added: Human-readable error translations ---
                                 val exceptionMsg = task.exception?.message ?: ""
                                 errorMessage = when {
                                     exceptionMsg.contains("INVALID_LOGIN_CREDENTIALS") -> "Incorrect email or password. Please try again."
@@ -135,6 +176,18 @@ class LoginActivity : ComponentActivity() {
                             }
                         }
                 },
+                onGoogleSignInClick = {
+                    isLoading = true
+                    errorMessage = null
+
+                    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestIdToken(getString(R.string.default_web_client_id))
+                        .requestEmail()
+                        .build()
+
+                    val googleSignInClient = GoogleSignIn.getClient(this, gso)
+                    googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                },
                 onNavigateToSignUp = {
                     startActivity(Intent(this, SignUpActivity::class.java))
                 },
@@ -144,13 +197,52 @@ class LoginActivity : ComponentActivity() {
             )
         }
     }
+
+    private fun firebaseAuthWithGoogle(idToken: String, onResult: (Boolean, String?) -> Unit) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val isNewUser = task.result?.additionalUserInfo?.isNewUser == true
+                    val user = auth.currentUser
+
+                    if (isNewUser && user != null) {
+                        val autoGeneratedHandle = user.email?.substringBefore("@")?.lowercase() + (100..999).random()
+
+                        val userMap = hashMapOf(
+                            "uid" to user.uid,
+                            "name" to (user.displayName ?: "Party Animal"),
+                            "appUserId" to autoGeneratedHandle,
+                            "phoneNumber" to "",
+                            "email" to (user.email ?: ""),
+                            "friends" to emptyList<String>(),
+                            "friendRequests" to emptyList<String>()
+                        )
+
+                        db.collection("users").document(user.uid)
+                            .set(userMap)
+                            .addOnSuccessListener {
+                                onResult(true, null)
+                            }
+                            .addOnFailureListener {
+                                onResult(false, "Failed to create user profile.")
+                            }
+                    } else {
+                        onResult(true, null)
+                    }
+                } else {
+                    onResult(false, task.exception?.message ?: "Authentication failed.")
+                }
+            }
+    }
 }
 
 @Composable
 fun LoginScreenUI(
-    isLoading: Boolean, // <-- Added
-    errorMessage: String?, // <-- Added
+    isLoading: Boolean,
+    errorMessage: String?,
     onLoginClick: (String, String) -> Unit,
+    onGoogleSignInClick: () -> Unit,
     onNavigateToSignUp: () -> Unit,
     onNavigateToForgotPassword: () -> Unit
 ) {
@@ -158,7 +250,7 @@ fun LoginScreenUI(
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    val focusManager = LocalFocusManager.current // <-- Controls moving between fields
+    val focusManager = LocalFocusManager.current
 
     Column(
         modifier = Modifier
@@ -169,7 +261,7 @@ fun LoginScreenUI(
         verticalArrangement = Arrangement.Center
     ) {
 
-        // Logo (kept exactly)
+        // Logo
         Image(
             painter = painterResource(id = R.drawable.app_logo),
             contentDescription = "WeParty Logo",
@@ -228,7 +320,7 @@ fun LoginScreenUI(
                     if (!isLoading) onLoginClick(email, password) // Only click if not already loading
                 }
             ),
-            trailingIcon = { // <-- Added: The eye icon to toggle visibility
+            trailingIcon = { // <-- The eye icon to toggle visibility
                 val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                 val description = if (passwordVisible) "Hide password" else "Show password"
 
@@ -248,7 +340,7 @@ fun LoginScreenUI(
             )
         )
 
-        // Forgot Password link (new)
+        // Forgot Password link
         Text(
             text = "Forgot password?",
             color = Color(0xFFFF4081),
@@ -259,7 +351,7 @@ fun LoginScreenUI(
                 .clickable { onNavigateToForgotPassword() }
         )
 
-        // --- Added: In-UI Error Message Display ---
+        // --- In-UI Error Message Display ---
         if (errorMessage != null) {
             Text(
                 text = errorMessage,
@@ -275,9 +367,9 @@ fun LoginScreenUI(
             onClick = { onLoginClick(email, password) },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp), // Fixed height so it doesn't jump when loading
+                .height(50.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4081)),
-            enabled = !isLoading // Disables the button while Firebase is working
+            enabled = !isLoading
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
@@ -290,12 +382,26 @@ fun LoginScreenUI(
             }
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { onGoogleSignInClick() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .border(1.dp, Color.LightGray, RoundedCornerShape(50)),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+            enabled = !isLoading
+        ) {
+            Text("Sign in with Google", color = Color.Black, fontWeight = FontWeight.Bold)
+        }
+
         Text(
             text = "New here? Create an Account",
             color = Color(0xFFFF4081),
             fontSize = 16.sp,
             modifier = Modifier
-                .padding(top = 16.dp)
+                .padding(top = 24.dp)
                 .clickable { onNavigateToSignUp() }
         )
     }

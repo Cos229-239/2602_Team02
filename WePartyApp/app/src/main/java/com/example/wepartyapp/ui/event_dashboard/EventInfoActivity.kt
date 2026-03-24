@@ -312,8 +312,8 @@ fun EventInfoScreenUI(
                         )
                     }
                 }
-                attending.forEach {
-                    Text("• $it")
+                attending.values.forEach { guestName ->
+                    Text("• $guestName")
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -342,8 +342,8 @@ fun EventInfoScreenUI(
                         )
                     }
                 }
-                maybe.forEach {
-                    Text("• $it")
+                maybe.values.forEach { guestName ->
+                    Text("• $guestName")
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -372,8 +372,8 @@ fun EventInfoScreenUI(
                         )
                     }
                 }
-                declined.forEach {
-                    Text("• $it")
+                declined.values.forEach { guestName ->
+                    Text("• $guestName")
                 }
 
             }
