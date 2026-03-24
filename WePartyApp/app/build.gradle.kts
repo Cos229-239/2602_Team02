@@ -58,6 +58,7 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("androidx.compose.runtime:runtime-livedata:1.6.0")
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("com.google.android.gms:play-services-auth:21.0.0")
 
     // Firebase
     implementation(platform(libs.firebase.bom))
