@@ -56,6 +56,10 @@
     .track-gap-marker { position:absolute; top:1px; bottom:1px; width:2px; border-radius:999px; z-index:3; opacity:0.95; }
     .track-gap-marker.second { left:calc(22px + (100% - 34px) * (var(--second-pct, 0) / 100)); background:rgba(255,255,255,0.94); }
     .track-gap-marker.third { left:calc(22px + (100% - 34px) * (var(--third-pct, 0) / 100)); background:rgba(253,224,71,0.96); }
+    .track-rank-label { position:absolute; top:0; transform:translate(-50%, -110%); font-size:0.48rem; line-height:1; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--text-muted); z-index:5; white-space:nowrap; pointer-events:none; }
+    .track-rank-label.rank-first { left:calc(22px + (100% - 34px) * (var(--leader-pct, 0) / 100)); color:rgba(255,255,255,0.92); }
+    .track-rank-label.rank-second { left:calc(22px + (100% - 34px) * (var(--second-pct, 0) / 100)); }
+    .track-rank-label.rank-third { left:calc(22px + (100% - 34px) * (var(--third-pct, 0) / 100)); color:rgba(253,224,71,0.92); }
     .track-marker.car { position:absolute; left:22px; top:50%; transform:translateY(-50%) scaleX(-1); z-index:4; font-size:0.85rem; }
     .hero-row .track-marker.car { font-size:1rem; }
     .row-first { min-width:12rem; display:flex; align-items:center; justify-content:flex-end; gap:0.8rem; font-weight:700; }
@@ -138,8 +142,9 @@
           <span class="track-dot">●</span>
           <div class="track-rail" aria-hidden="true"></div>
           <div class="track-speed-bar" title="Top Lifetime Allstar" style="--leader-pct:100.00;"></div>
-          <span class="track-gap-marker second" style="--second-pct:95.83;"></span>
-          <span class="track-gap-marker third" style="--third-pct:79.17;"></span>
+          <span class="track-gap-marker second" style="--second-pct:95.83;"></span><span class="track-rank-label rank-second" style="--second-pct:95.83;">2nd</span>
+          <span class="track-gap-marker third" style="--third-pct:79.17;"></span><span class="track-rank-label rank-third" style="--third-pct:79.17;">3rd</span>
+          <span class="track-rank-label rank-first" style="--leader-pct:100.00;">1st</span>
           <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -163,8 +168,9 @@
           <span class="track-dot">●</span>
           <div class="track-rail" aria-hidden="true"></div>
           <div class="track-speed-bar" title="Code Allstar" style="--leader-pct:100.00;"></div>
-          <span class="track-gap-marker second" style="--second-pct:66.67;"></span>
-          <span class="track-gap-marker third" style="--third-pct:33.33;"></span>
+          <span class="track-gap-marker second" style="--second-pct:66.67;"></span><span class="track-rank-label rank-second" style="--second-pct:66.67;">2nd</span>
+          <span class="track-gap-marker third" style="--third-pct:33.33;"></span><span class="track-rank-label rank-third" style="--third-pct:33.33;">3rd</span>
+          <span class="track-rank-label rank-first" style="--leader-pct:100.00;">1st</span>
           <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -182,8 +188,9 @@
           <span class="track-dot">●</span>
           <div class="track-rail" aria-hidden="true"></div>
           <div class="track-speed-bar" title="Trello Allstar" style="--leader-pct:100.00;"></div>
-          <span class="track-gap-marker second" style="--second-pct:83.33;"></span>
-          <span class="track-gap-marker third" style="--third-pct:33.33;"></span>
+          <span class="track-gap-marker second" style="--second-pct:83.33;"></span><span class="track-rank-label rank-second" style="--second-pct:83.33;">2nd</span>
+          <span class="track-gap-marker third" style="--third-pct:33.33;"></span><span class="track-rank-label rank-third" style="--third-pct:33.33;">3rd</span>
+          <span class="track-rank-label rank-first" style="--leader-pct:100.00;">1st</span>
           <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -201,8 +208,9 @@
           <span class="track-dot">●</span>
           <div class="track-rail" aria-hidden="true"></div>
           <div class="track-speed-bar" title="Standup Allstar" style="--leader-pct:100.00;"></div>
-          <span class="track-gap-marker second" style="--second-pct:71.43;"></span>
-          <span class="track-gap-marker third" style="--third-pct:57.14;"></span>
+          <span class="track-gap-marker second" style="--second-pct:71.43;"></span><span class="track-rank-label rank-second" style="--second-pct:71.43;">2nd</span>
+          <span class="track-gap-marker third" style="--third-pct:57.14;"></span><span class="track-rank-label rank-third" style="--third-pct:57.14;">3rd</span>
+          <span class="track-rank-label rank-first" style="--leader-pct:100.00;">1st</span>
           <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -222,6 +230,7 @@
           <div class="track-speed-bar" title="No Issue Branch Star" style="--leader-pct:0.00;"></div>
           
           
+          <span class="track-rank-label rank-first" style="--leader-pct:0.00;">1st</span>
           <span class="track-marker car" style="--leader-pct:0.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -239,8 +248,9 @@
           <span class="track-dot">●</span>
           <div class="track-rail" aria-hidden="true"></div>
           <div class="track-speed-bar" title="Current Branch Star" style="--leader-pct:100.00;"></div>
-          <span class="track-gap-marker second" style="--second-pct:100.00;"></span>
-          <span class="track-gap-marker third" style="--third-pct:100.00;"></span>
+          <span class="track-gap-marker second" style="--second-pct:100.00;"></span><span class="track-rank-label rank-second" style="--second-pct:100.00;">2nd</span>
+          <span class="track-gap-marker third" style="--third-pct:100.00;"></span><span class="track-rank-label rank-third" style="--third-pct:100.00;">3rd</span>
+          <span class="track-rank-label rank-first" style="--leader-pct:100.00;">1st</span>
           <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -260,6 +270,7 @@
           <div class="track-speed-bar" title="Standup Streak Star" style="--leader-pct:0.00;"></div>
           
           
+          <span class="track-rank-label rank-first" style="--leader-pct:0.00;">1st</span>
           <span class="track-marker car" style="--leader-pct:0.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -277,8 +288,9 @@
           <span class="track-dot">●</span>
           <div class="track-rail" aria-hidden="true"></div>
           <div class="track-speed-bar" title="Consistent Contributor Star" style="--leader-pct:100.00;"></div>
-          <span class="track-gap-marker second" style="--second-pct:80.00;"></span>
-          <span class="track-gap-marker third" style="--third-pct:80.00;"></span>
+          <span class="track-gap-marker second" style="--second-pct:80.00;"></span><span class="track-rank-label rank-second" style="--second-pct:80.00;">2nd</span>
+          <span class="track-gap-marker third" style="--third-pct:80.00;"></span><span class="track-rank-label rank-third" style="--third-pct:80.00;">3rd</span>
+          <span class="track-rank-label rank-first" style="--leader-pct:100.00;">1st</span>
           <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -298,6 +310,7 @@
           <div class="track-speed-bar" title="Zero Misses Star" style="--leader-pct:0.00;"></div>
           
           
+          <span class="track-rank-label rank-first" style="--leader-pct:0.00;">1st</span>
           <span class="track-marker car" style="--leader-pct:0.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -317,6 +330,7 @@
           <div class="track-speed-bar" title="Build Ready Star" style="--leader-pct:0.00;"></div>
           
           
+          <span class="track-rank-label rank-first" style="--leader-pct:0.00;">1st</span>
           <span class="track-marker car" style="--leader-pct:0.00;">🚗</span>
         </div>
         <span class="row-first">
