@@ -63,7 +63,7 @@
     .track-rank-label.rank-second { left:calc(22px + (100% - 34px) * (var(--second-pct, 0) / 100)); color:#d1d5db; }
     .track-rank-label.rank-third { left:calc(22px + (100% - 34px) * (var(--third-pct, 0) / 100)); color:#cd7f32; }
     .track-marker.car { position:absolute; left:22px; top:50%; transform:translateY(-50%) scaleX(-1); z-index:4; font-size:0.85rem; }
-    .track-marker.shell { position:absolute; left:22px; top:50%; transform:translateY(-50%) scaleX(-1); z-index:4; font-size:0.8rem; opacity:0; }
+    .track-marker.shell { position:absolute; left:22px; top:50%; transform:translateY(-50%) scaleX(-1); z-index:4; font-size:1.6rem; opacity:0; }
     .track-marker.car.car-gone { opacity:0; }
     .hero-row .track-marker.car { font-size:1rem; }
     .row-first { min-width:12rem; display:flex; align-items:center; justify-content:flex-end; gap:0.8rem; font-weight:700; }
@@ -443,8 +443,8 @@
           const finishDistance = Math.max(1, finishLeft - 22);
           const carDuration = Math.max(760, 1120 * (carDistance / finishDistance));
           const shellDistance = Math.max(1, shellHit - shellStart);
-          const shellDelay = Math.min(180, Math.max(90, carDuration * 0.16));
-          const shellDuration = Math.max(220, carDuration - shellDelay);
+          const shellDelay = Math.min(140, Math.max(70, carDuration * 0.12));
+          const shellDuration = Math.max(180, carDuration - shellDelay - 80);
           bar.style.width = '0px';
           car.animate([
             { left:'22px', transform:'translateY(-50%) scaleX(-1)', opacity:1 },
@@ -458,15 +458,18 @@
             shell.style.left = shellStart + 'px';
             shell.style.opacity = '1';
             shell.animate([
-              { left:shellStart + 'px', opacity:1, transform:'translateY(-50%) scaleX(-1) scale(0.9)' },
+              { left:shellStart + 'px', opacity:1, transform:'translateY(-50%) scaleX(-1) scale(0.92)' },
               { left:shellHit + 'px', opacity:1, transform:'translateY(-50%) scaleX(-1) scale(1)' }
             ], { duration: shellDuration, delay: shellDelay, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards' });
           }
           setTimeout(() => {
             car.style.left = crashLeft + 'px';
             car.textContent = '💥';
-            car.style.transform = 'translateY(-50%) scale(1.25)';
-            if (shell) shell.style.opacity = '0';
+            car.style.transform = 'translateY(-50%) scale(5)';
+            if (shell) {
+              shell.style.left = shellHit + 'px';
+              shell.style.opacity = '1';
+            }
             bar.animate([
               { width:(crashLeft - 22) + 'px', opacity:1 },
               { width:'0px', opacity:0 }
@@ -475,13 +478,11 @@
           setTimeout(() => {
             bar.style.width = '0px';
             bar.style.opacity = '0';
-            car.textContent = '☠';
-            car.style.left = crashLeft + 'px';
-            car.style.transform = 'translateY(-50%) scale(1)';
-            car.style.opacity = '1';
+            car.classList.add('car-gone');
+            car.style.opacity = '0';
             row.classList.add('name-visible');
             setTimeout(() => runRow(index + 1), 180);
-          }, carDuration + 360);
+          }, carDuration + 320);
           return;
         }
         const start = performance.now();

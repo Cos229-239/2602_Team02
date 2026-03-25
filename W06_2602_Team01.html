@@ -212,7 +212,7 @@
     .leaderboard-row .row-track-wrap .track-tie-label { color: #fff; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em; text-shadow: 0 1px 2px rgba(0,0,0,0.35); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.18s ease; padding: 0 0.55rem; }
     .leaderboard-row .row-track-wrap .track-speed-bar.tie-visible .track-tie-label { opacity: 1; }
     .leaderboard-row .row-track-wrap .track-marker.car { position: absolute; left: calc(20px + (100% - 32px) * (var(--leader-pct, 0) / 100)); top: 50%; transform: translateY(-50%) scaleX(-1); font-size: 0.75rem; z-index: 4; transition: none; }
-    .leaderboard-row .row-track-wrap .track-marker.shell { position: absolute; left: 20px; top: 50%; transform: translateY(-50%) scaleX(-1); font-size: 0.72rem; z-index: 4; opacity: 0; transition: none; }
+    .leaderboard-row .row-track-wrap .track-marker.shell { position: absolute; left: 20px; top: 50%; transform: translateY(-50%) scaleX(-1); font-size: 1.44rem; z-index: 4; opacity: 0; transition: none; }
     .leaderboard-row .row-track-wrap .track-marker.car.car-gone { opacity: 0; }
 
     /* Git stats + contribution bars */
@@ -663,8 +663,8 @@
             var finishDistance = Math.max(1, finishLeft - 20);
             var carDuration = Math.max(760, 1120 * (carDistance / finishDistance));
             var shellDistance = Math.max(1, shellHit - shellStart);
-            var shellDelay = Math.min(180, Math.max(90, carDuration * 0.16));
-            var shellDuration = Math.max(220, carDuration - shellDelay);
+            var shellDelay = Math.min(140, Math.max(70, carDuration * 0.12));
+            var shellDuration = Math.max(180, carDuration - shellDelay - 80);
             bar.style.width = '0px';
             car.animate([
               { left: '20px', transform: 'translateY(-50%) scaleX(-1)', opacity: 1 },
@@ -678,15 +678,18 @@
               shell.style.left = shellStart + 'px';
               shell.style.opacity = '1';
               shell.animate([
-                { left: shellStart + 'px', opacity: 1, transform: 'translateY(-50%) scaleX(-1) scale(0.9)' },
+                { left: shellStart + 'px', opacity: 1, transform: 'translateY(-50%) scaleX(-1) scale(0.92)' },
                 { left: shellHit + 'px', opacity: 1, transform: 'translateY(-50%) scaleX(-1) scale(1)' }
               ], { duration: shellDuration, delay: shellDelay, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' });
             }
             setTimeout(function() {
               car.style.left = crashLeft + 'px';
               car.textContent = '💥';
-              car.style.transform = 'translateY(-50%) scale(1.24)';
-              if (shell) shell.style.opacity = '0';
+              car.style.transform = 'translateY(-50%) scale(5)';
+              if (shell) {
+                shell.style.left = shellHit + 'px';
+                shell.style.opacity = '1';
+              }
               bar.animate([
                 { width: (crashLeft - 20) + 'px', opacity: 1 },
                 { width: '0px', opacity: 0 }
@@ -695,13 +698,11 @@
             setTimeout(function() {
               bar.style.width = '0px';
               bar.style.opacity = '0';
-              car.textContent = '☠';
-              car.style.left = crashLeft + 'px';
-              car.style.transform = 'translateY(-50%) scale(1)';
-              car.style.opacity = '1';
+              car.classList.add('car-gone');
+              car.style.opacity = '0';
               row.classList.add('name-visible');
               setTimeout(function() { runRow(index + 1); }, 180);
-            }, carDuration + 360);
+            }, carDuration + 320);
             return;
           }
           var barDuration = Math.max(400, (targetPct / 100) * barDurationMax);
@@ -1323,7 +1324,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-25-2026 - 17:48", "period": "2026-03-09 to 2026-03-15", "cycle": "2602", "week": 6, "team": "2602_Team01", "sourceUrl": "W06_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+319/-128", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 2, "additions": 319, "deletions": 128, "net": 191, "files": [{"path": "App.kt +148/-48"}, {"path": "FieldsScreen.kt +83/-37"}, {"path": "AddMenuSheet.kt +42/-25"}, {"path": "NodeScreen.kt +35/-12"}, {"path": "SampleTree.kt +9/-4"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 6}, "actionBreakdown": {"Daniel W.": {"Create card": 1, "Move card": 5}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 5, "dates": "Mar 9, Mar 10, Mar 12, Mar 15", "summary": ""}], "alerts": []};
+    const data = {"report": {"generated": "03-25-2026 - 17:50", "period": "2026-03-09 to 2026-03-15", "cycle": "2602", "week": 6, "team": "2602_Team01", "sourceUrl": "W06_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+319/-128", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 2, "additions": 319, "deletions": 128, "net": 191, "files": [{"path": "App.kt +148/-48"}, {"path": "FieldsScreen.kt +83/-37"}, {"path": "AddMenuSheet.kt +42/-25"}, {"path": "NodeScreen.kt +35/-12"}, {"path": "SampleTree.kt +9/-4"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 6}, "actionBreakdown": {"Daniel W.": {"Create card": 1, "Move card": 5}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 5, "dates": "Mar 9, Mar 10, Mar 12, Mar 15", "summary": ""}], "alerts": []};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     function escapeHtml(value) {
