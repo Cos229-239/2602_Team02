@@ -90,6 +90,8 @@ class EventInfoActivity : ComponentActivity() {
     }
 }
 
+
+// - Displays Event Info Content -
 @Composable
 fun EventInfoScreenUI(
     onBackClick: () -> Unit,

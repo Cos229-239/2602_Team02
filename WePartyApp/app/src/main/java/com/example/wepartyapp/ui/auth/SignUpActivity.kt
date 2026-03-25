@@ -57,6 +57,7 @@ import com.example.wepartyapp.ui.onboarding.OnboardingActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
+import android.util.Log
 
 class SignUpActivity : ComponentActivity() {
 
@@ -122,10 +123,13 @@ class SignUpActivity : ComponentActivity() {
                     // Lock the UI
                     isLoading = true
 
+
+
+
                     // Check if the completely lowercase UserID is already taken
-                    db.collection("users").whereEqualTo("appUserId", appUserId).get()
-                        .addOnSuccessListener { documents ->
-                            if (!documents.isEmpty) {
+                    db.collection("UserId_Lookup").document(appUserId).get()
+                        .addOnSuccessListener { document ->
+                            if (document.exists()) {
                                 isLoading = false
                                 errorMessage = "That UserID is already taken. Please choose another."
                                 return@addOnSuccessListener
@@ -138,11 +142,16 @@ class SignUpActivity : ComponentActivity() {
 
                                         // Save name to Firebase
                                         val user = auth.currentUser
+                                        if (user == null) {
+                                            isLoading = false
+                                            errorMessage = "Sign Up failed. Please try again."
+                                            return@addOnCompleteListener
+                                        }
                                         val profileUpdates = UserProfileChangeRequest.Builder()
                                             .setDisplayName(name)
                                             .build()
 
-                                        user?.updateProfile(profileUpdates)?.addOnCompleteListener { profileTask ->
+                                        user.updateProfile(profileUpdates).addOnCompleteListener { profileTask ->
 
                                             // --- Database Save ---
                                             val userMap = hashMapOf(
@@ -157,21 +166,33 @@ class SignUpActivity : ComponentActivity() {
 
                                             db.collection("users").document(user.uid)
                                                 .set(userMap)
-                                                .addOnSuccessListener {
-                                                    // --- Send Verification Email and Sign Out ---
-                                                    user.sendEmailVerification().addOnCompleteListener { verifyTask ->
-                                                        if (verifyTask.isSuccessful) {
-                                                            Toast.makeText(this@SignUpActivity, "Verification email sent! Check your inbox.", Toast.LENGTH_LONG).show()
-                                                        } else {
-                                                            Toast.makeText(this@SignUpActivity, "Failed to send verification email.", Toast.LENGTH_SHORT).show()
-                                                        }
+                                                    .addOnSuccessListener {
+                                                        // - Update UserId_Lookup Collection -
+                                                        db.collection("UserId_Lookup").document(appUserId)
+                                                            .set(mapOf("uid" to user.uid))
+                                                            .addOnSuccessListener {
+                                                                // --- Send Verification Email and Sign Out ---
+                                                                user.sendEmailVerification().addOnCompleteListener { verifyTask ->
+                                                                    if (verifyTask.isSuccessful) {
+                                                                        Toast.makeText(this@SignUpActivity, "Verification email sent! Check your inbox.", Toast.LENGTH_LONG).show()
+                                                                    } else {
+                                                                        Toast.makeText(this@SignUpActivity, "Failed to send verification email.", Toast.LENGTH_SHORT).show()
+                                                                    }
 
-                                                        // Sign them out immediately so they can't bypass the lock
-                                                        auth.signOut()
+                                                                    // Sign them out immediately so they can't bypass the lock
+                                                                    auth.signOut()
 
-                                                        // Send them back to the Login screen to await verification
-                                                        finish()
-                                                    }
+                                                                    // Send them back to the Login screen to await verification
+                                                                    finish()
+                                                                }
+                                                            }.addOnFailureListener { e ->
+                                                                isLoading = false
+                                                                errorMessage = "Failed to save username: ${e.message}"
+                                                            }
+
+                                                } .addOnFailureListener { e ->
+                                                    isLoading = false
+                                                    errorMessage = "Failed to save user data: ${e.message}"
                                                 }
                                         }
 
@@ -190,9 +211,10 @@ class SignUpActivity : ComponentActivity() {
                                     }
                                 }
                         }
-                        .addOnFailureListener {
+                        .addOnFailureListener { e ->
+                            Log.e("SignUpActivity", "UserID check failed", e)
                             isLoading = false
-                            errorMessage = "Network error. Could not verify UserID availability."
+                            errorMessage = "Failed to verify UserID: ${e.message}"
                         }
                 },
                 onNavigateToLogin = {
