@@ -244,17 +244,13 @@
     .trello-stat .num { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
     .trello-stat .lbl { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
     .member-row .allstar-group { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.14rem; min-height: 0.9rem; max-width: 100%; }
-    .member-row .avatar-star { cursor: default; font-size: 0.54rem; color: #f0c14b; line-height: 1; background: rgba(15,20,25,0.92); border: 1px solid rgba(240,193,75,0.7); border-radius: 999px; padding: 0.12rem 0.17rem; }
-    .member-row .avatar-star.elite { font-size: 1.08rem; padding: 0.14rem 0.26rem; box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 0 12px rgba(240,193,75,0.18); }
-    .member-row .avatar-star.badge-code,
-    .member-row .avatar-star.badge-current { color: #58a6ff; border-color: rgba(88,166,255,0.7); background: rgba(16,30,46,0.92); }
-    .member-row .avatar-star.badge-trello { color: #fb923c; border-color: rgba(251,146,60,0.74); background: rgba(52,28,10,0.92); }
-    .member-row .avatar-star.badge-standups { color: #a78bfa; border-color: rgba(167,139,250,0.72); background: rgba(28,22,46,0.92); }
-    .member-row .avatar-star.badge-sync,
-    .member-row .avatar-star.badge-build-ready,
-    .member-row .avatar-star.badge-zero-miss,
-    .member-row .avatar-star.badge-standup-streak { color: #fde68a; border-color: rgba(253,230,138,0.9); background: rgba(67,52,8,0.94); box-shadow: 0 0 0 1px rgba(255,223,107,0.18), 0 0 14px rgba(240,193,75,0.22); }
-    .member-row .avatar-star.badge-consistent { color: #fb923c; border-color: rgba(251,146,60,0.74); background: rgba(52,28,10,0.92); }
+    .member-row .avatar-star { cursor: default; font-size: 0.72rem; line-height: 1; background: rgba(15,20,25,0.92); border: 1px solid; border-radius: 999px; padding: 0.16rem 0.22rem; box-shadow: 0 0 0 1px rgba(255,255,255,0.06); }
+    .member-row .avatar-star.elite { font-size: 0.72rem; padding: 0.16rem 0.22rem; box-shadow: 0 0 0 1px rgba(255,255,255,0.06); }
+    .member-row .avatar-star.tier-common { color: #7ee787; border-color: rgba(126,231,135,0.72); background: rgba(15,48,26,0.92); }
+    .member-row .avatar-star.tier-unique { color: #58a6ff; border-color: rgba(88,166,255,0.72); background: rgba(16,30,46,0.92); }
+    .member-row .avatar-star.tier-rare { color: #fb923c; border-color: rgba(251,146,60,0.74); background: rgba(52,28,10,0.92); }
+    .member-row .avatar-star.tier-epic { color: #c084fc; border-color: rgba(192,132,252,0.78); background: rgba(40,18,62,0.92); }
+    .member-row .avatar-star.tier-legendary { color: #fde68a; border-color: rgba(253,230,138,0.9); background: rgba(67,52,8,0.94); box-shadow: 0 0 0 1px rgba(255,223,107,0.18), 0 0 14px rgba(240,193,75,0.22); }
     .has-tip { position: relative; z-index: 40; cursor: default; }
     .has-tip:hover::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); background: rgba(15,20,25,0.98); color: var(--text); border: 1px solid var(--surface2); border-radius: 6px; padding: 0.45rem 0.6rem; font-size: 0.72rem; white-space: pre-line; min-width: 11rem; max-width: 16rem; z-index: 9999; box-shadow: 0 10px 24px rgba(0,0,0,0.28); pointer-events: none; text-align: left; }
     .has-tip:hover::before { content: ''; position: absolute; left: 50%; bottom: calc(100% + 2px); transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--surface2); z-index: 9998; pointer-events: none; }
@@ -314,18 +310,15 @@
     .member-row .member-dropdown-panel p { margin: 0 0 0.45rem; color: var(--text-muted); font-size: 0.76rem; }
     .member-row .member-dropdown-panel ul { margin: 0; padding-left: 1rem; color: var(--text-muted); font-size: 0.76rem; }
     .member-row .member-dropdown-panel li { margin: 0.2rem 0; }
-    .member-row .badge-legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.35rem 0.6rem; margin: 0 0 0.7rem; }
-    .member-row .badge-legend-item { display: flex; align-items: center; gap: 0.35rem; color: var(--text-muted); font-size: 0.72rem; }
+    .member-row .badge-legend { display: grid; grid-template-columns: 1fr; gap: 0.4rem; margin: 0 0 0.7rem; }
+    .member-row .badge-legend-item { display: flex; align-items: center; gap: 0.45rem; color: var(--text-muted); font-size: 0.72rem; padding-top: 0.35rem; border-top: 1px solid rgba(255,255,255,0.07); }
+    .member-row .badge-legend-item:first-child { border-top: 0; padding-top: 0; }
     .member-row .badge-legend-item .avatar-star { flex-shrink: 0; }
-    .member-row .badge-name.badge-code,
-    .member-row .badge-name.badge-current { color: #58a6ff; }
-    .member-row .badge-name.badge-trello,
-    .member-row .badge-name.badge-consistent { color: #fb923c; }
-    .member-row .badge-name.badge-standups { color: #a78bfa; }
-    .member-row .badge-name.badge-sync,
-    .member-row .badge-name.badge-build-ready,
-    .member-row .badge-name.badge-zero-miss,
-    .member-row .badge-name.badge-standup-streak { color: #fde68a; }
+    .member-row .badge-name.tier-common { color: #7ee787; }
+    .member-row .badge-name.tier-unique { color: #58a6ff; }
+    .member-row .badge-name.tier-rare { color: #fb923c; }
+    .member-row .badge-name.tier-epic { color: #c084fc; }
+    .member-row .badge-name.tier-legendary { color: #fde68a; }
     .member-row .badge-multiplier { margin-left: 0.3rem; font-size: 0.66rem; letter-spacing: 0.05em; color: var(--text-muted); text-transform: uppercase; }
     .member-row .star-total { display: inline-flex; align-items: center; gap: 0.2rem; font-weight: 700; color: #f0c14b; }
     .member-row .star-total .star-icon { font-size: 0.82rem; }
@@ -467,7 +460,7 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.62</div>
+<div class="sidebar-version">Report.version 3.63</div>
 </nav>
   <main class="content-shell">
   <div class="container">
@@ -1361,7 +1354,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-25-2026 - 18:39", "period": "2026-03-16 to 2026-03-22", "cycle": "2602", "week": 7, "team": "2602_Team01", "sourceUrl": "W07_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+299/-95", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 2, "additions": 299, "deletions": 95, "net": 204, "files": [{"path": "NodeScreen.kt +185/-48"}, {"path": "App.kt +79/-36"}, {"path": "CategoryTile.kt +31/-7"}, {"path": "AddMenuSheet.kt +3/-3"}, {"path": "FieldsScreen.kt +1/-1"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 15}, "actionBreakdown": {"Daniel W.": {"Create card": 3, "Move card": 12}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 1, "dates": "Mar 22", "summary": ""}], "alerts": []};
+    const data = {"report": {"generated": "03-25-2026 - 19:09", "period": "2026-03-16 to 2026-03-22", "cycle": "2602", "week": 7, "team": "2602_Team01", "sourceUrl": "W07_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+299/-95", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 2, "additions": 299, "deletions": 95, "net": 204, "files": [{"path": "NodeScreen.kt +185/-48"}, {"path": "App.kt +79/-36"}, {"path": "CategoryTile.kt +31/-7"}, {"path": "AddMenuSheet.kt +3/-3"}, {"path": "FieldsScreen.kt +1/-1"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 15}, "actionBreakdown": {"Daniel W.": {"Create card": 3, "Move card": 12}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 1, "dates": "Mar 22", "summary": ""}], "alerts": []};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     function escapeHtml(value) {
@@ -1902,9 +1895,38 @@
       if (!hasHardGitIssue && !hasSoftGitIssue && trelloActions >= MIN_WEEKLY_POINTS && standups >= MIN_WEEKLY_POINTS) b.push({ key: 'build-ready', title: 'Build Ready Star', description: 'Branch is clean and all core weekly expectations were met.', multiplier: '5X' });
       return b;
     }
+    function badgeTierFor(key) {
+      if (key === 'sync' || key === 'consistent') return 'unique';
+      if (key === 'standup-streak') return 'rare';
+      if (key === 'zero-miss') return 'epic';
+      if (key === 'build-ready') return 'legendary';
+      return 'common';
+    }
+    function badgeMultiplierFor(key) {
+      if (key === 'sync' || key === 'consistent') return '2X';
+      if (key === 'standup-streak') return '3X';
+      if (key === 'zero-miss') return '4X';
+      if (key === 'build-ready') return '5X';
+      return '1X';
+    }
     function badgeLabelHtml(badge) {
-      const multiplier = badge.multiplier ? `<span class="badge-multiplier">${escapeHtml(badge.multiplier)}</span>` : '';
-      return `<span class="badge-name badge-${escapeHtml(badge.key)}">${escapeHtml(badge.title)}</span>${multiplier}`;
+      const tier = badgeTierFor(badge.key);
+      const weight = badge.multiplier || badgeMultiplierFor(badge.key);
+      const multiplier = weight ? `<span class="badge-multiplier">${escapeHtml(weight)}</span>` : '';
+      return `<span class="badge-name tier-${tier}">${escapeHtml(badge.title)}</span>${multiplier}`;
+    }
+    function badgeLegendCatalog() {
+      return [
+        { key: 'code', title: 'Code Allstar', description: 'Highest net code contribution this week based on files touched. This is code volume, not branch-health status.' },
+        { key: 'trello', title: 'Trello Allstar', description: 'Highest Trello action total this week.' },
+        { key: 'standups', title: 'Standup Allstar', description: 'Highest standup post total this week.' },
+        { key: 'current', title: 'Current Branch Star', description: 'Recent branch activity within the last few days.' },
+        { key: 'sync', title: 'No Issue Branch Star', description: 'No current Git branch warnings this week.', multiplier: '2X' },
+        { key: 'consistent', title: 'Consistent Contributor Star', description: 'Met the weekly minimums across Git, Trello, and Standups.', multiplier: '2X' },
+        { key: 'standup-streak', title: 'Standup Streak Star', description: 'Posted standups on 4 or more consecutive days this week.', multiplier: '3X' },
+        { key: 'zero-miss', title: 'Zero Misses Star', description: 'No Git warnings and no Trello or Standup minimums missed this week.', multiplier: '4X' },
+        { key: 'build-ready', title: 'Build Ready Star', description: 'Branch is clean and all core weekly expectations were met.', multiplier: '5X' }
+      ];
     }
     const badgeState = computeBadgeState(data);
     const codeLeads = badgeState.codeLeads;
@@ -2015,7 +2037,6 @@
         });
       } catch (e) {}
     }
-    const ELITE_BADGE_KEYS = new Set(['sync', 'consistent', 'standup-streak', 'zero-miss', 'build-ready']);
     function allstarsFor(name) {
       return badgesForDataset(data, name);
     }
@@ -2190,15 +2211,8 @@
     }
     document.getElementById('members-v2-root').innerHTML = data.members.map(m => {
       const stars = allstarsFor(m.name);
-      const starsHtml = stars.length ? `<span class="allstar-group">${stars.map(s => `<span class="avatar-star badge-${escapeHtml(s.key)}${ELITE_BADGE_KEYS.has(s.key) ? ' elite' : ''} has-tip" data-tip="${escapeHtml(s.title)}" aria-label="${escapeHtml(s.title)}">★</span>`).join('')}</span>` : '';
-      const badgeLegendHtml = `<div class="badge-legend">
-        <div class="badge-legend-item"><span class="avatar-star badge-code">★</span><span class="badge-name badge-code">Git / Code</span></div>
-        <div class="badge-legend-item"><span class="avatar-star badge-trello">★</span><span class="badge-name badge-trello">Trello / Agile</span></div>
-        <div class="badge-legend-item"><span class="avatar-star badge-standups">★</span><span class="badge-name badge-standups">Standups</span></div>
-        <div class="badge-legend-item"><span class="avatar-star badge-current">★</span><span class="badge-name badge-current">Current Branch</span></div>
-        <div class="badge-legend-item"><span class="avatar-star badge-consistent elite">★</span><span>${badgeLabelHtml({ key: 'consistent', title: 'Consistent Contributor Star', multiplier: '2X' })}</span></div>
-        <div class="badge-legend-item"><span class="avatar-star badge-standup-streak elite">★</span><span>${badgeLabelHtml({ key: 'standup-streak', title: 'Standup Streak Star', multiplier: '3X' })}</span></div>
-      </div>`;
+      const starsHtml = stars.length ? `<span class="allstar-group">${stars.map(s => `<span class="avatar-star tier-${badgeTierFor(s.key)} has-tip" data-tip="${escapeHtml(s.title)} · ${escapeHtml(s.multiplier || badgeMultiplierFor(s.key))}" aria-label="${escapeHtml(s.title)}">★</span>`).join('')}</span>` : '';
+      const badgeLegendHtml = `<div class="badge-legend">${badgeLegendCatalog().map(badge => `<div class="badge-legend-item has-tip" data-tip="${escapeHtml(badge.description)}"><span class="avatar-star tier-${badgeTierFor(badge.key)}">★</span><span>${badgeLabelHtml({ key: badge.key, title: badge.title, multiplier: badge.multiplier || badgeMultiplierFor(badge.key) })}</span></div>`).join('')}</div>`;
       const badgeListHtml = stars.length
         ? `<ul>${stars.map(s => `<li><strong>${badgeLabelHtml(s)}:</strong> ${escapeHtml(s.description)}</li>`).join('')}</ul>`
         : '<p>No allstar badges earned this week.</p>';
