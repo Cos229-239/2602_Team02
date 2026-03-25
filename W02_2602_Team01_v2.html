@@ -211,7 +211,7 @@
     .leaderboard-row .row-track-wrap .track-tie-label { color: #fff; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em; text-shadow: 0 1px 2px rgba(0,0,0,0.35); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.18s ease; padding: 0 0.55rem; }
     .leaderboard-row .row-track-wrap .track-speed-bar.tie-visible .track-tie-label { opacity: 1; }
     .leaderboard-row .row-track-wrap .track-marker.car { position: absolute; left: calc(20px + (100% - 32px) * (var(--leader-pct, 0) / 100)); top: 50%; transform: translateY(-50%) scaleX(-1); font-size: 0.75rem; z-index: 4; transition: none; }
-    .leaderboard-row .row-track-wrap .track-marker.shell { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); font-size: 0.72rem; z-index: 4; opacity: 0; transition: none; }
+    .leaderboard-row .row-track-wrap .track-marker.shell { position: absolute; left: 20px; top: 50%; transform: translateY(-50%) scaleX(-1); font-size: 0.72rem; z-index: 4; opacity: 0; transition: none; }
     .leaderboard-row .row-track-wrap .track-marker.car.car-gone { opacity: 0; }
 
     /* Git stats + contribution bars */
@@ -633,7 +633,7 @@
             shell.style.left = '20px';
             shell.style.opacity = '0';
             shell.textContent = '🐢';
-            shell.style.transform = 'translateY(-50%)';
+            shell.style.transform = 'translateY(-50%) scaleX(-1)';
           }
         });
         function runRow(index) {
@@ -656,22 +656,28 @@
             crashLeft = Math.min(crashLeft, finishLeft - 14);
             var shellStart = Math.max(20, crashLeft - 96);
             var shellHit = Math.max(20, crashLeft - 8);
+            var carDistance = Math.max(1, crashLeft - 20);
+            var finishDistance = Math.max(1, finishLeft - 20);
+            var carDuration = Math.max(760, 1120 * (carDistance / finishDistance));
+            var shellDistance = Math.max(1, shellHit - shellStart);
+            var shellDuration = Math.max(220, carDuration * (shellDistance / carDistance) / 1.5);
+            var shellDelay = Math.max(0, carDuration - shellDuration);
             bar.style.width = '0px';
             car.animate([
               { left: '20px', transform: 'translateY(-50%) scaleX(-1)', opacity: 1 },
               { left: crashLeft + 'px', transform: 'translateY(-50%) scaleX(-1)', opacity: 1 }
-            ], { duration: 820, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' });
+            ], { duration: carDuration, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' });
             bar.animate([
               { width: '0px', opacity: 1 },
               { width: (crashLeft - 20) + 'px', opacity: 1 }
-            ], { duration: 820, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' });
+            ], { duration: carDuration, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' });
             if (shell) {
               shell.style.left = shellStart + 'px';
               shell.style.opacity = '1';
               shell.animate([
-                { left: shellStart + 'px', opacity: 1, transform: 'translateY(-50%) scale(0.9)' },
-                { left: shellHit + 'px', opacity: 1, transform: 'translateY(-50%) scale(1)' }
-              ], { duration: 430, delay: 520, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' });
+                { left: shellStart + 'px', opacity: 1, transform: 'translateY(-50%) scaleX(-1) scale(0.9)' },
+                { left: shellHit + 'px', opacity: 1, transform: 'translateY(-50%) scaleX(-1) scale(1)' }
+              ], { duration: shellDuration, delay: shellDelay, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' });
             }
             setTimeout(function() {
               car.style.left = crashLeft + 'px';
@@ -682,7 +688,7 @@
                 { width: (crashLeft - 20) + 'px', opacity: 1 },
                 { width: '0px', opacity: 0 }
               ], { duration: 260, easing: 'ease-out', fill: 'forwards' });
-            }, 820);
+            }, carDuration);
             setTimeout(function() {
               bar.style.width = '0px';
               bar.style.opacity = '0';
@@ -692,7 +698,7 @@
               car.style.opacity = '1';
               row.classList.add('name-visible');
               setTimeout(function() { runRow(index + 1); }, 180);
-            }, 1180);
+            }, carDuration + 360);
             return;
           }
           var barDuration = Math.max(400, (targetPct / 100) * barDurationMax);
@@ -1314,7 +1320,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-25-2026 - 17:36", "period": "2026-02-09 to 2026-02-15", "cycle": "2602", "week": 2, "team": "2602_Team01", "sourceUrl": "W02_2602_Team01_v1.html", "assignmentTitle": "PNP2 \u2014 Week 02 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 02 Assignment Checks", "items": [{"assignment": "2.1 Agile Board Access & Orientation", "what": "Be verified as connected to the Trello board.", "criteria": "Student should have recognizable Trello connection evidence from the verified roster query."}, {"assignment": "2.2 Clone Your Project Repository", "what": "Clone the team repository and create a personal branch.", "criteria": "A personal branch should exist for the student in the class repo."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}, "pnp2Previous": {"week": 1, "gitConnected": true, "commits": 0, "additions": 0, "deletions": 0, "net": 0, "posts": 5}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+3006/-6", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 6, "additions": 3006, "deletions": 6, "net": 3000, "files": [{"path": "project.pbxproj +746/-0"}, {"path": "gradlew +502/-0"}, {"path": "ic_launcher_background.xml +340/-0"}, {"path": "build.gradle.kts +194/-0"}, {"path": "gradlew.bat +188/-0"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 49}, "actionBreakdown": {"Daniel W.": {"Move card": 20, "Complete checklist": 3}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 4, "dates": "Feb 10, Feb 13, Feb 14", "summary": ""}], "alerts": []};
+    const data = {"report": {"generated": "03-25-2026 - 17:39", "period": "2026-02-09 to 2026-02-15", "cycle": "2602", "week": 2, "team": "2602_Team01", "sourceUrl": "W02_2602_Team01_v1.html", "assignmentTitle": "PNP2 \u2014 Week 02 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 02 Assignment Checks", "items": [{"assignment": "2.1 Agile Board Access & Orientation", "what": "Be verified as connected to the Trello board.", "criteria": "Student should have recognizable Trello connection evidence from the verified roster query."}, {"assignment": "2.2 Clone Your Project Repository", "what": "Clone the team repository and create a personal branch.", "criteria": "A personal branch should exist for the student in the class repo."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}, "pnp2Previous": {"week": 1, "gitConnected": true, "commits": 0, "additions": 0, "deletions": 0, "net": 0, "posts": 5}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+3006/-6", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 6, "additions": 3006, "deletions": 6, "net": 3000, "files": [{"path": "project.pbxproj +746/-0"}, {"path": "gradlew +502/-0"}, {"path": "ic_launcher_background.xml +340/-0"}, {"path": "build.gradle.kts +194/-0"}, {"path": "gradlew.bat +188/-0"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 49}, "actionBreakdown": {"Daniel W.": {"Move card": 20, "Complete checklist": 3}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 4, "dates": "Feb 10, Feb 13, Feb 14", "summary": ""}], "alerts": []};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     function escapeHtml(value) {

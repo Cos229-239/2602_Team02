@@ -61,7 +61,7 @@
     .track-rank-label.rank-second { left:calc(22px + (100% - 34px) * (var(--second-pct, 0) / 100)); color:#d1d5db; }
     .track-rank-label.rank-third { left:calc(22px + (100% - 34px) * (var(--third-pct, 0) / 100)); color:#cd7f32; }
     .track-marker.car { position:absolute; left:22px; top:50%; transform:translateY(-50%) scaleX(-1); z-index:4; font-size:0.85rem; }
-    .track-marker.shell { position:absolute; left:22px; top:50%; transform:translateY(-50%); z-index:4; font-size:0.8rem; opacity:0; }
+    .track-marker.shell { position:absolute; left:22px; top:50%; transform:translateY(-50%) scaleX(-1); z-index:4; font-size:0.8rem; opacity:0; }
     .track-marker.car.car-gone { opacity:0; }
     .hero-row .track-marker.car { font-size:1rem; }
     .row-first { min-width:12rem; display:flex; align-items:center; justify-content:flex-end; gap:0.8rem; font-weight:700; }
@@ -404,7 +404,7 @@
           shell.style.left = '22px';
           shell.style.opacity = '0';
           shell.textContent = '🐢';
-          shell.style.transform = 'translateY(-50%)';
+          shell.style.transform = 'translateY(-50%) scaleX(-1)';
         }
       });
       function runRow(index) {
@@ -431,22 +431,28 @@
           crashLeft = Math.min(crashLeft, finishLeft - 14);
           const shellStart = Math.max(22, crashLeft - 96);
           const shellHit = Math.max(22, crashLeft - 8);
+          const carDistance = Math.max(1, crashLeft - 22);
+          const finishDistance = Math.max(1, finishLeft - 22);
+          const carDuration = Math.max(760, 1120 * (carDistance / finishDistance));
+          const shellDistance = Math.max(1, shellHit - shellStart);
+          const shellDuration = Math.max(220, carDuration * (shellDistance / carDistance) / 1.5);
+          const shellDelay = Math.max(0, carDuration - shellDuration);
           bar.style.width = '0px';
           car.animate([
             { left:'22px', transform:'translateY(-50%) scaleX(-1)', opacity:1 },
             { left:crashLeft + 'px', transform:'translateY(-50%) scaleX(-1)', opacity:1 }
-          ], { duration: 820, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' });
+          ], { duration: carDuration, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' });
           bar.animate([
             { width:'0px', opacity:1 },
             { width:(crashLeft - 22) + 'px', opacity:1 }
-          ], { duration: 820, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' });
+          ], { duration: carDuration, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' });
           if (shell) {
             shell.style.left = shellStart + 'px';
             shell.style.opacity = '1';
             shell.animate([
-              { left:shellStart + 'px', opacity:1, transform:'translateY(-50%) scale(0.9)' },
-              { left:shellHit + 'px', opacity:1, transform:'translateY(-50%) scale(1)' }
-            ], { duration: 430, delay: 520, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards' });
+              { left:shellStart + 'px', opacity:1, transform:'translateY(-50%) scaleX(-1) scale(0.9)' },
+              { left:shellHit + 'px', opacity:1, transform:'translateY(-50%) scaleX(-1) scale(1)' }
+            ], { duration: shellDuration, delay: shellDelay, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards' });
           }
           setTimeout(() => {
             car.style.left = crashLeft + 'px';
@@ -457,7 +463,7 @@
               { width:(crashLeft - 22) + 'px', opacity:1 },
               { width:'0px', opacity:0 }
             ], { duration: 260, easing:'ease-out', fill:'forwards' });
-          }, 820);
+          }, carDuration);
           setTimeout(() => {
             bar.style.width = '0px';
             bar.style.opacity = '0';
@@ -467,7 +473,7 @@
             car.style.opacity = '1';
             row.classList.add('name-visible');
             setTimeout(() => runRow(index + 1), 180);
-          }, 1180);
+          }, carDuration + 360);
           return;
         }
         const start = performance.now();
