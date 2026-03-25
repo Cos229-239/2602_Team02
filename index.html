@@ -3,26 +3,93 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Meeting Snapshot — Week Status</title>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <title>Meeting Snapshots — Cycle 2602</title>
   <style>
-    .report-date { background: #24292f; color: #fff; padding: 0.75rem 1rem; margin: -1rem -1rem 1.5rem -1rem; font-size: 0.95rem; }
-    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.5; }
-    h1 { border-bottom: 1px solid #ddd; padding-bottom: 0.3em; }
-    h2, h3 { margin-top: 1.5em; }
-    pre, code { background: #f6f8fa; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; }
-    pre { padding: 1em; overflow-x: auto; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ddd; padding: 0.5em; text-align: left; }
-    th { background: #f6f8fa; }
+    :root{--bg:#f6f8fa;--text:#1f2328;--accent:#0969da;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin:0;padding:0;background:var(--bg);color:var(--text);line-height:1.5;}
+    .app{display:flex;min-height:100vh;}
+    .sidebar{position:fixed;left:0;top:0;width:172px;height:100vh;overflow-y:auto;background:#141c28;color:#fff;padding:0.75rem 0;border-right:1px solid rgba(255,255,255,0.06);}
+    .sidebar a{display:block;color:rgba(230,237,243,0.82);text-decoration:none;padding:0.32rem 0.9rem;font-size:0.78rem;}
+    .sidebar a:hover{background:rgba(88,166,255,0.08);color:#fff;}
+    .sidebar a.active{background:rgba(88,166,255,0.18);color:#fff;}
+    .sidebar-brand{display:flex;flex-direction:column;align-items:center;gap:0.4rem;padding:0.75rem 0.75rem 0.85rem;border-bottom:1px solid rgba(255,255,255,0.08);text-align:center;}
+    .logo-link{flex-shrink:0;display:flex;justify-content:center;}
+    .sidebar-logo{width:34px;height:34px;display:block;}
+    .brand-text{display:flex;flex-direction:column;line-height:1.15;align-items:center;}
+    .brand-org{font-weight:700;font-size:0.74rem;letter-spacing:0.02em;}
+    .brand-cycle{font-size:0.68rem;opacity:0.82;}
+    .nav-week-group{margin-bottom:0.45rem;}
+    .nav-week{display:block;font-weight:600;font-size:0.98rem;margin-top:0.2rem;padding:0.28rem 0.9rem;}
+    .nav-team{display:flex;align-items:center;padding:0.14rem 0.9rem 0.14rem 1.15rem;font-size:0.62rem;}
+    .nav-team-bullet{display:inline-block;width:6px;height:6px;border-radius:50%;background:#f97316;margin-right:0.5rem;flex-shrink:0;}
+    .content{flex:1;margin-left:172px;padding:1.5rem;max-width:900px;}
+    .panel{background:#fff;border:1px solid #d0d7de;border-radius:10px;padding:1rem 1.25rem;}
+    h1{border-bottom:1px solid #ddd;padding-bottom:0.3em;}
+    ul{list-style:none;padding:0;}
+    li{margin:0.75rem 0;}
+    a{color:#0969da;text-decoration:none;}
+    a:hover{text-decoration:underline;}
   </style>
 </head>
 <body>
-  <div class="report-date">📅 Report generated: 2026-03-25 03:02</div>
-  <div id="content"></div>
-  <script>
-    const md = "MEETING SNAPSHOT - Cycle 2602  - Week 7\n\nGenerated: 2026-03-25 03:02\n\nTEAMS & MEMBERS\n\n2602_Team01\n- Daniel Wetenkamp\n\n2602_Team02\n- Rodney Ford\n- Lesly Morales\n- Hasani Carter\n- Maret G. Rivera Merced\n- Andy Tran\n\n## GIT \u2014 Branch Health (Risk Audit)\n\n| **2602_Team01** |\n    Branch: daniel = Ahead of Dev\n    Activity: 5d ago\n    Ahead = 2\n    Behind = 0\n    Merge Risk = LOW\n\n| **2602_Team02** |\n    Branch: AndyPersonal = Behind Dev\n    Activity: 23d ago\n    Ahead = 0\n    Behind = 113\n    Merge Risk = LOW\n\n| **2602_Team02** |\n    Branch: AndyPersonal2 = Behind Dev\n    Activity: 2d ago\n    Ahead = 0\n    Behind = 19\n    Merge Risk = LOW\n\n| **2602_Team02** |\n    Branch: HasaniPersonal = Diverged\n    Activity: TODAY\n    Ahead = 4\n    Behind = 15\n    Merge Risk = HIGH\n\n| **2602_Team02** |\n    Branch: LeslyMorales-personal = Behind Dev\n    Activity: TODAY\n    Ahead = 0\n    Behind = 5\n    Merge Risk = LOW\n\n| **2602_Team02** |\n    Branch: MaretRiveraPersonal = Behind Dev\n    Activity: TODAY\n    Ahead = 0\n    Behind = 5\n    Merge Risk = LOW\n\n| **2602_Team02** |\n    Branch: RodneyPersonal = Behind Dev\n    Activity: 1d ago\n    Ahead = 0\n    Behind = 9\n    Merge Risk = LOW\n\n\n### Quick Reference\n\n*Risk = HIGH:*\nHow likely you'll hit merge conflicts when merging up to dev. HIGH = diverged \u2014 act soon.\n\n*Behind Dev:*\ndev has commits you don't. Someone else advanced dev; pull dev to get their changes.\n\n*Ahead of Dev:*\nyour branch has commits dev doesn't. Your work isn't on dev yet; push, then merge to dev.\n\n*Diverged:*\nThe perfect storm. You updated your branch but haven't pulled dev; meanwhile dev moved. Merge conflict risk. The longer this goes on, the more of a pain it will be for you.\n\n*Activity:* when you last committed on this branch (e.g. 3d ago, TODAY)\n\n### GIT Plain-Language Status\n\nUSE the GUI in the IDE for the following \"fix\" actions, or use PowerShell (aka Terminal, aka Command Prompt). It's built into the IDE and should be on the bottom. If you don't see it, go to View \u2192 Terminal. I have included the commands for you to use in PowerShell.\n\n- Daniel W. (daniel) \u2014 \n  Last commit: 5d ago.\n  2 commit(s) not added to dev yet\n  Action: push/merge to dev when ready.\n  How to fix:\n  1. Push work from your personal branch up to dev (when it is solid).\n      Push your branch: `git push origin daniel`\n      Switch to dev: `git checkout dev`\n      Merge your branch into dev: `git merge daniel`\n      Push dev: `git push origin dev`\n      Switch back to your branch (don't stay on dev): `git checkout daniel`\n\n- gh-pages (gh-pages) \u2014 \n  Last commit: TODAY.\n  98 commit(s) not on dev yet\n  10 commit(s) on dev you don't have\n  How to fix:\n  1. Pull dev (start of the day).\n      Switch to dev: `git checkout dev`\n      Pull latest dev: `git pull origin dev`\n      Switch back to your branch (don't stay on dev): `git checkout gh-pages`\n      Merge dev into your branch: `git merge dev`\n  2. Resolve any merge conflicts (edit conflicted files, then `git add` and `git commit`).\n  3. Push to dev when work is solid (share with the team every few days).\n\n- Andy T. (AndyPersonal) \u2014 \n  Last commit: 23d ago.\n  113 commit(s) on dev you don't have\n  How to fix:\n  1. Pull dev (start of the day).\n      Switch to dev: `git checkout dev`\n      Pull latest dev: `git pull origin dev`\n      Switch back to your branch (don't stay on dev): `git checkout AndyPersonal`\n      Merge dev into your branch: `git merge dev`\n  2. Save work on your personal branch during the day (make commits with messages).\n  3. Push to dev when work is solid (share with the team every few days).\n\n- Andy T. (AndyPersonal2) \u2014 \n  Last commit: 2d ago.\n  19 commit(s) on dev you don't have\n  How to fix:\n  1. Pull dev (start of the day).\n      Switch to dev: `git checkout dev`\n      Pull latest dev: `git pull origin dev`\n      Switch back to your branch (don't stay on dev): `git checkout AndyPersonal2`\n      Merge dev into your branch: `git merge dev`\n  2. Save work on your personal branch during the day (make commits with messages).\n  3. Push to dev when work is solid (share with the team every few days).\n\n- Hasani C. (HasaniPersonal) \u2014 \n  Last commit: TODAY.\n  4 commit(s) not on dev yet\n  15 commit(s) on dev you don't have\n  How to fix:\n  1. Pull dev (start of the day).\n      Switch to dev: `git checkout dev`\n      Pull latest dev: `git pull origin dev`\n      Switch back to your branch (don't stay on dev): `git checkout HasaniPersonal`\n      Merge dev into your branch: `git merge dev`\n  2. Resolve any merge conflicts (edit conflicted files, then `git add` and `git commit`).\n  3. Push to dev when work is solid (share with the team every few days).\n\n- Lesly M. (LeslyMorales-personal) \u2014 \n  Last commit: TODAY.\n  5 commit(s) on dev you don't have\n  How to fix:\n  1. Pull dev (start of the day).\n      Switch to dev: `git checkout dev`\n      Pull latest dev: `git pull origin dev`\n      Switch back to your branch (don't stay on dev): `git checkout LeslyMorales-personal`\n      Merge dev into your branch: `git merge dev`\n  2. Save work on your personal branch during the day (make commits with messages).\n  3. Push to dev when work is solid (share with the team every few days).\n\n- Maret M. (MaretRiveraPersonal) \u2014 \n  Last commit: TODAY.\n  5 commit(s) on dev you don't have\n  How to fix:\n  1. Pull dev (start of the day).\n      Switch to dev: `git checkout dev`\n      Pull latest dev: `git pull origin dev`\n      Switch back to your branch (don't stay on dev): `git checkout MaretRiveraPersonal`\n      Merge dev into your branch: `git merge dev`\n  2. Save work on your personal branch during the day (make commits with messages).\n  3. Push to dev when work is solid (share with the team every few days).\n\n- Rodney F. (RodneyPersonal) \u2014 \n  Last commit: 1d ago.\n  9 commit(s) on dev you don't have\n  How to fix:\n  1. Pull dev (start of the day).\n      Switch to dev: `git checkout dev`\n      Pull latest dev: `git pull origin dev`\n      Switch back to your branch (don't stay on dev): `git checkout RodneyPersonal`\n      Merge dev into your branch: `git merge dev`\n  2. Save work on your personal branch during the day (make commits with messages).\n  3. Push to dev when work is solid (share with the team every few days).\n\n- gh-pages (gh-pages) \u2014 \n  Last commit: TODAY.\n  100 commit(s) not on dev yet\n  152 commit(s) on dev you don't have\n  How to fix:\n  1. Pull dev (start of the day).\n      Switch to dev: `git checkout dev`\n      Pull latest dev: `git pull origin dev`\n      Switch back to your branch (don't stay on dev): `git checkout gh-pages`\n      Merge dev into your branch: `git merge dev`\n  2. Resolve any merge conflicts (edit conflicted files, then `git add` and `git commit`).\n  3. Push to dev when work is solid (share with the team every few days).\n\n\n\n## GIT \u2014 Commits This Week\n\n2602_Team01: 63\n2602_Team02: 113\n\n## GIT \u2014 Files Touched This Week\n\n**Per person (this week):** Daniel W. +299/-95, Lesly M. +3512/-1433, Rodney F. +3792/-1028, Hasani C. +1727/-667, Maret M. +269/-100, Andy T. +94/-24\n\n### Team 1\n\nDaniel Wetenkamp : 2 commits | +299/-95 (net +204)\n  NodeScreen.kt  +185/-48\n  App.kt  +79/-36\n  CategoryTile.kt  +31/-7\n  AddMenuSheet.kt  +3/-3\n  FieldsScreen.kt  +1/-1\n  ic_docs.png  +0/-0\n  ic_folder.png  +0/-0\n\n### Team 2\n\nLesly Morales : 16 commits | +3512/-1433 (net +2079)\n  EditEventActivity.kt  +930/-445\n  EditItemActivity.kt  +439/-319\n  EventViewModel.kt  +418/-48\n  ProfileActivity.kt  +385/-68\n  EventInfoActivity.kt  +227/-61\n  MainActivity.kt  +172/-72\n  SignUpActivity.kt  +158/-70\n  InviteFriendsFragment.kt  +146/-55\n  ConsolidatedShoppingListActivity.kt  +116/-56\n  AddItems.kt  +89/-55\n  DietaryPreferencesActivity.kt  +89/-6\n  CalendarScreen.kt  +72/-91\n  EventDashboardActivity.kt  +62/-24\n  NotificationsScreen.kt  +51/-10\n  EventDetails.kt  +29/-15\n  ... and 8 more files\n\nRodney Ford : 8 commits | +3792/-1028 (net +2764)\n  ProfileActivity.kt  +770/-136\n  EventViewModel.kt  +620/-34\n  EventInfoActivity.kt  +318/-30\n  InviteFriendsFragment.kt  +276/-90\n  SignUpActivity.kt  +264/-76\n  EditEventActivity.kt  +196/-18\n  ConsolidatedShoppingListActivity.kt  +194/-80\n  DietaryPreferencesActivity.kt  +178/-12\n  MainActivity.kt  +174/-126\n  CalendarScreen.kt  +144/-182\n  AddItems.kt  +126/-78\n  NotificationsScreen.kt  +106/-24\n  EditItemActivity.kt  +98/-54\n  EventDashboardActivity.kt  +84/-18\n  EventDetails.kt  +58/-18\n  ... and 7 more files\n\nHasani Carter : 5 commits | +1727/-667 (net +1060)\n  ProfileActivity.kt  +624/-28\n  EventViewModel.kt  +442/-6\n  SignUpActivity.kt  +323/-148\n  InviteFriendsFragment.kt  +172/-2\n  EventDetails.kt  +58/-24\n  EventInfoActivity.kt  +40/-2\n  LoginActivity.kt  +30/-35\n  CreateEventActivity.kt  +26/-6\n  EditEventActivity.kt  +6/-404\n  MainActivity.kt  +4/-8\n  AddItems.kt  +2/-2\n  EditItemActivity.kt  +0/-2\n\nMaret G. Rivera Merced : 6 commits | +269/-100 (net +169)\n  MainActivity.kt  +140/-13\n  EventInfoActivity.kt  +129/-87\n\nAndy Tran : 2 commits | +94/-24 (net +70)\n  EventViewModel.kt  +94/-24\n\n\n## TRELLO \u2014 Activity This Week\n\n```\n======== Week 7 (2026-03-16 \u2192 2026-03-22) ========\n\n-------------------------------------------------\n2602_Team01\nLast Activity:\n2026-03-22\n3 days ago\n\nMembers:\n- Daniel W.\n\nAssignments:\n  Daniel W.: 1 card\n\nActivity (Week 7: 2026-03-16 \u2192 2026-03-22):\nDaniel W.:\n   15 actions\n   (Add:3 Move:12 Comment:0 Complete:0 Attach:0 Assigned:0 Label:0 Checklist:0)\n\nStatus: HEALTHY\n-------------------------------------------------\n\n-------------------------------------------------\n2602_Team02\nLast Activity:\n2026-03-24\n1 days ago\n\nMembers:\n- Andy T.\n- Hasani C.\n- Lesly M.\n- Maret M.\n- Rodney F.\n\nAssignments:\n  Andy T.: 6 cards\n  Hasani C.: 3 cards\n  Lesly M.: 7 cards\n  Maret M.: 4 cards\n  Rodney F.: 18 cards\n\nActivity (Week 7: 2026-03-16 \u2192 2026-03-22):\nAndy T.:\n   13 actions\n   (Add:1 Move:6 Comment:0 Complete:4 Attach:0 Assigned:1 Label:0 Checklist:1)\nHasani C.:\n   0 actions\nLesly M.:\n   20 actions\n   (Add:0 Move:14 Comment:0 Complete:0 Attach:4 Assigned:1 Label:0 Checklist:1)\nMaret M.:\n   5 actions\n   (Add:0 Move:4 Comment:1 Complete:0 Attach:0 Assigned:0 Label:0 Checklist:0)\nRodney F.:\n   46 actions\n   (Add:2 Move:19 Comment:2 Complete:13 Attach:7 Assigned:1 Label:0 Checklist:2)\n\nStatus: HEALTHY\n-------------------------------------------------\n```\n\n## DISCORD \u2014 Standup Posts This Week\n\n### Team 01\n\nDaniel Wetenkamp : 1\n  Dates: Mar 22\n\n### Team 02\n\nAndy Tran : 6\n  Dates: Mar 16, Mar 19, Mar 21, Mar 22\n\nLesly Morales : 6\n  Dates: Mar 17, Mar 18, Mar 20, Mar 22\n\nHasani Carter : 5\n  Dates: Mar 16, Mar 18, Mar 19\n\nRodney Ford : 5\n  Dates: Mar 17, Mar 18, Mar 19, Mar 20, Mar 21\n\nMaret G. Rivera Merced : 4\n  Dates: Mar 18, Mar 20, Mar 21\n\n\n## ISSUES / ALERTS\n\n- Hasani C. has no Trello activity this week. Update cards to reflect work done.\n- Hasani Carter has a diverged branch (merge conflict likely). Follow directions above.\n\n\n";
-    document.getElementById('content').innerHTML = marked.parse(md);
-  </script>
+<div class="app">
+<nav class="sidebar">
+<div class="sidebar-brand">
+<a href="index.html" class="logo-link"><img src="logo.png" alt="Logo" class="sidebar-logo"></a>
+<div class="brand-text"><span class="brand-org">Cos229-239</span><span class="brand-cycle">2602</span></div>
+</div>
+<a href="index.html" class="nav-home">Home</a>
+<div class="nav-week-group">
+<a href="W01.html" class="nav-week">Week 01</a>
+<a href="W01_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W01_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W02.html" class="nav-week">Week 02</a>
+<a href="W02_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W02_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W03.html" class="nav-week">Week 03</a>
+<a href="W03_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W03_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W04.html" class="nav-week">Week 04</a>
+<a href="W04_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W04_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W05.html" class="nav-week">Week 05</a>
+<a href="W05_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W05_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W06.html" class="nav-week">Week 06</a>
+<a href="W06_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W06_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W07.html" class="nav-week">Week 07</a>
+<a href="W07_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W07_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W08.html" class="nav-week">Week 08</a>
+<a href="W08_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W08_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+</nav>
+<main class="content">
+  <section class="panel">
+    <h1>Cycle 2602</h1>
+    <p>Cycle 2602 currently has <strong>2</strong> teams published to GitHub Pages.</p>
+    <p>Select a team info page below, or use the weekly navigation in the sidebar.</p>
+    <ul>
+      <li><a href="Team01.html">Team 01</a></li><li><a href="Team02.html">Team 02</a></li>
+    </ul>
+  </section>
+</main>
+</div>
 </body>
 </html>
