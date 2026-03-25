@@ -689,7 +689,11 @@
             setTimeout(function() {
               car.style.left = crashLeft + 'px';
               car.textContent = '💥';
-              car.style.transform = 'translateY(-50%) scale(5)';
+              car.animate([
+                { transform: 'translateY(-50%) scale(1.2)', opacity: 1 },
+                { transform: 'translateY(-50%) scale(5)', opacity: 1, offset: 0.72 },
+                { transform: 'translateY(-50%) scale(5)', opacity: 0, offset: 1 }
+              ], { duration: 360, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' });
               if (shell) {
                 shell.style.left = shellHit + 'px';
                 shell.style.opacity = '1';
@@ -1328,7 +1332,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-25-2026 - 17:52", "period": "2026-03-02 to 2026-03-08", "cycle": "2602", "week": 5, "team": "2602_Team01", "sourceUrl": "W05_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+527/-158", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 4, "additions": 527, "deletions": 158, "net": 369, "files": [{"path": "FieldsScreen.kt +118/-1"}, {"path": "NodeScreen.kt +93/-9"}, {"path": "AddMenuSheet.kt +62/-0"}, {"path": "NodeRepository.kt +53/-0"}, {"path": "CategoryTile.kt +43/-0"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 37}, "actionBreakdown": {"Daniel W.": {"Create card": 8, "Move card": 29}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 4, "dates": "Mar 4, Mar 5, Mar 6, Mar 7", "summary": ""}], "alerts": []};
+    const data = {"report": {"generated": "03-25-2026 - 17:55", "period": "2026-03-02 to 2026-03-08", "cycle": "2602", "week": 5, "team": "2602_Team01", "sourceUrl": "W05_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+527/-158", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 4, "additions": 527, "deletions": 158, "net": 369, "files": [{"path": "FieldsScreen.kt +118/-1"}, {"path": "NodeScreen.kt +93/-9"}, {"path": "AddMenuSheet.kt +62/-0"}, {"path": "NodeRepository.kt +53/-0"}, {"path": "CategoryTile.kt +43/-0"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 37}, "actionBreakdown": {"Daniel W.": {"Create card": 8, "Move card": 29}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 4, "dates": "Mar 4, Mar 5, Mar 6, Mar 7", "summary": ""}], "alerts": []};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     function escapeHtml(value) {
@@ -1905,7 +1909,8 @@
       stars: '★'
     };
     function leadTrack(metricTitle, tieText, leaderPct, secondPct, thirdPct, secondLabel, thirdLabel, noWinner) {
-      return `<span class="track-dot" title="Start">●</span><div class="track-rail" aria-hidden="true"></div><div class="track-speed-bar${tieText ? ' tie-visible' : ''}" style="--leader-pct:${leaderPct};" title="${metricTitle}">${tieText ? `<span class="track-tie-label">${escapeHtml(tieText)}</span>` : ''}</div>${secondPct > 0 ? `<span class="track-gap-marker second" style="--second-pct:${secondPct};" title="2nd place pace"></span><span class="track-rank-label rank-second" style="--second-pct:${secondPct};">${escapeHtml(secondLabel || '2nd')}</span>` : ''}${thirdPct > 0 ? `<span class="track-gap-marker third" style="--third-pct:${thirdPct};" title="3rd place pace"></span><span class="track-rank-label rank-third" style="--third-pct:${thirdPct};">${escapeHtml(thirdLabel || '3rd')}</span>` : ''}${!noWinner ? `<span class="track-rank-label rank-first" style="--leader-pct:${leaderPct};">1st</span>` : ''}<span class="track-marker shell${noWinner ? ' no-winner' : ''}" title="Shell">🐢</span><span class="track-marker car${noWinner ? ' no-winner' : ''}" style="--leader-pct:${leaderPct};" title="${noWinner ? 'No winner yet' : metricTitle + ' leader'}">🚗</span>`;
+      const firstPct = noWinner ? currentWeekPct : leaderPct;
+      return `<span class="track-dot" title="Start">●</span><div class="track-rail" aria-hidden="true"></div><div class="track-speed-bar${tieText ? ' tie-visible' : ''}" style="--leader-pct:${leaderPct};" title="${metricTitle}">${tieText ? `<span class="track-tie-label">${escapeHtml(tieText)}</span>` : ''}</div>${secondPct > 0 ? `<span class="track-gap-marker second" style="--second-pct:${secondPct};" title="2nd place pace"></span><span class="track-rank-label rank-second" style="--second-pct:${secondPct};">${escapeHtml(secondLabel || '2nd')}</span>` : ''}${thirdPct > 0 ? `<span class="track-gap-marker third" style="--third-pct:${thirdPct};" title="3rd place pace"></span><span class="track-rank-label rank-third" style="--third-pct:${thirdPct};">${escapeHtml(thirdLabel || '3rd')}</span>` : ''}<span class="track-rank-label rank-first" style="--leader-pct:${firstPct};">1st</span><span class="track-marker shell${noWinner ? ' no-winner' : ''}" title="Shell">🐢</span><span class="track-marker car${noWinner ? ' no-winner' : ''}" style="--leader-pct:${leaderPct};" title="${noWinner ? 'No winner yet' : metricTitle + ' leader'}">🚗</span>`;
     }
     function renderLeaderboard(lifetimeTotals) {
       const weeklyStarCounts = {};
