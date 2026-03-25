@@ -129,13 +129,13 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week active">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.49</div>
+<div class="sidebar-version">Report.version 3.56</div>
 </nav>
     <main class="content">
       <section class="hero">
         <h1>Cycle 2602 Class Leaderboard</h1>
         <p>Class-wide star leaders across the published report pages. The top row shows the lifetime allstar leader, then the category leaders for each star type.</p>
-        <div class="hero-meta">Leaderboard.version 3.48</div>
+        <div class="hero-meta">Leaderboard.version 3.56</div>
       </section>
       <section class="card">
         <h2>Lifetime Allstar</h2>
@@ -466,15 +466,20 @@
           setTimeout(() => {
             car.style.left = crashLeft + 'px';
             car.textContent = '💥';
-            car.style.transform = 'translateY(-50%) scale(5)';
+            car.animate([
+              { transform:'translateY(-50%) scale(1.2)', opacity:1 },
+              { transform:'translateY(-50%) scale(5)', opacity:1, offset:0.78 },
+              { transform:'translateY(-50%) scale(5)', opacity:0, offset:1 }
+            ], { duration: 520, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' });
             if (shell) {
               shell.style.left = shellHit + 'px';
               shell.style.opacity = '1';
             }
+            const retractDuration = Math.max(420, carDuration);
             bar.animate([
               { width:(crashLeft - 22) + 'px', opacity:1 },
               { width:'0px', opacity:0 }
-            ], { duration: 260, easing:'ease-out', fill:'forwards' });
+            ], { duration: retractDuration, easing:'linear', fill:'forwards' });
           }, carDuration);
           setTimeout(() => {
             bar.style.width = '0px';
@@ -483,7 +488,7 @@
             car.style.opacity = '0';
             row.classList.add('name-visible');
             setTimeout(() => runRow(index + 1), 180);
-          }, carDuration + 320);
+          }, carDuration + Math.max(420, carDuration));
           return;
         }
         const start = performance.now();
