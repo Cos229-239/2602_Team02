@@ -437,14 +437,14 @@
           const chasePct = progressFloor + (Math.random() * Math.max(0.06, progressCeil - progressFloor));
           let crashLeft = 22 + (trackWidthNoWinner * chasePct);
           crashLeft = Math.min(crashLeft, finishLeft - 14);
-          const shellStart = Math.max(22, crashLeft - 96);
+          const shellStart = 22;
           const shellHit = Math.max(22, crashLeft - 8);
           const carDistance = Math.max(1, crashLeft - 22);
           const finishDistance = Math.max(1, finishLeft - 22);
           const carDuration = Math.max(760, 1120 * (carDistance / finishDistance));
           const shellDistance = Math.max(1, shellHit - shellStart);
-          const shellDuration = Math.max(220, carDuration * (shellDistance / carDistance) / 1.5);
-          const shellDelay = Math.max(0, carDuration - shellDuration);
+          const shellDelay = Math.min(180, Math.max(90, carDuration * 0.16));
+          const shellDuration = Math.max(220, carDuration - shellDelay);
           bar.style.width = '0px';
           car.animate([
             { left:'22px', transform:'translateY(-50%) scaleX(-1)', opacity:1 },
