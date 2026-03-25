@@ -423,10 +423,14 @@
         const thirdPct = third ? parseFloat(third.style.getPropertyValue('--third-pct') || '0') : 0;
         if (noWinner) {
           const trackWidthNoWinner = wrap.offsetWidth - 34;
-          const crashPct = 34 + Math.random() * 42;
-          const crashLeft = 22 + (trackWidthNoWinner * (crashPct / 100));
-          const shellStart = Math.max(22, crashLeft - 90);
-          const shellHit = Math.max(22, crashLeft - 6);
+          const finishLeft = 22 + (trackWidthNoWinner * (currentWeekPct / 100));
+          const progressFloor = Math.max(0.18, (currentWeekPct / 100) * 0.48);
+          const progressCeil = Math.max(progressFloor + 0.08, (currentWeekPct / 100) * 0.9);
+          const chasePct = progressFloor + (Math.random() * Math.max(0.06, progressCeil - progressFloor));
+          let crashLeft = 22 + (trackWidthNoWinner * chasePct);
+          crashLeft = Math.min(crashLeft, finishLeft - 14);
+          const shellStart = Math.max(22, crashLeft - 96);
+          const shellHit = Math.max(22, crashLeft - 8);
           bar.style.width = '0px';
           car.animate([
             { left:'22px', transform:'translateY(-50%) scaleX(-1)', opacity:1 },
@@ -455,9 +459,12 @@
             ], { duration: 260, easing:'ease-out', fill:'forwards' });
           }, 820);
           setTimeout(() => {
-            car.classList.add('car-gone');
             bar.style.width = '0px';
             bar.style.opacity = '0';
+            car.textContent = '☠';
+            car.style.left = crashLeft + 'px';
+            car.style.transform = 'translateY(-50%) scale(1)';
+            car.style.opacity = '1';
             row.classList.add('name-visible');
             setTimeout(() => runRow(index + 1), 180);
           }, 1180);
