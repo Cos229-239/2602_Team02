@@ -392,7 +392,10 @@
         const bar = row.querySelector('.track-speed-bar');
         const car = row.querySelector('.track-marker.car');
         const shell = row.querySelector('.track-marker.shell');
-        if (bar) bar.style.width = '0px';
+        if (bar) {
+          bar.style.width = '0px';
+          bar.style.opacity = '1';
+        }
         if (car) {
           car.style.left = '22px';
           car.classList.remove('car-gone');
