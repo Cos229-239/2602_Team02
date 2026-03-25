@@ -657,14 +657,18 @@
             var chasePct = progressFloor + (Math.random() * Math.max(0.06, progressCeil - progressFloor));
             var crashLeft = 20 + (trackWidthNoWinner * chasePct);
             crashLeft = Math.min(crashLeft, finishLeft - 14);
-            var shellStart = 20;
+            var shellStart = -36;
             var shellHit = Math.max(20, crashLeft - 8);
             var carDistance = Math.max(1, crashLeft - 20);
             var finishDistance = Math.max(1, finishLeft - 20);
             var carDuration = Math.max(760, 1120 * (carDistance / finishDistance));
             var shellDistance = Math.max(1, shellHit - shellStart);
-            var shellDelay = Math.min(140, Math.max(70, carDuration * 0.12));
-            var shellDuration = Math.max(180, carDuration - shellDelay - 80);
+            var shellDelay = Math.min(260, Math.max(180, carDuration * 0.22));
+            var desiredRelativeSpeed = 1.4;
+            var shellDuration = Math.max(260, (carDuration * (shellDistance / carDistance)) / desiredRelativeSpeed);
+            if (shellDelay + shellDuration >= carDuration - 40) {
+              shellDuration = Math.max(220, carDuration - shellDelay - 40);
+            }
             bar.style.width = '0px';
             car.animate([
               { left: '20px', transform: 'translateY(-50%) scaleX(-1)', opacity: 1 },
@@ -1324,7 +1328,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-25-2026 - 17:50", "period": "2026-02-16 to 2026-02-22", "cycle": "2602", "week": 3, "team": "2602_Team01", "sourceUrl": "W03_2602_Team01_v1.html", "assignmentTitle": "PNP2 \u2014 Week 03 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 03 Assignment Checks", "items": [{"assignment": "3.1 Daily Standups", "what": "Post at least one daily standup in the team standup thread.", "criteria": "At least one standup-style post should be captured for the student during the report window."}, {"assignment": "3.2 Weekly Git Activity", "what": "Push some code tied to the project repo.", "criteria": "The report should capture commits or file-touch evidence showing that the student pushed code this week."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}, "pnp2Previous": {"week": 2, "gitConnected": true, "commits": 6, "additions": 3006, "deletions": 6, "net": 3000, "posts": 4}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+17/-20", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 1, "additions": 17, "deletions": 20, "net": -3, "files": [{"path": "App.kt +17/-20"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 13}, "actionBreakdown": {"Daniel W.": {"Move card": 7}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 4, "dates": "Feb 17, Feb 19, Feb 20", "summary": ""}], "alerts": []};
+    const data = {"report": {"generated": "03-25-2026 - 17:52", "period": "2026-02-16 to 2026-02-22", "cycle": "2602", "week": 3, "team": "2602_Team01", "sourceUrl": "W03_2602_Team01_v1.html", "assignmentTitle": "PNP2 \u2014 Week 03 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 03 Assignment Checks", "items": [{"assignment": "3.1 Daily Standups", "what": "Post at least one daily standup in the team standup thread.", "criteria": "At least one standup-style post should be captured for the student during the report window."}, {"assignment": "3.2 Weekly Git Activity", "what": "Push some code tied to the project repo.", "criteria": "The report should capture commits or file-touch evidence showing that the student pushed code this week."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}, "pnp2Previous": {"week": 2, "gitConnected": true, "commits": 6, "additions": 3006, "deletions": 6, "net": 3000, "posts": 4}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+17/-20", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 1, "additions": 17, "deletions": 20, "net": -3, "files": [{"path": "App.kt +17/-20"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 13}, "actionBreakdown": {"Daniel W.": {"Move card": 7}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 4, "dates": "Feb 17, Feb 19, Feb 20", "summary": ""}], "alerts": []};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     function escapeHtml(value) {
