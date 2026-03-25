@@ -10,7 +10,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-//import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -177,6 +176,7 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // -- Back button - returns to CSL page --
                     IconButton(onClick = {
                         val intent = Intent(context, MainActivity::class.java)
                         intent.flags =
@@ -200,6 +200,7 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // -- Page Icon --
                     Icon(
                         imageVector = Icons.Default.List,
                         contentDescription = null,
@@ -207,6 +208,7 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
                         tint = Color(0xFFBF6363)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
+                    // -- Page Title --
                     Text(
                         text = "Edit Items",
                         fontWeight = FontWeight.SemiBold,
@@ -262,18 +264,15 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
                 LaunchedEffect(priceResult.value) {
                     when (val result = priceResult.value) {
                         is NetworkResponse.Success -> {
-                            // --- We now use the Pair from the ViewModel ---
                             val itemName = result.data.first
                             val exactPrice = result.data.second
 
                             viewItemModel.updatePrice(itemName, exactPrice)
                         }
-
                         is NetworkResponse.Error -> {
                             // --- Safely display an error toast instead of corrupting the list ---
                             Toast.makeText(context, "Could not fetch price.", Toast.LENGTH_SHORT).show()
                         }
-
                         else -> {}
                     }
                 }
@@ -296,7 +295,6 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
                                 if (it.isLowerCase()) it.titlecase() else it.toString()
                             }
                             Text(text = displayName, modifier = Modifier.weight(1f), fontSize = 15.sp)
-
                             // Style the loading/error text nicely
                             Text(
                                 text = partyItem.price,
@@ -306,7 +304,6 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
                                     else -> Color.Black
                                 }
                             )
-
                             // --- Only show the delete button if they are the host ---
                             if (isHost) {
                                 Spacer(modifier = Modifier.width(16.dp))
@@ -326,6 +323,7 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
                     }
                 }
             }
+            // -- Save Button - updates item list --
             Button(
                 onClick = {
                     viewItemModel.updateEventItems(eventID)

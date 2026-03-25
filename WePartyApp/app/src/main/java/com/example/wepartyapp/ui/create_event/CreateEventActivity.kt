@@ -3,7 +3,7 @@ package com.example.wepartyapp.ui.create_event
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast // <-- Added for the graceful error popup
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -29,7 +29,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect // <-- Added for status bar
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,12 +40,12 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView // <-- Added for status bar
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat // <-- Added for status bar
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -94,14 +94,14 @@ class CreateEventActivity : ComponentActivity() {
     }
 }
 
-// CreateEventScreenUI.kt
+// CreateEventScreenUI
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewModel) {
 
-    val context = LocalContext.current // <-- Grab context for the Intent
+    val context = LocalContext.current
 
-    // --- New: Track if we should show red validation errors ---
+    // --- Tracks if we should show red validation errors ---
     var showErrors by remember { mutableStateOf(false) }
 
     // --- Validation Logic for all 4 required fields ---
@@ -154,8 +154,8 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // -- Back button - returns to main activity --
                     IconButton(onClick = {
-                        // Explicitly return to Main Activity and kill this one
                         val intent = Intent(context, MainActivity::class.java)
                         intent.flags =
                             Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -179,7 +179,7 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    //Page Icon
+                    // -- Page Icon --
                     Icon(
                         imageVector = Icons.Default.Event,
                         contentDescription = null,
@@ -187,8 +187,8 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                         tint = Color(0xFFBF6363)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
+                    // -- Page Title --
                     Text(
-                        //Page Title
                         text = "Create Event",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 30.sp,
@@ -196,18 +196,18 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                 }
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // --- New: Pass the 'showErrors' flag down to the details screen ---
+                // --- Pass the 'showErrors' flag down to the details screen ---
                 EventDetailsScreenUI(viewItemModel, showErrors)
             }
 
-            // --- Updated Button with Dynamic Toast Error Handling ---
+            // --- Next Page Button with Dynamic Toast Error Handling ---
             Button(
                 onClick = {
                     if (isFormComplete) {
                         showErrors = false // Reset errors on success
                         navController.navigate(CreateEventRoutes.addItems)
                     } else {
-                        showErrors = true // --- New: Flip the flag to true to trigger red text fields ---
+                        showErrors = true // Flip the flag to true to trigger red text fields
 
                         // Identify specifically what is missing
                         val missing = mutableListOf<String>()
@@ -220,7 +220,7 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                         Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
                     }
                 },
-                // Logic: Button remains clickable but turns gray to hint it is incomplete
+                // Button remains clickable but turns gray to hint it is incomplete
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isFormComplete) Color(0xFFFA8989) else Color.LightGray
                 ),
