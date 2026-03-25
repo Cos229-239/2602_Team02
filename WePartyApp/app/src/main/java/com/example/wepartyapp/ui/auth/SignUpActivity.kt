@@ -251,7 +251,7 @@ fun SignUpScreenUI(
             )
         )
 
-        // --- New: UserID Field ---
+        // UserID Field
         TextField(
             value = appUserId,
             onValueChange = { appUserId = it },
@@ -274,7 +274,7 @@ fun SignUpScreenUI(
             )
         )
 
-        // --- New: Phone Number Field ---
+        // Phone Number Field
         TextField(
             value = phone,
             onValueChange = { phone = it },
