@@ -12,6 +12,25 @@
     * { box-sizing:border-box; }
     body { margin:0; font-family:'DM Sans',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
     .app { display:flex; min-height:100vh; }
+    .sidebar{position:fixed;left:0;top:0;width:172px;height:100vh;overflow-y:auto;background:#141c28;color:#fff;padding:0.75rem 0;border-right:1px solid rgba(255,255,255,0.06);}
+    .sidebar a{display:block;color:rgba(230,237,243,0.82);text-decoration:none;padding:0.32rem 0.9rem;font-size:0.78rem;}
+    .sidebar a:hover{background:rgba(88,166,255,0.08);color:#fff;}
+    .sidebar a.active{background:rgba(88,166,255,0.18);color:#fff;}
+    .sidebar-brand{display:flex;flex-direction:column;align-items:center;gap:0.4rem;padding:0.75rem 0.75rem 0.85rem;border-bottom:1px solid rgba(255,255,255,0.08);text-align:center;}
+    .logo-link{flex-shrink:0;display:flex;justify-content:center;}
+    .sidebar-logo{width:34px;height:34px;display:block;}
+    .brand-text{display:flex;flex-direction:column;line-height:1.15;align-items:center;}
+    .brand-org{font-weight:700;font-size:0.74rem;letter-spacing:0.02em;}
+    .brand-cycle{font-size:0.68rem;opacity:0.82;}
+    .nav-week-group{margin-bottom:0.45rem;}
+    .nav-phase-label{display:block;padding:0.3rem 0.9rem 0.2rem;text-align:center;font-size:0.66rem;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:#8b949e;}
+    .nav-week.nav-week-current{color:#b7f7c3;background:rgba(63,185,80,0.16);}
+    .nav-week.nav-week-current:hover{background:rgba(63,185,80,0.24);color:#fff;}
+    .nav-week.nav-week-tbd{color:#fda4a4;background:rgba(248,81,73,0.08);}
+    .nav-week.nav-week-tbd:hover{background:rgba(248,81,73,0.14);color:#fff;}
+    .nav-week{display:block;font-weight:600;font-size:0.98rem;margin-top:0.2rem;padding:0.28rem 0.9rem;}
+    .nav-team{display:flex;align-items:center;padding:0.14rem 0.9rem 0.14rem 1.15rem;font-size:0.62rem;}
+    .nav-team-bullet{display:inline-block;width:6px;height:6px;border-radius:50%;background:#f97316;margin-right:0.5rem;flex-shrink:0;}
     .content { flex:1; margin-left:172px; padding:1.2rem 1.4rem 2rem; }
     @media (max-width:900px) { .content { margin-left:0; } .app { flex-direction:column; } }
     .hero, .card { background:linear-gradient(180deg, rgba(36,48,68,0.92), rgba(26,35,50,0.96)); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius); margin-bottom:1rem; }
