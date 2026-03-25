@@ -37,6 +37,7 @@
     .hero { padding:1.1rem 1.2rem; }
     .hero h1 { margin:0 0 0.35rem; font-size:1.55rem; }
     .hero p { margin:0; color:var(--text-muted); }
+    .hero-meta { margin-top:0.45rem; font-size:0.72rem; color:var(--text-muted); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
     .card h2 { margin:0; padding:1rem 1.2rem 0; font-size:1rem; letter-spacing:0.04em; text-transform:uppercase; }
     .reveal { text-align:center; padding:1.2rem; }
     .reveal button { padding:0.7rem 1.2rem; border:none; border-radius:999px; background:var(--accent); color:#07131f; font-weight:800; cursor:pointer; }
@@ -132,6 +133,7 @@
       <section class="hero">
         <h1>Cycle 2602 Class Leaderboard</h1>
         <p>Class-wide star leaders across the published report pages. The top row shows the lifetime allstar leader, then the category leaders for each star type.</p>
+        <div class="hero-meta">Leaderboard.version 3.48</div>
       </section>
       <section class="card">
         <h2>Lifetime Allstar</h2>
@@ -358,6 +360,7 @@
     </main>
   </div>
   <script>
+    const currentWeekPct = 100.00;
     function burstBehindName(target) {
       if (!target) return;
       const colors = ['#58a6ff', '#f0c14b', '#7ee787', '#f472b6', '#a78bfa'];
