@@ -243,6 +243,7 @@
     .trello-stat .lbl { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
     .member-row .allstar-group { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.14rem; min-height: 0.9rem; max-width: 100%; }
     .member-row .avatar-star { cursor: default; font-size: 0.54rem; color: #f0c14b; line-height: 1; background: rgba(15,20,25,0.92); border: 1px solid rgba(240,193,75,0.7); border-radius: 999px; padding: 0.12rem 0.17rem; }
+    .member-row .avatar-star.elite { font-size: 1.08rem; padding: 0.14rem 0.26rem; box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 0 12px rgba(240,193,75,0.18); }
     .member-row .avatar-star.badge-code,
     .member-row .avatar-star.badge-sync,
     .member-row .avatar-star.badge-current,
@@ -1273,7 +1274,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-25-2026 - 17:28", "period": "2026-02-16 to 2026-02-22", "cycle": "2602", "week": 3, "team": "2602_Team01", "sourceUrl": "W03_2602_Team01_v1.html", "assignmentTitle": "PNP2 \u2014 Week 03 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 03 Assignment Checks", "items": [{"assignment": "3.1 Daily Standups", "what": "Post at least one daily standup in the team standup thread.", "criteria": "At least one standup-style post should be captured for the student during the report window."}, {"assignment": "3.2 Weekly Git Activity", "what": "Push some code tied to the project repo.", "criteria": "The report should capture commits or file-touch evidence showing that the student pushed code this week."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}, "pnp2Previous": {"week": 2, "gitConnected": true, "commits": 6, "additions": 3006, "deletions": 6, "net": 3000, "posts": 4}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+17/-20", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 1, "additions": 17, "deletions": 20, "net": -3, "files": [{"path": "App.kt +17/-20"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 13}, "actionBreakdown": {"Daniel W.": {"Move card": 7}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 4, "dates": "Feb 17, Feb 19, Feb 20", "summary": ""}], "alerts": []};
+    const data = {"report": {"generated": "03-25-2026 - 17:31", "period": "2026-02-16 to 2026-02-22", "cycle": "2602", "week": 3, "team": "2602_Team01", "sourceUrl": "W03_2602_Team01_v1.html", "assignmentTitle": "PNP2 \u2014 Week 03 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 03 Assignment Checks", "items": [{"assignment": "3.1 Daily Standups", "what": "Post at least one daily standup in the team standup thread.", "criteria": "At least one standup-style post should be captured for the student during the report window."}, {"assignment": "3.2 Weekly Git Activity", "what": "Push some code tied to the project repo.", "criteria": "The report should capture commits or file-touch evidence showing that the student pushed code this week."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}, "pnp2Previous": {"week": 2, "gitConnected": true, "commits": 6, "additions": 3006, "deletions": 6, "net": 3000, "posts": 4}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+17/-20", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 1, "additions": 17, "deletions": 20, "net": -3, "files": [{"path": "App.kt +17/-20"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 13}, "actionBreakdown": {"Daniel W.": {"Move card": 7}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 4, "dates": "Feb 17, Feb 19, Feb 20", "summary": ""}], "alerts": []};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     function escapeHtml(value) {
@@ -1922,6 +1923,7 @@
         });
       } catch (e) {}
     }
+    const ELITE_BADGE_KEYS = new Set(['sync', 'consistent', 'standup-streak', 'zero-miss', 'build-ready']);
     function allstarsFor(name) {
       return badgesForDataset(data, name);
     }
@@ -2096,7 +2098,7 @@
     }
     document.getElementById('members-v2-root').innerHTML = data.members.map(m => {
       const stars = allstarsFor(m.name);
-      const starsHtml = stars.length ? `<span class="allstar-group">${stars.map(s => `<span class="avatar-star badge-${escapeHtml(s.key)} has-tip" data-tip="${escapeHtml(s.title)}" aria-label="${escapeHtml(s.title)}">★</span>`).join('')}</span>` : '';
+      const starsHtml = stars.length ? `<span class="allstar-group">${stars.map(s => `<span class="avatar-star badge-${escapeHtml(s.key)}${ELITE_BADGE_KEYS.has(s.key) ? ' elite' : ''} has-tip" data-tip="${escapeHtml(s.title)}" aria-label="${escapeHtml(s.title)}">★</span>`).join('')}</span>` : '';
       const badgeLegendHtml = `<div class="badge-legend">
         <div class="badge-legend-item"><span class="avatar-star badge-code">★</span><span>Git / Code</span></div>
         <div class="badge-legend-item"><span class="avatar-star badge-trello">★</span><span>Trello / Agile</span></div>
