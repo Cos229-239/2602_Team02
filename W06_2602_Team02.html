@@ -50,6 +50,14 @@
       display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;
       padding: 1rem 0; border-bottom: 1px solid var(--surface2); margin-bottom: 1.25rem;
     }
+    .phase-kicker {
+      margin: 0 0 0.35rem;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
     .v2-header h1 { font-size: 1.35rem; font-weight: 700; margin: 0; }
     .v2-ref { font-size: 0.8rem; color: var(--text-muted); margin: 0.2rem 0 0; }
     .v2-ref a { color: var(--accent); }
@@ -330,6 +338,26 @@
 </div>
 <a href="index.html" class="nav-home">Home</a>
 <div class="nav-week-group">
+<a href="W01_2602_Team02.html" class="nav-week">Week 01</a>
+<a href="W01_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W01_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W02_2602_Team02.html" class="nav-week">Week 02</a>
+<a href="W02_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W02_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W03_2602_Team02.html" class="nav-week">Week 03</a>
+<a href="W03_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W03_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W04_2602_Team02.html" class="nav-week">Week 04</a>
+<a href="W04_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W04_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
 <a href="W05_2602_Team02.html" class="nav-week">Week 05</a>
 <a href="W05_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
 <a href="W05_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
@@ -354,6 +382,7 @@
   <div class="container">
     <header class="v2-header">
       <div>
+        <p class="phase-kicker" id="v2-phase-kicker" hidden></p>
         <h1 id="v2-header-title">— Dashboard V2</h1>
         <p class="v2-ref"><a id="link-v1-page" href="#">V1</a> · <a id="link-lms-table" href="#">LMS Data</a></p>
         <div class="v2-meta-block">
@@ -1137,16 +1166,26 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-24-2026 - 16:59", "period": "2026-03-09 to 2026-03-15", "cycle": "2602", "week": 6, "team": "2602_Team02", "sourceUrl": "W06_2602_Team02_v1.html"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Hasani C.", "git": "active", "trello": true, "discord": true, "githubUsername": "4hzzz"}, {"name": "Maret M.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}, {"name": "Andy T.", "git": "active", "trello": true, "discord": true, "githubUsername": ""}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Inactive", "activity": "22d ago", "contribution": "+60/-48", "aheadBehind": "0 / 105", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "2d ago", "contribution": "+60/-48", "aheadBehind": "0 / 11", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Behind", "activity": "13d ago", "contribution": "+12381/-628", "aheadBehind": "0 / 59", "risk": "LOW", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Ahead", "activity": "TODAY", "contribution": "+1776/-945", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Diverged", "activity": "2d ago", "contribution": "+932/-420", "aheadBehind": "1 / 12", "risk": "HIGH", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "TODAY", "contribution": "+1208/-667", "aheadBehind": "0 / 1", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Hasani C.", "workingFrom": "Org Repo / Fork (@4hzzz)", "commits": 3, "additions": 12381, "deletions": 628, "net": 11753}, {"person": "Lesly M.", "workingFrom": "Org repo", "commits": 5, "additions": 1776, "deletions": 945, "net": 831}, {"person": "Rodney F.", "workingFrom": "Org repo", "commits": 8, "additions": 1208, "deletions": 667, "net": 541}, {"person": "Maret M.", "workingFrom": "Org repo", "commits": 6, "additions": 932, "deletions": 420, "net": 512}, {"person": "Andy T.", "workingFrom": "Org repo", "commits": 2, "additions": 60, "deletions": 48, "net": 12}], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 18}, "actions": {"Andy T.": 11, "Hasani C.": 1, "Lesly M.": 13, "Maret M.": 20, "Rodney F.": 18}, "actionBreakdown": {"Andy T.": {"Create card": 1, "Move card": 3, "Complete checklist": 4}, "Hasani C.": {"Comment": 1}, "Lesly M.": {"Move card": 9}, "Maret M.": {"Create card": 1, "Move card": 6, "Complete checklist": 8}, "Rodney F.": {"Create card": 1, "Move card": 8, "Complete checklist": 6}}, "status": "HEALTHY"}, "discord": [{"person": "Lesly M.", "posts": 5, "dates": "Mar 10, Mar 11, Mar 12, Mar 13", "summary": "Worked on implementing deep linking features and addressed issues with the share button functionality. Plans to continue research and development based on feedback from build review."}, {"person": "Andy T.", "posts": 4, "dates": "Mar 11, Mar 12, Mar 14, Mar 15", "summary": "Focuses on testing and completing the script for the unread messages indicator while collaborating with team on Trello updates. Plans to resolve any errors and optimize code before merging."}, {"person": "Hasani C.", "posts": 4, "dates": "Mar 9, Mar 11, Mar 12", "summary": "Engaged in testing and validating login flows, cleaned up code, and ensured branch updates were correct. Plans to continue working with personal branch and take on new tasks."}, {"person": "Maret M.", "posts": 4, "dates": "Mar 11, Mar 12, Mar 14", "summary": "Focused on improving the Event Info Page and integrating Firebase for user attendance tracking. Plans to polish UI and finalize features before the week ends."}, {"person": "Rodney F.", "posts": 3, "dates": "Mar 9, Mar 12, Mar 14", "summary": "Worked on error handling screens and deep linking integration while balancing personal commitments. Intends to complete the error handling across all screens."}], "alerts": [{"type": "warn", "text": "Maret M. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Hasani C. branch has not had activity in 13 days."}, {"type": "warn", "text": "Maret M. has a diverged branch (merge conflict likely)."}]};
+    const data = {"report": {"generated": "03-25-2026 - 01:36", "period": "2026-03-09 to 2026-03-15", "cycle": "2602", "week": 6, "team": "2602_Team02", "sourceUrl": "W06_2602_Team02_v1.html"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}, {"name": "Hasani C.", "git": "active", "trello": true, "discord": false, "githubUsername": "4hzzz"}, {"name": "Maret M.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}, {"name": "Andy T.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Inactive", "activity": "23d ago", "contribution": "+60/-48", "aheadBehind": "0 / 113", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "2d ago", "contribution": "+60/-48", "aheadBehind": "0 / 19", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Diverged", "activity": "TODAY", "contribution": "+12381/-628", "aheadBehind": "4 / 15", "risk": "HIGH", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Behind", "activity": "TODAY", "contribution": "+1776/-945", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "TODAY", "contribution": "+932/-420", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "1d ago", "contribution": "+1208/-667", "aheadBehind": "0 / 9", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Hasani C.", "workingFrom": "Org Repo / Fork (@4hzzz)", "commits": 3, "additions": 12381, "deletions": 628, "net": 11753, "files": [{"path": "package-lock.json +7247/-0"}, {"path": "MainActivity.kt +573/-96"}, {"path": "ProfileActivity.kt +425/-0"}, {"path": "EventViewModel.kt +412/-19"}, {"path": "EventDashboardActivity.kt +391/-13"}]}, {"person": "Lesly M.", "workingFrom": "Org repo", "commits": 5, "additions": 1776, "deletions": 945, "net": 831, "files": [{"path": "AddItems.kt +399/-273"}, {"path": "InviteFriendsFragment.kt +314/-230"}, {"path": "ChatFeedContent.kt +272/-58"}, {"path": "CreateEventActivity.kt +266/-163"}, {"path": "EventViewModel.kt +204/-58"}]}, {"person": "Rodney F.", "workingFrom": "Org repo", "commits": 8, "additions": 1208, "deletions": 667, "net": 541, "files": [{"path": "AddItems.kt +255/-144"}, {"path": "InviteFriendsFragment.kt +196/-130"}, {"path": "CreateEventActivity.kt +181/-86"}, {"path": "ProfileActivity.kt +138/-82"}, {"path": "EditItemActivity.kt +100/-56"}]}, {"person": "Maret M.", "workingFrom": "Org repo", "commits": 6, "additions": 932, "deletions": 420, "net": 512, "files": [{"path": "EventInfoActivity.kt +278/-42"}, {"path": "AddItems.kt +181/-134"}, {"path": "EventViewModel.kt +148/-6"}, {"path": "InviteFriendsFragment.kt +147/-110"}, {"path": "CreateEventActivity.kt +117/-80"}]}, {"person": "Andy T.", "workingFrom": "Org repo", "commits": 2, "additions": 60, "deletions": 48, "net": 12, "files": [{"path": "EventViewModel.kt +40/-30"}, {"path": "EventDashboardActivity.kt +18/-16"}, {"path": "ChatFeedContent.kt +2/-2"}]}], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 18}, "actions": {"Andy T.": 11, "Hasani C.": 1, "Lesly M.": 13, "Maret M.": 20, "Rodney F.": 18}, "actionBreakdown": {"Andy T.": {"Create card": 1, "Move card": 3, "Complete checklist": 4}, "Hasani C.": {"Comment": 1}, "Lesly M.": {"Move card": 9}, "Maret M.": {"Create card": 1, "Move card": 6, "Complete checklist": 8}, "Rodney F.": {"Create card": 1, "Move card": 8, "Complete checklist": 6}}, "status": "HEALTHY"}, "discord": [], "alerts": [{"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Andy T. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Lesly M. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Maret M. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Hasani C. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Rodney F. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely)."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     (function setupHeaderLinks() {
+      var kickerEl = document.getElementById('v2-phase-kicker');
       var titleEl = document.getElementById('v2-header-title');
       if (titleEl && data.report) {
         var cycle = (data.report.cycle || '').toString();
         var team = (data.report.team || '').toString();
         var prefix = (team || cycle || '').trim();
         titleEl.textContent = prefix ? prefix + ' — Dashboard V2' : 'Dashboard V2';
+        var assignmentTitle = (data.report.assignmentTitle || '').toString().trim();
+        if (kickerEl) {
+          if (assignmentTitle) {
+            kickerEl.textContent = assignmentTitle;
+            kickerEl.hidden = false;
+          } else {
+            kickerEl.hidden = true;
+          }
+        }
       }
       var snapshotEl = document.getElementById('v2-snapshot-line');
       var generatedEl = document.getElementById('v2-generated-line');
