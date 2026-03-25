@@ -38,6 +38,8 @@
     .brand-cycle{font-size:0.68rem;opacity:0.82;}
     .nav-week-group{margin-bottom:0.45rem;}
     .nav-phase-label{display:block;padding:0.3rem 0.9rem 0.2rem;text-align:center;font-size:0.66rem;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:#8b949e;}
+    .nav-week.nav-week-current{color:#b7f7c3;background:rgba(63,185,80,0.16);}
+    .nav-week.nav-week-current:hover{background:rgba(63,185,80,0.24);color:#fff;}
     .nav-week.nav-week-tbd{color:#fda4a4;background:rgba(248,81,73,0.08);}
     .nav-week.nav-week-tbd:hover{background:rgba(248,81,73,0.14);color:#fff;}
     .nav-week{display:block;font-weight:600;font-size:0.98rem;margin-top:0.2rem;padding:0.28rem 0.9rem;}
@@ -193,14 +195,18 @@
     .leaderboard-row .row-name { opacity: 0; transform: scale(8); transition: opacity 0.6s ease, transform 0.6s ease; transform-origin: right center; }
     .leaderboard-row.name-visible .row-name { opacity: 1; transform: scale(1); }
     .leaderboard-row .row-label { flex: 0 0 6.5rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); padding-right: 0.25rem; }
-    .leaderboard-row .row-track-wrap { flex: 1 1 140px; min-width: 100px; height: 24px; background: var(--surface2); border-radius: 999px; position: relative; padding-left: 20px; padding-right: 12px; box-sizing: border-box; }
+    .leaderboard-row .row-track-wrap { flex: 1 1 140px; min-width: 100px; height: 24px; background: var(--surface2); border-radius: 999px; position: relative; padding-left: 20px; padding-right: 12px; box-sizing: border-box; overflow: hidden; }
     .leaderboard-row .row-track-wrap .track-dot { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); font-size: 0.65rem; color: var(--text-muted); z-index: 2; }
-    .leaderboard-row .row-track-wrap .track-speed-bar { position: absolute; top: 2px; bottom: 2px; left: 20px; background: var(--success); border-radius: 999px; z-index: 1; min-width: 4px; transition: none; overflow: visible; display: flex; align-items: center; justify-content: center; }
+    .leaderboard-row .row-track-wrap .track-rail { position: absolute; left: 20px; right: 12px; top: 2px; bottom: 2px; border-radius: 999px; background: repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0, rgba(255,255,255,0.08) calc(12.5% - 1px), rgba(15,20,25,0.62) calc(12.5% - 1px), rgba(15,20,25,0.62) 12.5%); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04); z-index: 0; }
+    .leaderboard-row .row-track-wrap .track-speed-bar { position: absolute; top: 2px; bottom: 2px; left: 20px; width: calc((100% - 32px) * (var(--leader-pct, 0) / 100)); background: var(--success); border-radius: 999px; z-index: 1; min-width: 0; transition: none; overflow: visible; display: flex; align-items: center; justify-content: center; }
     .leaderboard-row.stars-row .row-track-wrap .track-speed-bar { background: var(--success); }
     .leaderboard-row.stars-row .row-track-wrap { box-shadow: inset 0 0 0 1px rgba(63,185,80,0.18); }
+    .leaderboard-row .row-track-wrap .track-gap-marker { position: absolute; top: 1px; bottom: 1px; width: 2px; border-radius: 999px; z-index: 3; opacity: 0.92; }
+    .leaderboard-row .row-track-wrap .track-gap-marker.second { left: calc(20px + (100% - 32px) * (var(--second-pct, 0) / 100)); background: rgba(255,255,255,0.94); }
+    .leaderboard-row .row-track-wrap .track-gap-marker.third { left: calc(20px + (100% - 32px) * (var(--third-pct, 0) / 100)); background: rgba(253,224,71,0.95); }
     .leaderboard-row .row-track-wrap .track-tie-label { color: #fff; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em; text-shadow: 0 1px 2px rgba(0,0,0,0.35); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.18s ease; padding: 0 0.55rem; }
     .leaderboard-row .row-track-wrap .track-speed-bar.tie-visible .track-tie-label { opacity: 1; }
-    .leaderboard-row .row-track-wrap .track-marker.car { position: absolute; left: 20px; top: 50%; transform: translateY(-50%) scaleX(-1); font-size: 0.75rem; z-index: 2; transition: none; }
+    .leaderboard-row .row-track-wrap .track-marker.car { position: absolute; left: calc(20px + (100% - 32px) * (var(--leader-pct, 0) / 100)); top: 50%; transform: translateY(-50%) scaleX(-1); font-size: 0.75rem; z-index: 4; transition: none; }
 
     /* Git stats + contribution bars */
     .git-stats { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
@@ -437,7 +443,7 @@
 <a href="W07_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
 </div>
 <div class="nav-week-group">
-<a href="W08_2602_Team02.html" class="nav-week">Week 08</a>
+<a href="W08_2602_Team02.html" class="nav-week nav-week-current">Week 08</a>
 <a href="W08_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
 <a href="W08_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
 </div>
@@ -1235,7 +1241,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-25-2026 - 15:23", "period": "2026-02-09 to 2026-02-15", "cycle": "2602", "week": 2, "team": "2602_Team02", "sourceUrl": "W02_2602_Team02_v1.html", "assignmentTitle": "PNP2 \u2014 Week 02 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 02 Assignment Checks", "items": [{"assignment": "2.1 Agile Board Access & Orientation", "what": "Be verified as connected to the Trello board.", "criteria": "Student should have recognizable Trello connection evidence from the verified roster query."}, {"assignment": "2.2 Clone Your Project Repository", "what": "Clone the team repository and create a personal branch.", "criteria": "A personal branch should exist for the student in the class repo."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Rodney Ford", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "Rodford", "githubEmail": "rodford37@gmail.com", "trelloConnected": true, "trelloEmail": "rmford@student.fullsail.edu", "trelloUsername": "rodney_ford", "trelloMemberId": "69816570d1d8fee72b70882f"}, "pnp2Previous": {"week": 1, "gitConnected": true, "commits": 0, "additions": 0, "deletions": 0, "net": 0, "posts": 0}}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Lesly Morales", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "Lesly-AM", "githubEmail": "LDMorales1@student.fullsail.edu", "trelloConnected": true, "trelloEmail": "LDMorales1@student.fullsail.edu", "trelloUsername": "leslymorales13", "trelloMemberId": "6983f53993fd6b41176e7efa"}, "pnp2Previous": {"week": 1, "gitConnected": true, "commits": 0, "additions": 0, "deletions": 0, "net": 0, "posts": 0}}, {"name": "Hasani C.", "git": "active", "trello": true, "discord": false, "githubUsername": "4hzzz", "pnp2Setup": {"name": "Hasani Carter", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "4hzzz", "githubEmail": "pbmhasani@gmail.com", "trelloConnected": true, "trelloEmail": "hscarter@student.fullsail.edu", "trelloUsername": "hscarter", "trelloMemberId": "698238572995a2bc2d19f06f"}, "pnp2Previous": {"week": 1, "gitConnected": true, "commits": 0, "additions": 0, "deletions": 0, "net": 0, "posts": 0}}, {"name": "Maret M.", "git": "active", "trello": true, "discord": false, "githubUsername": "", "pnp2Setup": {"name": "Maret G. Rivera Merced", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "MarRivMer", "githubEmail": "maretr50@gmail.com", "trelloConnected": true, "trelloEmail": "mgriveramerced@student.fullsail.edu", "trelloUsername": "mgriveramerced", "trelloMemberId": "6984f01ab2de073c425e00d7"}, "pnp2Previous": {"week": 1, "gitConnected": true, "commits": 0, "additions": 0, "deletions": 0, "net": 0, "posts": 1}}, {"name": "Andy T.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Andy Tran", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "717Andy", "githubEmail": "andytran7381@yahoo.com", "trelloConnected": true, "trelloEmail": "ahtran@student.fullsail.edu", "trelloUsername": "ahtran1", "trelloMemberId": "6990c0ea796cdff5a95fa3d9"}, "pnp2Previous": {"week": 1, "gitConnected": true, "commits": 0, "additions": 0, "deletions": 0, "net": 0, "posts": 0}}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Inactive", "activity": "23d ago", "contribution": "\u2014", "aheadBehind": "0 / 113", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "3d ago", "contribution": "\u2014", "aheadBehind": "0 / 19", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Diverged", "activity": "TODAY", "contribution": "\u2014", "aheadBehind": "4 / 15", "risk": "HIGH", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Behind", "activity": "TODAY", "contribution": "\u2014", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "TODAY", "contribution": "\u2014", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "1d ago", "contribution": "+1010/-0", "aheadBehind": "0 / 9", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Rodney F.", "workingFrom": "Org repo", "commits": 2, "additions": 1010, "deletions": 0, "net": 1010, "files": [{"path": "gradlew +251/-0"}, {"path": "ic_launcher_background.xml +170/-0"}, {"path": "gradlew.bat +94/-0"}, {"path": "Theme.kt +58/-0"}, {"path": "build.gradle.kts +56/-0"}]}], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 18}, "actions": {"Andy T.": 2, "Hasani C.": 7, "Lesly M.": 29, "Maret M.": 85, "Rodney F.": 13}, "actionBreakdown": {"Andy T.": {}, "Hasani C.": {"Move card": 5}, "Lesly M.": {"Move card": 13, "Comment": 1, "Complete checklist": 8}, "Maret M.": {"Create card": 13, "Move card": 57, "Complete checklist": 10}, "Rodney F.": {"Move card": 3, "Comment": 2, "Complete checklist": 3}}, "status": "HEALTHY"}, "discord": [{"person": "Andy T.", "posts": 2, "dates": "Feb 9", "summary": ""}, {"person": "Rodney F.", "posts": 2, "dates": "Feb 14, Feb 15", "summary": ""}, {"person": "01Thatoneguy01", "posts": 1, "dates": "Feb 9", "summary": ""}, {"person": "Lesly M.", "posts": 1, "dates": "Feb 15", "summary": ""}], "alerts": [{"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Hasani C. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Maret M. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely)."}]};
+    const data = {"report": {"generated": "03-25-2026 - 15:46", "period": "2026-02-09 to 2026-02-15", "cycle": "2602", "week": 2, "team": "2602_Team02", "sourceUrl": "W02_2602_Team02_v1.html", "assignmentTitle": "PNP2 \u2014 Week 02 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 02 Assignment Checks", "items": [{"assignment": "2.1 Agile Board Access & Orientation", "what": "Be verified as connected to the Trello board.", "criteria": "Student should have recognizable Trello connection evidence from the verified roster query."}, {"assignment": "2.2 Clone Your Project Repository", "what": "Clone the team repository and create a personal branch.", "criteria": "A personal branch should exist for the student in the class repo."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Rodney Ford", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "Rodford", "githubEmail": "rodford37@gmail.com", "trelloConnected": true, "trelloEmail": "rmford@student.fullsail.edu", "trelloUsername": "rodney_ford", "trelloMemberId": "69816570d1d8fee72b70882f"}, "pnp2Previous": {"week": 1, "gitConnected": true, "commits": 0, "additions": 0, "deletions": 0, "net": 0, "posts": 0}}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Lesly Morales", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "Lesly-AM", "githubEmail": "LDMorales1@student.fullsail.edu", "trelloConnected": true, "trelloEmail": "LDMorales1@student.fullsail.edu", "trelloUsername": "leslymorales13", "trelloMemberId": "6983f53993fd6b41176e7efa"}, "pnp2Previous": {"week": 1, "gitConnected": true, "commits": 0, "additions": 0, "deletions": 0, "net": 0, "posts": 0}}, {"name": "Hasani C.", "git": "active", "trello": true, "discord": false, "githubUsername": "4hzzz", "pnp2Setup": {"name": "Hasani Carter", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "4hzzz", "githubEmail": "pbmhasani@gmail.com", "trelloConnected": true, "trelloEmail": "hscarter@student.fullsail.edu", "trelloUsername": "hscarter", "trelloMemberId": "698238572995a2bc2d19f06f"}, "pnp2Previous": {"week": 1, "gitConnected": true, "commits": 0, "additions": 0, "deletions": 0, "net": 0, "posts": 0}}, {"name": "Maret M.", "git": "active", "trello": true, "discord": false, "githubUsername": "", "pnp2Setup": {"name": "Maret G. Rivera Merced", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "MarRivMer", "githubEmail": "maretr50@gmail.com", "trelloConnected": true, "trelloEmail": "mgriveramerced@student.fullsail.edu", "trelloUsername": "mgriveramerced", "trelloMemberId": "6984f01ab2de073c425e00d7"}, "pnp2Previous": {"week": 1, "gitConnected": true, "commits": 0, "additions": 0, "deletions": 0, "net": 0, "posts": 1}}, {"name": "Andy T.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Andy Tran", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "717Andy", "githubEmail": "andytran7381@yahoo.com", "trelloConnected": true, "trelloEmail": "ahtran@student.fullsail.edu", "trelloUsername": "ahtran1", "trelloMemberId": "6990c0ea796cdff5a95fa3d9"}, "pnp2Previous": {"week": 1, "gitConnected": true, "commits": 0, "additions": 0, "deletions": 0, "net": 0, "posts": 0}}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Inactive", "activity": "23d ago", "contribution": "\u2014", "aheadBehind": "0 / 113", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "3d ago", "contribution": "\u2014", "aheadBehind": "0 / 19", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Diverged", "activity": "TODAY", "contribution": "\u2014", "aheadBehind": "4 / 15", "risk": "HIGH", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Behind", "activity": "TODAY", "contribution": "\u2014", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "TODAY", "contribution": "\u2014", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "1d ago", "contribution": "+1010/-0", "aheadBehind": "0 / 9", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Rodney F.", "workingFrom": "Org repo", "commits": 2, "additions": 1010, "deletions": 0, "net": 1010, "files": [{"path": "gradlew +251/-0"}, {"path": "ic_launcher_background.xml +170/-0"}, {"path": "gradlew.bat +94/-0"}, {"path": "Theme.kt +58/-0"}, {"path": "build.gradle.kts +56/-0"}]}], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 18}, "actions": {"Andy T.": 2, "Hasani C.": 7, "Lesly M.": 29, "Maret M.": 85, "Rodney F.": 13}, "actionBreakdown": {"Andy T.": {}, "Hasani C.": {"Move card": 5}, "Lesly M.": {"Move card": 13, "Comment": 1, "Complete checklist": 8}, "Maret M.": {"Create card": 13, "Move card": 57, "Complete checklist": 10}, "Rodney F.": {"Move card": 3, "Comment": 2, "Complete checklist": 3}}, "status": "HEALTHY"}, "discord": [{"person": "Andy T.", "posts": 2, "dates": "Feb 9", "summary": ""}, {"person": "Rodney F.", "posts": 2, "dates": "Feb 14, Feb 15", "summary": ""}, {"person": "01Thatoneguy01", "posts": 1, "dates": "Feb 9", "summary": ""}, {"person": "Lesly M.", "posts": 1, "dates": "Feb 15", "summary": ""}], "alerts": [{"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Hasani C. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Maret M. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely)."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     function escapeHtml(value) {
@@ -1510,11 +1516,11 @@
           {
             key: 'discord',
             label: 'Discord',
-            ok: memberStandupPosts(member) > 1,
+            ok: memberStandupPosts(member) >= 3,
             graded: true,
-            passText: 'More than one standup post was captured this week.',
-            failText: 'Fewer than two standup posts were captured this week.',
-            resolveText: 'Post at least two standup updates this week so Week 04 passes the standup check.',
+            passText: 'Three or more standup posts were captured this week.',
+            failText: 'Fewer than three standup posts were captured this week.',
+            resolveText: 'Post at least three standup updates this week so Week 04 passes the standup check.',
           },
           {
             key: 'git',
@@ -1648,8 +1654,9 @@
       const sorted = Object.entries(entries || {}).sort((a, b) => b[1] - a[1]);
       const leadVal = sorted[0]?.[1] ?? 0;
       const secondVal = sorted[1]?.[1] ?? 0;
+      const thirdVal = sorted[2]?.[1] ?? 0;
       const leads = leadVal ? sorted.filter(([, v]) => v === leadVal).map(([n]) => n) : [];
-      return { sorted, leadVal, secondVal, leads };
+      return { sorted, leadVal, secondVal, thirdVal, leads };
     }
     function computeBadgeState(dataset) {
       const netByPersonMap = {};
@@ -1663,12 +1670,15 @@
         codeLeads: code.leads,
         codeLeadVal: code.leadVal,
         codeSecondVal: code.secondVal,
+        codeThirdVal: code.thirdVal,
         trelloLeads: trello.leads,
         trelloLeadVal: trello.leadVal,
         trelloSecondVal: trello.secondVal,
+        trelloThirdVal: trello.thirdVal,
         standupsLeads: standups.leads,
         standupsLeadVal: standups.leadVal,
         standupsSecondVal: standups.secondVal,
+        standupsThirdVal: standups.thirdVal,
       };
     }
     function branchMapFor(dataset) {
@@ -1752,7 +1762,7 @@
       });
       const trelloActions = trelloCountForDataset(dataset, name);
       const standups = standupCountForDataset(dataset, name);
-      if (branches.length && !hasHardGitIssue && !hasSoftGitIssue) b.push({ key: 'sync', title: 'In Sync Star', description: 'No current Git branch warnings this week.' });
+      if (branches.length && !hasHardGitIssue && !hasSoftGitIssue) b.push({ key: 'sync', title: 'No Issue Branch Star', description: 'No current Git branch warnings this week.' });
       if (recentBranch) b.push({ key: 'current', title: 'Current Branch Star', description: 'Recent branch activity within the last few days.' });
       if (hasConsecutiveStandupDays(dataset, name, 4)) b.push({ key: 'standup-streak', title: 'Standup Streak Star', description: 'Posted standups on 4 or more consecutive days this week.' });
       if (!hasHardGitIssue && trelloActions >= MIN_WEEKLY_POINTS && standups >= MIN_WEEKLY_POINTS) b.push({ key: 'consistent', title: 'Consistent Contributor Star', description: 'Met the weekly minimums across Git, Trello, and Standups.' });
@@ -1764,12 +1774,15 @@
     const codeLeads = badgeState.codeLeads;
     const codeLeadVal = badgeState.codeLeadVal;
     const codeSecondVal = badgeState.codeSecondVal;
+    const codeThirdVal = badgeState.codeThirdVal;
     const trelloLeads = badgeState.trelloLeads;
     const trelloLeadVal = badgeState.trelloLeadVal;
     const trelloSecondVal = badgeState.trelloSecondVal;
+    const trelloThirdVal = badgeState.trelloThirdVal;
     const standupsLeads = badgeState.standupsLeads;
     const standupsLeadVal = badgeState.standupsLeadVal;
     const standupsSecondVal = badgeState.standupsSecondVal;
+    const standupsThirdVal = badgeState.standupsThirdVal;
     function tieLabel(count) {
       if (count <= 1) return '';
       if (count === 2) return 'Two-way tie!';
@@ -1783,30 +1796,33 @@
       standups: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>',
       stars: '★'
     };
-    function leadTrack(metricTitle, tieText) {
-      return `<span class="track-dot" title="Start">●</span><div class="track-speed-bar" style="width:0;" title="${metricTitle}">${tieText ? `<span class="track-tie-label">${escapeHtml(tieText)}</span>` : ''}</div><span class="track-marker car" style="left:20px;" title="${metricTitle}">🚗</span>`;
+    function leadTrack(metricTitle, tieText, leaderPct, secondPct, thirdPct) {
+      return `<span class="track-dot" title="Start">●</span><div class="track-rail" aria-hidden="true"></div><div class="track-speed-bar${tieText ? ' tie-visible' : ''}" style="--leader-pct:${leaderPct};" title="${metricTitle}">${tieText ? `<span class="track-tie-label">${escapeHtml(tieText)}</span>` : ''}</div>${secondPct > 0 ? `<span class="track-gap-marker second" style="--second-pct:${secondPct};" title="2nd place pace"></span>` : ''}${thirdPct > 0 ? `<span class="track-gap-marker third" style="--third-pct:${thirdPct};" title="3rd place pace"></span>` : ''}<span class="track-marker car" style="--leader-pct:${leaderPct};" title="${metricTitle} leader">🚗</span>`;
     }
     function renderLeaderboard(lifetimeTotals) {
       const weeklyStarCounts = {};
       data.members.forEach(m => { weeklyStarCounts[m.name] = allstarsFor(m.name).length; });
       const weeklyStarsLead = computeLeadState(weeklyStarCounts);
       const lifetimeLead = computeLeadState(lifetimeTotals || weeklyStarCounts);
+      const currentWeekPct = Math.max(0, Math.min(100, ((currentWeek || 0) / 8) * 100));
       document.getElementById('leaderboard-v2-root').innerHTML = [
-        { badge: 'code', title: 'Git', labelText: '#1 in Git', first: codeLeads, firstVal: codeLeadVal, secondVal: codeSecondVal },
-        { badge: 'trello', title: 'Trello', labelText: '#1 in Trello', first: trelloLeads, firstVal: trelloLeadVal, secondVal: trelloSecondVal },
-        { badge: 'standups', title: 'Standups', labelText: '#1 in Standups', first: standupsLeads, firstVal: standupsLeadVal, secondVal: standupsSecondVal },
-        { badge: 'stars', title: 'Weekly Stars', labelText: '#1 in Weekly Stars', first: weeklyStarsLead.leads, firstVal: weeklyStarsLead.leadVal, secondVal: weeklyStarsLead.secondVal },
-        { badge: 'stars', title: 'Lifetime Stars', labelText: '#1 Lifetime Allstar', first: lifetimeLead.leads, firstVal: lifetimeLead.leadVal, secondVal: lifetimeLead.secondVal }
+        { badge: 'code', title: 'Git', labelText: '#1 in Git', first: codeLeads, firstVal: codeLeadVal, secondVal: codeSecondVal, thirdVal: badgeState.codeThirdVal || 0 },
+        { badge: 'trello', title: 'Trello', labelText: '#1 in Trello', first: trelloLeads, firstVal: trelloLeadVal, secondVal: trelloSecondVal, thirdVal: badgeState.trelloThirdVal || 0 },
+        { badge: 'standups', title: 'Standups', labelText: '#1 in Standups', first: standupsLeads, firstVal: standupsLeadVal, secondVal: standupsSecondVal, thirdVal: standupsThirdVal || 0 },
+        { badge: 'stars', title: 'Weekly Stars', labelText: '#1 in Weekly Stars', first: weeklyStarsLead.leads, firstVal: weeklyStarsLead.leadVal, secondVal: weeklyStarsLead.secondVal, thirdVal: weeklyStarsLead.thirdVal || 0 },
+        { badge: 'stars', title: 'Lifetime Stars', labelText: '#1 Lifetime Allstar', first: lifetimeLead.leads, firstVal: lifetimeLead.leadVal, secondVal: lifetimeLead.secondVal, thirdVal: lifetimeLead.thirdVal || 0 }
       ].map(r => {
         const labelText = r.labelText;
-        const leadPct = r.firstVal ? (r.firstVal === r.secondVal ? 100 : (1 - r.secondVal / r.firstVal) * 100) : 0;
         const names = Array.isArray(r.first) ? r.first : (r.first ? [r.first] : []);
         const nameText = names.length ? names.join(' & ') : '—';
         const firstContent = names.length ? `<span class="row-name">${nameText}</span>` : '<span class="row-name">—</span>';
         const badgeEl = `<span class="row-badge badge-${r.badge}" title="${r.title}" aria-label="${r.title}">${BADGE_LOGOS[r.badge]}</span>`;
         const tieText = names.length > 1 ? tieLabel(names.length) : '';
         const rowClass = r.badge === 'stars' ? 'leaderboard-row stars-row label-visible' : 'leaderboard-row label-visible';
-        return `<div class="${rowClass}" data-lead-pct="${Math.min(100, Math.max(0, leadPct))}">${badgeEl}<span class="row-label">${labelText}</span><div class="row-track-wrap">${leadTrack(r.title, tieText)}</div><span class="row-first">${firstContent}</span></div>`;
+        const leaderPct = r.firstVal > 0 ? currentWeekPct : 0;
+        const secondPct = (r.firstVal > 0 && r.secondVal > 0) ? (leaderPct * (r.secondVal / r.firstVal)) : 0;
+        const thirdPct = (r.firstVal > 0 && r.thirdVal > 0) ? (leaderPct * (r.thirdVal / r.firstVal)) : 0;
+        return `<div class="${rowClass}">${badgeEl}<span class="row-label">${labelText}</span><div class="row-track-wrap">${leadTrack(r.title, tieText, leaderPct, secondPct, thirdPct)}</div><span class="row-first">${firstContent}</span></div>`;
       }).join('');
     }
     renderLeaderboard();
@@ -1941,8 +1957,10 @@
       ? (totalMembers ? Math.round((introCount / totalMembers) * 100) : 0)
       : isWeekThreePnp2
         ? (totalMembers ? Math.round((data.members.filter(member => memberStandupPosts(member) >= 1).length / totalMembers) * 100) : 0)
+        : isWeekTwoPnp2
+          ? null
         : isWeekFourPnp2
-          ? (totalMembers ? Math.round((data.members.filter(member => memberStandupPosts(member) > 1).length / totalMembers) * 100) : 0)
+          ? (totalMembers ? Math.round((data.members.filter(member => memberStandupPosts(member) >= 3).length / totalMembers) * 100) : 0)
       : (totalTargetPoints ? Math.round((standupPoints / totalTargetPoints) * 100) : 0);
     const toDeg = pct => (Math.min(100, Math.max(0, pct || 0)) / 100) * 360;
     function wheelTier(pct, isNa) {
@@ -1976,7 +1994,7 @@
       <div class="radial-wheels">
         ${renderWheel('Git', 'radial-icon-git', BADGE_LOGOS.code, gitPct, 'Git', false)}
         ${renderWheel('Trello', 'radial-icon-trello', BADGE_LOGOS.trello, trelloPct, 'Trello', isWeekOnePnp2 || isWeekThreePnp2 || isWeekFourPnp2)}
-        ${renderWheel(isWeekOnePnp2 ? 'Discord' : 'Standups', 'radial-icon-standups', BADGE_LOGOS.standups, standupsPct, isWeekOnePnp2 ? 'Discord' : 'Standups', false)}
+        ${renderWheel(isWeekOnePnp2 ? 'Discord' : 'Standups', 'radial-icon-standups', BADGE_LOGOS.standups, standupsPct, isWeekOnePnp2 ? 'Discord' : 'Standups', isWeekTwoPnp2)}
       </div>
     `;
 
@@ -2098,10 +2116,12 @@
     `;
     document.getElementById('standup-stats-v2-root').innerHTML = isWeekOnePnp2 ? `
       <div class="standup-stat"><span class="num">${introCount}</span><div class="lbl">Intro/setup captured</div></div>
+    ` : isWeekTwoPnp2 ? `
+      <div class="na-panel"><strong>Standups are not graded in Week 02.</strong>Week 02 only checks Trello connection and personal Git branch setup.</div>
     ` : isWeekThreePnp2 ? `
       <div class="standup-stat"><span class="num">${data.members.filter(member => memberStandupPosts(member) >= 1).length}</span><div class="lbl">Met standup check</div></div>
     ` : isWeekFourPnp2 ? `
-      <div class="standup-stat"><span class="num">${data.members.filter(member => memberStandupPosts(member) > 1).length}</span><div class="lbl">2+ standups</div></div>
+      <div class="standup-stat"><span class="num">${data.members.filter(member => memberStandupPosts(member) >= 3).length}</span><div class="lbl">3+ standups</div></div>
     ` : `
       <div class="standup-stat"><span class="num">${totalStandupPosts}</span><div class="lbl">Posts this week</div></div>
     `;
@@ -2470,7 +2490,7 @@
       if (lower.includes('trello connection is not verified')) return 'Populate and verify the student Trello identity fields so the board membership query confirms the board connection.';
       if (lower.includes('personal branch')) return 'Clone the class repo, create a personal branch from dev, and push that branch so it appears in branch health.';
       if (lower.includes('no standup post')) return 'Post at least one standup update in the team standup thread during the report window.';
-      if (lower.includes('fewer than two standup posts')) return 'Post at least two standup updates during Week 04.';
+      if (lower.includes('fewer than three standup posts')) return 'Post at least three standup updates during Week 04.';
       if (lower.includes('no pushed code')) return 'Push some project code this week so commits or file-touch evidence appears in the report.';
       if (lower.includes('did not exceed week')) return 'Push more code this week than the previous week so the Git output grows.';
       if (lower.includes('diverged branch')) return 'Follow directions above (Git Branch health drop down)';
