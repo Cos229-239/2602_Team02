@@ -66,9 +66,10 @@ import com.google.firebase.messaging.FirebaseMessaging // <-- Added for FCM Toke
 import java.time.format.DateTimeFormatter // <-- Added for formatting dates
 import com.example.wepartyapp.ui.event_dashboard.ChatRoomActivity // <-- Added for EventCard Navigation
 import androidx.compose.ui.graphics.Brush
+import com.example.wepartyapp.utils.BaseActivity
 
 
-class MainActivity : ComponentActivity() {
+class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

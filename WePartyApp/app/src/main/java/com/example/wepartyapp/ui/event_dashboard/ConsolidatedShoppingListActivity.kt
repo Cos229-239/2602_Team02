@@ -42,8 +42,9 @@ import com.example.wepartyapp.ui.EventViewModel
 import com.example.wepartyapp.ui.PartyItem
 import com.google.firebase.auth.FirebaseAuth
 import java.time.LocalDate
+import com.example.wepartyapp.utils.BaseActivity
 
-class ConsolidatedShoppingListActivity : ComponentActivity() {
+class ConsolidatedShoppingListActivity : BaseActivity() {
     private val eventViewModel: EventViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {

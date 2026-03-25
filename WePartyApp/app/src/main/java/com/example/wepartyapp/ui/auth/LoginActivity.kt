@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -57,6 +58,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.home.MainActivity
@@ -66,8 +68,9 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import androidx.fragment.app.FragmentActivity
 
-class LoginActivity : ComponentActivity() {
+class LoginActivity : FragmentActivity() {
 
     private lateinit var auth: FirebaseAuth
     private val db = FirebaseFirestore.getInstance()
@@ -177,16 +180,19 @@ class LoginActivity : ComponentActivity() {
                         }
                 },
                 onGoogleSignInClick = {
-                    isLoading = true
-                    errorMessage = null
+                    // --- Show Biometric Prompt before Google Sign-In ---
+                    showBiometricPrompt {
+                        isLoading = true
+                        errorMessage = null
 
-                    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .requestIdToken(getString(R.string.default_web_client_id))
-                        .requestEmail()
-                        .build()
+                        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                            .requestIdToken(getString(R.string.default_web_client_id))
+                            .requestEmail()
+                            .build()
 
-                    val googleSignInClient = GoogleSignIn.getClient(this, gso)
-                    googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                        val googleSignInClient = GoogleSignIn.getClient(this@LoginActivity, gso)
+                        googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                    }
                 },
                 onNavigateToSignUp = {
                     startActivity(Intent(this, SignUpActivity::class.java))
@@ -196,6 +202,34 @@ class LoginActivity : ComponentActivity() {
                 }
             )
         }
+    }
+
+    // --- Helper Function for Biometrics ---
+    private fun showBiometricPrompt(onSuccess: () -> Unit) {
+        val executor = ContextCompat.getMainExecutor(this)
+        val biometricPrompt = BiometricPrompt(this, executor,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                }
+
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    onSuccess()
+                }
+
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                }
+            })
+
+        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Biometric Login")
+            .setSubtitle("Use your fingerprint or Face ID to sign in")
+            .setNegativeButtonText("Cancel")
+            .build()
+
+        biometricPrompt.authenticate(promptInfo)
     }
 
     private fun firebaseAuthWithGoogle(idToken: String, onResult: (Boolean, String?) -> Unit) {

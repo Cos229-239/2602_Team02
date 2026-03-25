@@ -37,8 +37,9 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import com.example.wepartyapp.utils.BaseActivity
 
-class CalendarActivity : ComponentActivity() {
+class CalendarActivity : BaseActivity() {
     // This creates the ViewModel and keeps it alive
     private val eventViewModel: EventViewModel by viewModels()
 

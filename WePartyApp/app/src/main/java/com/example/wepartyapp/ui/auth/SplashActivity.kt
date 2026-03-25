@@ -48,8 +48,20 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
 class SplashActivity : ComponentActivity() {
+
+    // --- Memory flag intercepts the app launch ---
+    companion object {
+        var isColdBoot = true
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // --- If the app was completely closed, wipe the saved Firebase session ---
+        if (isColdBoot) {
+            FirebaseAuth.getInstance().signOut()
+            isColdBoot = false
+        }
 
         // --- Kick Off FlowLinks Deep Link Check ---
         checkDeepLinks()
