@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cycle 2602 Class Leaderboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#0f1419; --surface:#1a2332; --surface2:#243044; --text:#e6edf3; --text-muted:#8b949e; --accent:#58a6ff; --success:#3fb950; --warn:#d29922; --danger:#f85149; --radius:12px; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:'DM Sans',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+    .app { display:flex; min-height:100vh; }
+    .content { flex:1; margin-left:172px; padding:1.2rem 1.4rem 2rem; }
+    @media (max-width:900px) { .content { margin-left:0; } .app { flex-direction:column; } }
+    .hero, .card { background:linear-gradient(180deg, rgba(36,48,68,0.92), rgba(26,35,50,0.96)); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius); margin-bottom:1rem; }
+    .hero { padding:1.1rem 1.2rem; }
+    .hero h1 { margin:0 0 0.35rem; font-size:1.55rem; }
+    .hero p { margin:0; color:var(--text-muted); }
+    .card h2 { margin:0; padding:1rem 1.2rem 0; font-size:1rem; letter-spacing:0.04em; text-transform:uppercase; }
+    .reveal { text-align:center; padding:1.2rem; }
+    .reveal button { padding:0.7rem 1.2rem; border:none; border-radius:999px; background:var(--accent); color:#07131f; font-weight:800; cursor:pointer; }
+    .content-block { display:none; padding:0.35rem 1.2rem 1.2rem; }
+    .content-block.revealed { display:block; }
+    .leaderboard { display:flex; flex-direction:column; gap:0.9rem; }
+    .leaderboard-row { display:flex; align-items:center; gap:1rem; padding:0.2rem 0; }
+    .leaderboard-row.hero-row { padding:0.35rem 0 0.7rem; }
+    .row-label { flex:0 0 11.5rem; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); }
+    .hero-row .row-label { font-size:0.96rem; color:#f7d87a; font-weight:800; }
+    .row-track-wrap { flex:1 1 auto; height:28px; position:relative; background:var(--surface2); border-radius:999px; padding-left:22px; padding-right:12px; overflow:hidden; }
+    .hero-row .row-track-wrap { height:36px; box-shadow:0 0 0 1px rgba(240,193,75,0.22) inset; }
+    .track-dot { position:absolute; left:7px; top:50%; transform:translateY(-50%); font-size:0.64rem; color:var(--text-muted); z-index:2; }
+    .track-rail { position:absolute; left:22px; right:12px; top:2px; bottom:2px; border-radius:999px; background:repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0, rgba(255,255,255,0.08) calc(12.5% - 1px), rgba(15,20,25,0.62) calc(12.5% - 1px), rgba(15,20,25,0.62) 12.5%); }
+    .track-speed-bar { position:absolute; left:22px; top:2px; bottom:2px; width:0; background:linear-gradient(90deg, #3fb950, #7ee787); border-radius:999px; }
+    .hero-row .track-speed-bar { background:linear-gradient(90deg, #f0c14b, #ffe08a); }
+    .track-gap-marker { position:absolute; top:1px; bottom:1px; width:2px; border-radius:999px; z-index:3; opacity:0.95; }
+    .track-gap-marker.second { left:calc(22px + (100% - 34px) * (var(--second-pct, 0) / 100)); background:rgba(255,255,255,0.94); }
+    .track-gap-marker.third { left:calc(22px + (100% - 34px) * (var(--third-pct, 0) / 100)); background:rgba(253,224,71,0.96); }
+    .track-marker.car { position:absolute; left:22px; top:50%; transform:translateY(-50%) scaleX(-1); z-index:4; font-size:0.85rem; }
+    .hero-row .track-marker.car { font-size:1rem; }
+    .row-first { min-width:12rem; display:flex; align-items:center; justify-content:flex-end; gap:0.8rem; font-weight:700; }
+    .row-name-wrap { position:relative; display:inline-flex; align-items:center; justify-content:flex-end; min-width:8rem; }
+    .row-name { opacity:0; transform:scale(8); transform-origin:right center; transition:opacity 0.6s ease, transform 0.6s ease; position:relative; z-index:2; }
+    .row-name-wrap.bursting .row-name { text-shadow:0 0 18px rgba(255,255,255,0.22), 0 0 28px rgba(88,166,255,0.32), 0 0 38px rgba(240,193,75,0.28); }
+    .leaderboard-row.name-visible .row-name { opacity:1; transform:scale(1); }
+    .hero-row .row-name { font-size:1.3rem; font-weight:800; }
+    .row-value { color:var(--text-muted); font-size:0.9rem; min-width:2rem; text-align:right; }
+    .hero-row .row-value { color:#f7d87a; font-size:1.15rem; font-weight:800; }
+    .burst { position:absolute; width:10px; height:10px; border-radius:999px; pointer-events:none; opacity:0; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <nav class="sidebar">
+<div class="sidebar-brand">
+<a href="index.html" class="logo-link"><img src="logo.png" alt="Logo" class="sidebar-logo"></a>
+<div class="brand-text"><span class="brand-org">Cos229-239</span><span class="brand-cycle">2602</span></div>
+</div>
+<a href="index.html" class="nav-home">Home</a>
+<div class="nav-phase-label">PNP2</div>
+<div class="nav-week-group">
+<a href="W01.html" class="nav-week">Week 01</a>
+<a href="W01_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W01_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W02.html" class="nav-week">Week 02</a>
+<a href="W02_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W02_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W03.html" class="nav-week">Week 03</a>
+<a href="W03_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W03_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W04.html" class="nav-week">Week 04</a>
+<a href="W04_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W04_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-phase-label">PNP3</div>
+<div class="nav-week-group">
+<a href="W05.html" class="nav-week">Week 05</a>
+<a href="W05_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W05_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W06.html" class="nav-week">Week 06</a>
+<a href="W06_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W06_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W07.html" class="nav-week">Week 07</a>
+<a href="W07_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W07_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-week-group">
+<a href="W08.html" class="nav-week nav-week-current">Week 08</a>
+<a href="W08_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
+<a href="W08_2602_Team02.html" class="nav-team"><span class="nav-team-bullet"></span>Team 02</a>
+</div>
+<div class="nav-phase-label">Class</div>
+<a href="ClassLeaderboard.html" class="nav-week active">Leaderboard</a>
+</nav>
+    <main class="content">
+      <section class="hero">
+        <h1>Cycle 2602 Class Leaderboard</h1>
+        <p>Class-wide star leaders across the published report pages. The top row shows the lifetime allstar leader, then the category leaders for each star type.</p>
+      </section>
+      <section class="card">
+        <h2>Lifetime Allstar</h2>
+        <div class="reveal" id="hero-reveal"><button type="button" data-target="hero-content">Reveal Lifetime Leader</button></div>
+        <div class="content-block" id="hero-content">
+          <div class="leaderboard">
+      <div class="leaderboard-row hero-row" data-lead-pct="100.00">
+        <span class="row-label">Top Lifetime Allstar</span>
+        <div class="row-track-wrap">
+          <span class="track-dot">●</span>
+          <div class="track-rail" aria-hidden="true"></div>
+          <div class="track-speed-bar" title="Top Lifetime Allstar" style="--leader-pct:100.00;"></div>
+          <span class="track-gap-marker second" style="--second-pct:95.83;"></span>
+          <span class="track-gap-marker third" style="--third-pct:79.17;"></span>
+          <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
+        </div>
+        <span class="row-first">
+          <span class="row-name-wrap">
+            <span class="row-name">Daniel W.</span>
+          </span>
+          <span class="row-value">24</span>
+        </span>
+      </div>
+    </div>
+        </div>
+      </section>
+      <section class="card">
+        <h2>Star Category Leaders</h2>
+        <div class="reveal" id="cats-reveal"><button type="button" data-target="cats-content">Reveal Category Leaders</button></div>
+        <div class="content-block" id="cats-content">
+          <div class="leaderboard">
+      <div class="leaderboard-row " data-lead-pct="100.00">
+        <span class="row-label">Code Allstar</span>
+        <div class="row-track-wrap">
+          <span class="track-dot">●</span>
+          <div class="track-rail" aria-hidden="true"></div>
+          <div class="track-speed-bar" title="Code Allstar" style="--leader-pct:100.00;"></div>
+          <span class="track-gap-marker second" style="--second-pct:66.67;"></span>
+          <span class="track-gap-marker third" style="--third-pct:33.33;"></span>
+          <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
+        </div>
+        <span class="row-first">
+          <span class="row-name-wrap">
+            <span class="row-name">Daniel W.</span>
+          </span>
+          <span class="row-value">6</span>
+        </span>
+      </div>
+    
+
+      <div class="leaderboard-row " data-lead-pct="100.00">
+        <span class="row-label">Trello Allstar</span>
+        <div class="row-track-wrap">
+          <span class="track-dot">●</span>
+          <div class="track-rail" aria-hidden="true"></div>
+          <div class="track-speed-bar" title="Trello Allstar" style="--leader-pct:100.00;"></div>
+          <span class="track-gap-marker second" style="--second-pct:83.33;"></span>
+          <span class="track-gap-marker third" style="--third-pct:33.33;"></span>
+          <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
+        </div>
+        <span class="row-first">
+          <span class="row-name-wrap">
+            <span class="row-name">Daniel W.</span>
+          </span>
+          <span class="row-value">6</span>
+        </span>
+      </div>
+    
+
+      <div class="leaderboard-row " data-lead-pct="100.00">
+        <span class="row-label">Standup Allstar</span>
+        <div class="row-track-wrap">
+          <span class="track-dot">●</span>
+          <div class="track-rail" aria-hidden="true"></div>
+          <div class="track-speed-bar" title="Standup Allstar" style="--leader-pct:100.00;"></div>
+          <span class="track-gap-marker second" style="--second-pct:71.43;"></span>
+          <span class="track-gap-marker third" style="--third-pct:57.14;"></span>
+          <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
+        </div>
+        <span class="row-first">
+          <span class="row-name-wrap">
+            <span class="row-name">Daniel W.</span>
+          </span>
+          <span class="row-value">7</span>
+        </span>
+      </div>
+    
+
+      <div class="leaderboard-row " data-lead-pct="0.00">
+        <span class="row-label">No Issue Branch Star</span>
+        <div class="row-track-wrap">
+          <span class="track-dot">●</span>
+          <div class="track-rail" aria-hidden="true"></div>
+          <div class="track-speed-bar" title="No Issue Branch Star" style="--leader-pct:0.00;"></div>
+          
+          
+          <span class="track-marker car" style="--leader-pct:0.00;">🚗</span>
+        </div>
+        <span class="row-first">
+          <span class="row-name-wrap">
+            <span class="row-name">—</span>
+          </span>
+          <span class="row-value">0</span>
+        </span>
+      </div>
+    
+
+      <div class="leaderboard-row " data-lead-pct="100.00">
+        <span class="row-label">Current Branch Star</span>
+        <div class="row-track-wrap">
+          <span class="track-dot">●</span>
+          <div class="track-rail" aria-hidden="true"></div>
+          <div class="track-speed-bar" title="Current Branch Star" style="--leader-pct:100.00;"></div>
+          <span class="track-gap-marker second" style="--second-pct:100.00;"></span>
+          <span class="track-gap-marker third" style="--third-pct:100.00;"></span>
+          <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
+        </div>
+        <span class="row-first">
+          <span class="row-name-wrap">
+            <span class="row-name">Andy T. & Hasani C. & Lesly M. & Maret M. & Rodney F.</span>
+          </span>
+          <span class="row-value">8</span>
+        </span>
+      </div>
+    
+
+      <div class="leaderboard-row " data-lead-pct="0.00">
+        <span class="row-label">Standup Streak Star</span>
+        <div class="row-track-wrap">
+          <span class="track-dot">●</span>
+          <div class="track-rail" aria-hidden="true"></div>
+          <div class="track-speed-bar" title="Standup Streak Star" style="--leader-pct:0.00;"></div>
+          
+          
+          <span class="track-marker car" style="--leader-pct:0.00;">🚗</span>
+        </div>
+        <span class="row-first">
+          <span class="row-name-wrap">
+            <span class="row-name">—</span>
+          </span>
+          <span class="row-value">0</span>
+        </span>
+      </div>
+    
+
+      <div class="leaderboard-row " data-lead-pct="100.00">
+        <span class="row-label">Consistent Contributor Star</span>
+        <div class="row-track-wrap">
+          <span class="track-dot">●</span>
+          <div class="track-rail" aria-hidden="true"></div>
+          <div class="track-speed-bar" title="Consistent Contributor Star" style="--leader-pct:100.00;"></div>
+          <span class="track-gap-marker second" style="--second-pct:80.00;"></span>
+          <span class="track-gap-marker third" style="--third-pct:80.00;"></span>
+          <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
+        </div>
+        <span class="row-first">
+          <span class="row-name-wrap">
+            <span class="row-name">Daniel W.</span>
+          </span>
+          <span class="row-value">5</span>
+        </span>
+      </div>
+    
+
+      <div class="leaderboard-row " data-lead-pct="0.00">
+        <span class="row-label">Zero Misses Star</span>
+        <div class="row-track-wrap">
+          <span class="track-dot">●</span>
+          <div class="track-rail" aria-hidden="true"></div>
+          <div class="track-speed-bar" title="Zero Misses Star" style="--leader-pct:0.00;"></div>
+          
+          
+          <span class="track-marker car" style="--leader-pct:0.00;">🚗</span>
+        </div>
+        <span class="row-first">
+          <span class="row-name-wrap">
+            <span class="row-name">—</span>
+          </span>
+          <span class="row-value">0</span>
+        </span>
+      </div>
+    
+
+      <div class="leaderboard-row " data-lead-pct="0.00">
+        <span class="row-label">Build Ready Star</span>
+        <div class="row-track-wrap">
+          <span class="track-dot">●</span>
+          <div class="track-rail" aria-hidden="true"></div>
+          <div class="track-speed-bar" title="Build Ready Star" style="--leader-pct:0.00;"></div>
+          
+          
+          <span class="track-marker car" style="--leader-pct:0.00;">🚗</span>
+        </div>
+        <span class="row-first">
+          <span class="row-name-wrap">
+            <span class="row-name">—</span>
+          </span>
+          <span class="row-value">0</span>
+        </span>
+      </div>
+    </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    function burstBehindName(target) {
+      if (!target) return;
+      const colors = ['#58a6ff', '#f0c14b', '#7ee787', '#f472b6', '#a78bfa'];
+      const box = target.getBoundingClientRect();
+      const host = target.parentElement;
+      host.classList.add('bursting');
+      for (let i = 0; i < 22; i += 1) {
+        const particle = document.createElement('span');
+        particle.className = 'burst';
+        particle.style.background = colors[i % colors.length];
+        const angle = (Math.PI * 2 * i) / 22;
+        const distance = 28 + Math.random() * 30;
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+        particle.style.left = (target.offsetLeft + target.offsetWidth * 0.5) + 'px';
+        particle.style.top = (target.offsetTop + target.offsetHeight * 0.5) + 'px';
+        particle.animate([
+          { transform:'translate(-50%, -50%) scale(0.2)', opacity:0 },
+          { transform:'translate(' + x + 'px,' + y + 'px) scale(1)', opacity:1, offset:0.2 },
+          { transform:'translate(' + (x * 1.25) + 'px,' + (y * 1.25) + 'px) scale(0.1)', opacity:0 }
+        ], { duration: 1100, easing:'cubic-bezier(.22,1,.36,1)' });
+        host.appendChild(particle);
+        setTimeout(() => particle.remove(), 1200);
+      }
+      setTimeout(() => host.classList.remove('bursting'), 1250);
+    }
+
+    function animateRows(container) {
+      const rows = container.querySelectorAll('.leaderboard-row');
+      rows.forEach((row) => {
+        row.classList.remove('name-visible');
+        const bar = row.querySelector('.track-speed-bar');
+        const car = row.querySelector('.track-marker.car');
+        if (bar) bar.style.width = '0px';
+        if (car) car.style.left = '22px';
+      });
+      function runRow(index) {
+        if (index >= rows.length) return;
+        const row = rows[index];
+        const targetPct = parseFloat(row.getAttribute('data-lead-pct') || '0');
+        const bar = row.querySelector('.track-speed-bar');
+        const car = row.querySelector('.track-marker.car');
+        const wrap = row.querySelector('.row-track-wrap');
+        const second = row.querySelector('.track-gap-marker.second');
+        const third = row.querySelector('.track-gap-marker.third');
+        if (!bar || !car || !wrap) { runRow(index + 1); return; }
+        const secondPct = second ? parseFloat(second.style.getPropertyValue('--second-pct') || '0') : 0;
+        const thirdPct = third ? parseFloat(third.style.getPropertyValue('--third-pct') || '0') : 0;
+        const start = performance.now();
+        const duration = 900 + (targetPct / 100) * 600;
+        function step(now) {
+          const t = Math.min(1, (now - start) / duration);
+          const eased = 1 - Math.pow(1 - t, 1.25);
+          const pct = eased * targetPct;
+          const trackWidth = wrap.offsetWidth - 34;
+          const barWidth = (trackWidth * pct / 100);
+          bar.style.width = barWidth + 'px';
+          car.style.left = (22 + barWidth) + 'px';
+          if (second) second.style.setProperty('--second-pct', String(secondPct));
+          if (third) third.style.setProperty('--third-pct', String(thirdPct));
+          if (t < 1) {
+            requestAnimationFrame(step);
+          } else {
+            row.classList.add('name-visible');
+            burstBehindName(row.querySelector('.row-name'));
+            setTimeout(() => runRow(index + 1), 220);
+          }
+        }
+        requestAnimationFrame(step);
+      }
+      runRow(0);
+    }
+
+    document.querySelectorAll('.reveal button').forEach((button) => {
+      button.addEventListener('click', () => {
+        const target = document.getElementById(button.getAttribute('data-target'));
+        const host = button.parentElement;
+        if (!target) return;
+        host.style.display = 'none';
+        target.classList.add('revealed');
+        animateRows(target);
+      });
+    });
+  </script>
+</body>
+</html>
