@@ -37,6 +37,9 @@
     .brand-org{font-weight:700;font-size:0.74rem;letter-spacing:0.02em;}
     .brand-cycle{font-size:0.68rem;opacity:0.82;}
     .nav-week-group{margin-bottom:0.45rem;}
+    .nav-phase-label{display:block;padding:0.3rem 0.9rem 0.2rem;text-align:center;font-size:0.66rem;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:#8b949e;}
+    .nav-week.nav-week-tbd{color:#fda4a4;background:rgba(248,81,73,0.08);}
+    .nav-week.nav-week-tbd:hover{background:rgba(248,81,73,0.14);color:#fff;}
     .nav-week{display:block;font-weight:600;font-size:0.98rem;margin-top:0.2rem;padding:0.28rem 0.9rem;}
     .nav-team{display:flex;align-items:center;padding:0.14rem 0.9rem 0.14rem 1.15rem;font-size:0.62rem;}
     .nav-team-bullet{display:inline-block;width:6px;height:6px;border-radius:50%;background:#f97316;margin-right:0.5rem;flex-shrink:0;}
@@ -64,6 +67,59 @@
     .v2-meta-block { margin-top: 0.55rem; display: grid; gap: 0.12rem; }
     .v2-meta-block .snapshot-line { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text); }
     .v2-meta-block .meta-line { font-size: 0.8rem; color: var(--text-muted); }
+    .assignment-brief {
+      margin-top: 0.9rem;
+      padding: 0.85rem 1rem 1.1rem;
+      border: 1px solid var(--surface2);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(36,48,68,0.78), rgba(26,35,50,0.9));
+      position: relative;
+    }
+    .assignment-brief-title {
+      margin: 0 0 0.55rem;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .assignment-brief-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 0.55rem;
+    }
+    .assignment-brief-item {
+      padding: 0.6rem 0.7rem;
+      border-radius: 8px;
+      background: rgba(15,20,25,0.28);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .assignment-brief-item strong {
+      display: block;
+      margin-bottom: 0.18rem;
+      font-size: 0.9rem;
+    }
+    .assignment-brief-what {
+      margin: 0 0 0.15rem;
+      font-size: 0.84rem;
+      color: var(--text);
+    }
+    .assignment-brief-criteria {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .assignment-brief-source {
+      position: absolute;
+      right: 0.8rem;
+      bottom: 0.55rem;
+      font-size: 0.66rem;
+      color: var(--text-muted);
+      opacity: 0.82;
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+    }
 
     /* Overview cards */
     .overview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
@@ -337,6 +393,7 @@
 <div class="brand-text"><span class="brand-org">Cos229-239</span><span class="brand-cycle">2602</span></div>
 </div>
 <a href="index.html" class="nav-home">Home</a>
+<div class="nav-phase-label">PNP2</div>
 <div class="nav-week-group">
 <a href="W01_2602_Team02.html" class="nav-week">Week 01</a>
 <a href="W01_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
@@ -357,6 +414,7 @@
 <a href="W04_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
 <a href="W04_2602_Team02.html" class="nav-team active"><span class="nav-team-bullet"></span>Team 02</a>
 </div>
+<div class="nav-phase-label">PNP3</div>
 <div class="nav-week-group">
 <a href="W05_2602_Team02.html" class="nav-week">Week 05</a>
 <a href="W05_2602_Team01.html" class="nav-team"><span class="nav-team-bullet"></span>Team 01</a>
@@ -391,6 +449,11 @@
           <div class="meta-line" id="v2-period-line">Report period: --</div>
           <div class="meta-line" id="v2-attendance-line">Build review attendance: not recorded yet</div>
         </div>
+        <section class="assignment-brief" id="v2-assignment-brief" hidden>
+          <h2 class="assignment-brief-title">Assignments Due This Week</h2>
+          <ul class="assignment-brief-list" id="v2-assignment-brief-list"></ul>
+          <div class="assignment-brief-source" id="v2-assignment-brief-source"></div>
+        </section>
       </div>
     </header>
 
@@ -1166,8 +1229,17 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-25-2026 - 12:03", "period": "2026-02-23 to 2026-03-01", "cycle": "2602", "week": 4, "team": "2602_Team02", "sourceUrl": "W04_2602_Team02_v1.html", "assignmentTitle": "PNP2 \u2014 Week 04 Assignment Checks"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}, {"name": "Hasani C.", "git": "active", "trello": true, "discord": false, "githubUsername": "4hzzz"}, {"name": "Maret M.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}, {"name": "Andy T.", "git": "active", "trello": false, "discord": false, "githubUsername": ""}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Inactive", "activity": "23d ago", "contribution": "\u2014", "aheadBehind": "0 / 113", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "2d ago", "contribution": "\u2014", "aheadBehind": "0 / 19", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Diverged", "activity": "TODAY", "contribution": "\u2014", "aheadBehind": "4 / 15", "risk": "HIGH", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Behind", "activity": "TODAY", "contribution": "\u2014", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "TODAY", "contribution": "\u2014", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "1d ago", "contribution": "\u2014", "aheadBehind": "0 / 9", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 18}, "actions": {"Andy T.": 0, "Hasani C.": 3, "Lesly M.": 25, "Maret M.": 13, "Rodney F.": 28}, "actionBreakdown": {"Hasani C.": {"Move card": 2, "Comment": 1}, "Lesly M.": {"Move card": 12, "Complete checklist": 3}, "Maret M.": {"Move card": 12, "Complete checklist": 1}, "Rodney F.": {"Move card": 20, "Comment": 6}}, "status": "HEALTHY"}, "discord": [], "alerts": [{"type": "warn", "text": "Andy T. has no Trello activity this week. Update cards to reflect work done."}, {"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Lesly M. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Rodney F. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Andy T. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Maret M. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Hasani C. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely)."}]};
+    const data = {"report": {"generated": "03-25-2026 - 12:48", "period": "2026-02-23 to 2026-03-01", "cycle": "2602", "week": 4, "team": "2602_Team02", "sourceUrl": "W04_2602_Team02_v1.html", "assignmentTitle": "PNP2 \u2014 Week 04 Assignment Checks"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}, {"name": "Hasani C.", "git": "active", "trello": true, "discord": false, "githubUsername": "4hzzz"}, {"name": "Maret M.", "git": "active", "trello": true, "discord": false, "githubUsername": ""}, {"name": "Andy T.", "git": "active", "trello": false, "discord": false, "githubUsername": ""}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Inactive", "activity": "23d ago", "contribution": "\u2014", "aheadBehind": "0 / 113", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "2d ago", "contribution": "\u2014", "aheadBehind": "0 / 19", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Diverged", "activity": "TODAY", "contribution": "\u2014", "aheadBehind": "4 / 15", "risk": "HIGH", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Behind", "activity": "TODAY", "contribution": "\u2014", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "TODAY", "contribution": "\u2014", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "1d ago", "contribution": "\u2014", "aheadBehind": "0 / 9", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 18}, "actions": {"Andy T.": 0, "Hasani C.": 3, "Lesly M.": 25, "Maret M.": 13, "Rodney F.": 28}, "actionBreakdown": {"Hasani C.": {"Move card": 2, "Comment": 1}, "Lesly M.": {"Move card": 12, "Complete checklist": 3}, "Maret M.": {"Move card": 12, "Complete checklist": 1}, "Rodney F.": {"Move card": 20, "Comment": 6}}, "status": "HEALTHY"}, "discord": [], "alerts": [{"type": "warn", "text": "Andy T. has no Trello activity this week. Update cards to reflect work done."}, {"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Maret M. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Andy T. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Rodney F. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Lesly M. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Hasani C. has not posted standups this week. Post daily standups in the team standup channel."}, {"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely)."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
 
     (function setupHeaderLinks() {
       var kickerEl = document.getElementById('v2-phase-kicker');
@@ -1203,6 +1275,30 @@
         }
         if (periodEl) {
           periodEl.textContent = 'Report period: ' + (periodText || '--');
+        }
+      }
+      var assignmentBriefEl = document.getElementById('v2-assignment-brief');
+      var assignmentBriefListEl = document.getElementById('v2-assignment-brief-list');
+      var assignmentBriefSourceEl = document.getElementById('v2-assignment-brief-source');
+      var assignmentSpec = data.report && data.report.assignmentSpec;
+      if (assignmentBriefEl && assignmentBriefListEl) {
+        if (assignmentSpec && Array.isArray(assignmentSpec.items) && assignmentSpec.items.length) {
+          assignmentBriefListEl.innerHTML = assignmentSpec.items.map(function(item) {
+            var assignment = escapeHtml((item.assignment || '').toString());
+            var what = escapeHtml((item.what || '').toString());
+            var criteria = escapeHtml((item.criteria || '').toString());
+            return '<li class="assignment-brief-item">' +
+              '<strong>' + assignment + '</strong>' +
+              '<p class="assignment-brief-what">' + what + '</p>' +
+              '<p class="assignment-brief-criteria">Criteria: ' + criteria + '</p>' +
+              '</li>';
+          }).join('');
+          if (assignmentBriefSourceEl) {
+            assignmentBriefSourceEl.textContent = (data.report.assignmentSpecSource || '').toString();
+          }
+          assignmentBriefEl.hidden = false;
+        } else {
+          assignmentBriefEl.hidden = true;
         }
       }
       var currentFile = ((window.location && window.location.pathname) || '').split('/').pop();
