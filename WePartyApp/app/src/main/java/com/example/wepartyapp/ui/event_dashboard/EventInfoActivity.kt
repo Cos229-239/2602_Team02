@@ -62,8 +62,9 @@ import androidx.compose.ui.Alignment
 import com.example.wepartyapp.ui.GroupDietarySummary
 import com.google.firebase.auth.FirebaseAuth
 import com.example.wepartyapp.ui.create_event.InviteFriendsActivity
+import com.example.wepartyapp.utils.BaseActivity
 
-class EventInfoActivity : ComponentActivity() {
+class EventInfoActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

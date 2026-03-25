@@ -59,6 +59,7 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-livedata:1.6.0")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("com.google.android.gms:play-services-auth:21.0.0")
+    implementation("androidx.biometric:biometric:1.2.0-alpha05")
 
     // Firebase
     implementation(platform(libs.firebase.bom))
