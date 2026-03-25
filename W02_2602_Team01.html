@@ -252,8 +252,8 @@
     .member-row .avatar-star.tier-epic { color: #c084fc; border-color: rgba(192,132,252,0.78); background: rgba(40,18,62,0.92); }
     .member-row .avatar-star.tier-legendary { color: #fde68a; border-color: rgba(253,230,138,0.9); background: rgba(67,52,8,0.94); box-shadow: 0 0 0 1px rgba(255,223,107,0.18), 0 0 14px rgba(240,193,75,0.22); }
     .has-tip { position: relative; z-index: 40; cursor: default; }
-    .has-tip:hover::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); background: rgba(15,20,25,0.98); color: var(--text); border: 1px solid var(--surface2); border-radius: 6px; padding: 0.45rem 0.6rem; font-size: 0.72rem; white-space: pre-line; min-width: 11rem; max-width: 16rem; z-index: 9999; box-shadow: 0 10px 24px rgba(0,0,0,0.28); pointer-events: none; text-align: left; }
-    .has-tip:hover::before { content: ''; position: absolute; left: 50%; bottom: calc(100% + 2px); transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--surface2); z-index: 9998; pointer-events: none; }
+    .has-tip:hover::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translateX(-50%); background: rgba(15,20,25,0.98); color: var(--text); border: 1px solid var(--surface2); border-radius: 6px; padding: 0.45rem 0.6rem; font-size: 0.72rem; white-space: pre-line; min-width: 11rem; max-width: 16rem; z-index: 9999; box-shadow: 0 10px 24px rgba(0,0,0,0.28); pointer-events: none; text-align: left; }
+    .has-tip:hover::before { content: ''; position: absolute; left: 50%; bottom: calc(100% - 2px); transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--surface2); z-index: 9998; pointer-events: none; }
 
     .card { background: var(--surface); border: 1px solid var(--surface2); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem; }
     .card h2 { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--surface2); }
@@ -311,15 +311,19 @@
     .member-row .member-dropdown-panel ul { margin: 0; padding-left: 1rem; color: var(--text-muted); font-size: 0.76rem; }
     .member-row .member-dropdown-panel li { margin: 0.2rem 0; }
     .member-row .badge-legend { display: grid; grid-template-columns: 1fr; gap: 0.4rem; margin: 0 0 0.7rem; }
-    .member-row .badge-legend-item { display: flex; align-items: center; gap: 0.45rem; color: var(--text-muted); font-size: 0.72rem; padding-top: 0.35rem; border-top: 1px solid rgba(255,255,255,0.07); }
-    .member-row .badge-legend-item:first-child { border-top: 0; padding-top: 0; }
+    .member-row .badge-legend-item { display: flex; align-items: center; gap: 0.45rem; color: var(--text-muted); font-size: 0.72rem; }
+    .member-row .badge-legend-item.tier-break { margin-top: 0.3rem; padding-top: 0.45rem; border-top: 1px solid rgba(255,255,255,0.07); }
     .member-row .badge-legend-item .avatar-star { flex-shrink: 0; }
+    .member-row .badge-earned-dot { width: 0.45rem; text-align: center; color: transparent; font-size: 0.55rem; flex-shrink: 0; }
+    .member-row .badge-earned-dot.active { color: #f85149; }
     .member-row .badge-name.tier-common { color: #7ee787; }
     .member-row .badge-name.tier-unique { color: #58a6ff; }
     .member-row .badge-name.tier-rare { color: #fb923c; }
     .member-row .badge-name.tier-epic { color: #c084fc; }
     .member-row .badge-name.tier-legendary { color: #fde68a; }
     .member-row .badge-multiplier { margin-left: 0.3rem; font-size: 0.66rem; letter-spacing: 0.05em; color: var(--text-muted); text-transform: uppercase; }
+    .member-row .badges-earned-section { margin-top: 0.8rem; padding-top: 0.7rem; border-top: 1px solid rgba(255,255,255,0.08); }
+    .leaderboard-row .row-trophy { color: #f0c14b; font-size: 0.8rem; margin-left: 0.18rem; letter-spacing: 0.04em; }
     .member-row .star-total { display: inline-flex; align-items: center; gap: 0.2rem; font-weight: 700; color: #f0c14b; }
     .member-row .star-total .star-icon { font-size: 0.82rem; }
     .pill { font-size: 0.65rem; padding: 0.2rem 0.45rem; border-radius: 999px; }
@@ -460,7 +464,7 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.63</div>
+<div class="sidebar-version">Report.version 3.64</div>
 </nav>
   <main class="content-shell">
   <div class="container">
@@ -1354,7 +1358,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-25-2026 - 19:09", "period": "2026-02-09 to 2026-02-15", "cycle": "2602", "week": 2, "team": "2602_Team01", "sourceUrl": "W02_2602_Team01_v1.html", "assignmentTitle": "PNP2 \u2014 Week 02 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 02 Assignment Checks", "items": [{"assignment": "2.1 Agile Board Access & Orientation", "what": "Be verified as connected to the Trello board.", "criteria": "Student should have recognizable Trello connection evidence from the verified roster query."}, {"assignment": "2.2 Clone Your Project Repository", "what": "Clone the team repository and create a personal branch.", "criteria": "A personal branch should exist for the student in the class repo."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}, "pnp2Previous": {"week": 1, "gitConnected": true, "commits": 0, "additions": 0, "deletions": 0, "net": 0, "posts": 5}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+3006/-6", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 6, "additions": 3006, "deletions": 6, "net": 3000, "files": [{"path": "project.pbxproj +746/-0"}, {"path": "gradlew +502/-0"}, {"path": "ic_launcher_background.xml +340/-0"}, {"path": "build.gradle.kts +194/-0"}, {"path": "gradlew.bat +188/-0"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 49}, "actionBreakdown": {"Daniel W.": {"Move card": 20, "Complete checklist": 3}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 4, "dates": "Feb 10, Feb 13, Feb 14", "summary": ""}], "alerts": []};
+    const data = {"report": {"generated": "03-25-2026 - 19:37", "period": "2026-02-09 to 2026-02-15", "cycle": "2602", "week": 2, "team": "2602_Team01", "sourceUrl": "W02_2602_Team01_v1.html", "assignmentTitle": "PNP2 \u2014 Week 02 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 02 Assignment Checks", "items": [{"assignment": "2.1 Agile Board Access & Orientation", "what": "Be verified as connected to the Trello board.", "criteria": "Student should have recognizable Trello connection evidence from the verified roster query."}, {"assignment": "2.2 Clone Your Project Repository", "what": "Clone the team repository and create a personal branch.", "criteria": "A personal branch should exist for the student in the class repo."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}, "pnp2Previous": {"week": 1, "gitConnected": true, "commits": 0, "additions": 0, "deletions": 0, "net": 0, "posts": 5}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+3006/-6", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 6, "additions": 3006, "deletions": 6, "net": 3000, "files": [{"path": "project.pbxproj +746/-0"}, {"path": "gradlew +502/-0"}, {"path": "ic_launcher_background.xml +340/-0"}, {"path": "build.gradle.kts +194/-0"}, {"path": "gradlew.bat +188/-0"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 49}, "actionBreakdown": {"Daniel W.": {"Move card": 20, "Complete checklist": 3}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 4, "dates": "Feb 10, Feb 13, Feb 14", "summary": ""}], "alerts": []};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     function escapeHtml(value) {
@@ -1983,7 +1987,8 @@
         const labelText = r.labelText;
         const names = Array.isArray(r.first) ? r.first : (r.first ? [r.first] : []);
         const nameText = names.length ? names.join(' & ') : '—';
-        const firstContent = names.length ? `<span class="row-name">${nameText}</span>` : '<span class="row-name">—</span>';
+        const trophyHtml = r.title === 'Lifetime Stars' ? '<span class="row-trophy">🏆🏆🏆</span>' : '<span class="row-trophy">🏆</span>';
+        const firstContent = names.length ? `<span class="row-name">${nameText}</span>${trophyHtml}` : '<span class="row-name">—</span>';
         const badgeEl = `<span class="row-badge badge-${r.badge}" title="${r.title}" aria-label="${r.title}">${BADGE_LOGOS[r.badge]}</span>`;
         const tieText = names.length > 1 ? tieLabel(names.length) : '';
         const rowClass = r.badge === 'stars' ? 'leaderboard-row stars-row label-visible' : 'leaderboard-row label-visible';
@@ -2212,7 +2217,7 @@
     document.getElementById('members-v2-root').innerHTML = data.members.map(m => {
       const stars = allstarsFor(m.name);
       const starsHtml = stars.length ? `<span class="allstar-group">${stars.map(s => `<span class="avatar-star tier-${badgeTierFor(s.key)} has-tip" data-tip="${escapeHtml(s.title)} · ${escapeHtml(s.multiplier || badgeMultiplierFor(s.key))}" aria-label="${escapeHtml(s.title)}">★</span>`).join('')}</span>` : '';
-      const badgeLegendHtml = `<div class="badge-legend">${badgeLegendCatalog().map(badge => `<div class="badge-legend-item has-tip" data-tip="${escapeHtml(badge.description)}"><span class="avatar-star tier-${badgeTierFor(badge.key)}">★</span><span>${badgeLabelHtml({ key: badge.key, title: badge.title, multiplier: badge.multiplier || badgeMultiplierFor(badge.key) })}</span></div>`).join('')}</div>`;
+      const badgeLegendHtml = (() => { let previousTier = ''; return `<div class="badge-legend">${badgeLegendCatalog().map(badge => { const tier = badgeTierFor(badge.key); const tierBreak = previousTier && previousTier !== tier ? ' tier-break' : ''; previousTier = tier; return `<div class="badge-legend-item has-tip${tierBreak}" data-tip="${escapeHtml(badge.description)}"><span class="badge-earned-dot${stars.some(star => star.key === badge.key) ? ' active' : ''}">●</span><span class="avatar-star tier-${tier}">★</span><span>${badgeLabelHtml({ key: badge.key, title: badge.title, multiplier: badge.multiplier || badgeMultiplierFor(badge.key) })}</span></div>`; }).join('')}</div>`; })();
       const badgeListHtml = stars.length
         ? `<ul>${stars.map(s => `<li><strong>${badgeLabelHtml(s)}:</strong> ${escapeHtml(s.description)}</li>`).join('')}</ul>`
         : '<p>No allstar badges earned this week.</p>';
@@ -2252,8 +2257,10 @@
           ${isPnp2Week ? `<h4>${escapeHtml(weekLabel(currentWeek))} Checks</h4>${pnp2CheckHtml}` : ''}
           <h4>Badge Legend</h4>
           ${badgeLegendHtml}
-          <h4>Badges Earned This Week</h4>
-          ${badgeListHtml}
+          <div class="badges-earned-section">
+            <h4>Badges Earned This Week</h4>
+            ${badgeListHtml}
+          </div>
           <h4 style="margin-top:0.7rem;">Lifetime Stars</h4>
           <p><span class="star-total" data-member="${escapeHtml(m.name)}"><span class="star-icon">★</span><span class="star-num">${stars.length}</span></span></p>
         </div>
