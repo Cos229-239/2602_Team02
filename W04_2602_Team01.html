@@ -211,6 +211,7 @@
     .leaderboard-row .row-track-wrap .track-tie-label { color: #fff; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em; text-shadow: 0 1px 2px rgba(0,0,0,0.35); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.18s ease; padding: 0 0.55rem; }
     .leaderboard-row .row-track-wrap .track-speed-bar.tie-visible .track-tie-label { opacity: 1; }
     .leaderboard-row .row-track-wrap .track-marker.car { position: absolute; left: calc(20px + (100% - 32px) * (var(--leader-pct, 0) / 100)); top: 50%; transform: translateY(-50%) scaleX(-1); font-size: 0.75rem; z-index: 4; transition: none; }
+    .leaderboard-row .row-track-wrap .track-marker.shell { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); font-size: 0.72rem; z-index: 4; opacity: 0; transition: none; }
     .leaderboard-row .row-track-wrap .track-marker.car.car-gone { opacity: 0; }
 
     /* Git stats + contribution bars */
@@ -616,6 +617,7 @@
           row.classList.remove('name-visible');
           var bar = row.querySelector('.track-speed-bar');
           var car = row.querySelector('.track-marker.car');
+          var shell = row.querySelector('.track-marker.shell');
           if (bar) {
             bar.style.width = '0';
             bar.classList.remove('tie-visible');
@@ -627,6 +629,12 @@
             car.style.transform = 'translateY(-50%) scaleX(-1)';
             car.style.opacity = '1';
           }
+          if (shell) {
+            shell.style.left = '20px';
+            shell.style.opacity = '0';
+            shell.textContent = '🐢';
+            shell.style.transform = 'translateY(-50%)';
+          }
         });
         function runRow(index) {
           if (index >= rows.length) return;
@@ -635,21 +643,46 @@
           var noWinner = row.getAttribute('data-no-winner') === 'true';
           var bar = row.querySelector('.track-speed-bar');
           var car = row.querySelector('.track-marker.car');
+          var shell = row.querySelector('.track-marker.shell');
           var wrap = row.querySelector('.row-track-wrap');
           if (!bar || !car || !wrap) { runRow(index + 1); return; }
           if (noWinner) {
-            var crashLeft = Math.max(20, wrap.offsetWidth - 18);
+            var trackWidthNoWinner = wrap.offsetWidth - 32;
+            var crashPct = 34 + Math.random() * 42;
+            var crashLeft = 20 + (trackWidthNoWinner * (crashPct / 100));
+            var shellStart = Math.max(20, crashLeft - 90);
+            var shellHit = Math.max(20, crashLeft - 6);
+            bar.style.width = '0px';
             car.animate([
               { left: '20px', transform: 'translateY(-50%) scaleX(-1)', opacity: 1 },
               { left: crashLeft + 'px', transform: 'translateY(-50%) scaleX(-1)', opacity: 1 }
             ], { duration: 820, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' });
+            bar.animate([
+              { width: '0px', opacity: 1 },
+              { width: (crashLeft - 20) + 'px', opacity: 1 }
+            ], { duration: 820, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' });
+            if (shell) {
+              shell.style.left = shellStart + 'px';
+              shell.style.opacity = '1';
+              shell.animate([
+                { left: shellStart + 'px', opacity: 1, transform: 'translateY(-50%) scale(0.9)' },
+                { left: shellHit + 'px', opacity: 1, transform: 'translateY(-50%) scale(1)' }
+              ], { duration: 430, delay: 520, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' });
+            }
             setTimeout(function() {
               car.style.left = crashLeft + 'px';
               car.textContent = '💥';
               car.style.transform = 'translateY(-50%) scale(1.2)';
+              if (shell) shell.style.opacity = '0';
+              bar.animate([
+                { width: (crashLeft - 20) + 'px', opacity: 1 },
+                { width: '0px', opacity: 0 }
+              ], { duration: 260, easing: 'ease-out', fill: 'forwards' });
             }, 820);
             setTimeout(function() {
               car.classList.add('car-gone');
+              bar.style.width = '0px';
+              bar.style.opacity = '0';
               row.classList.add('name-visible');
               setTimeout(function() { runRow(index + 1); }, 180);
             }, 1180);
@@ -1274,7 +1307,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-25-2026 - 17:31", "period": "2026-02-23 to 2026-03-01", "cycle": "2602", "week": 4, "team": "2602_Team01", "sourceUrl": "W04_2602_Team01_v1.html", "assignmentTitle": "PNP2 \u2014 Week 04 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 04 Assignment Checks", "items": [{"assignment": "4.1 Daily Standups \u2013 Week 04", "what": "Post more than one standup update this week.", "criteria": "Two or more standup posts should be captured for the student this week."}, {"assignment": "4.2 Weekly Git Activity \u2013 Week 04", "what": "Show more code movement than the previous week.", "criteria": "Current-week Git output should be greater than the prior week's captured Git output for that student."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Daniel W.", "git": "active", "trello": false, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}, "pnp2Previous": {"week": 3, "gitConnected": true, "commits": 1, "additions": 17, "deletions": 20, "net": -3, "posts": 4}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+423/-53", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 3, "additions": 423, "deletions": 53, "net": 370, "files": [{"path": "CreateAccountScreen.kt +129/-2"}, {"path": "HomeScreen.kt +125/-2"}, {"path": "LoginScreen.kt +83/-0"}, {"path": "App.kt +72/-42"}, {"path": "AppScreen.kt +7/-0"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 0}, "actionBreakdown": {}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 6, "dates": "Feb 23, Feb 24, Feb 25, Feb 26, Feb 27", "summary": ""}], "alerts": [{"type": "warn", "text": "Daniel W. has no Trello activity this week. Update cards to reflect work done."}]};
+    const data = {"report": {"generated": "03-25-2026 - 17:34", "period": "2026-02-23 to 2026-03-01", "cycle": "2602", "week": 4, "team": "2602_Team01", "sourceUrl": "W04_2602_Team01_v1.html", "assignmentTitle": "PNP2 \u2014 Week 04 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 04 Assignment Checks", "items": [{"assignment": "4.1 Daily Standups \u2013 Week 04", "what": "Post more than one standup update this week.", "criteria": "Two or more standup posts should be captured for the student this week."}, {"assignment": "4.2 Weekly Git Activity \u2013 Week 04", "what": "Show more code movement than the previous week.", "criteria": "Current-week Git output should be greater than the prior week's captured Git output for that student."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Daniel W.", "git": "active", "trello": false, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}, "pnp2Previous": {"week": 3, "gitConnected": true, "commits": 1, "additions": 17, "deletions": 20, "net": -3, "posts": 4}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+423/-53", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 3, "additions": 423, "deletions": 53, "net": 370, "files": [{"path": "CreateAccountScreen.kt +129/-2"}, {"path": "HomeScreen.kt +125/-2"}, {"path": "LoginScreen.kt +83/-0"}, {"path": "App.kt +72/-42"}, {"path": "AppScreen.kt +7/-0"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 0}, "actionBreakdown": {}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 6, "dates": "Feb 23, Feb 24, Feb 25, Feb 26, Feb 27", "summary": ""}], "alerts": [{"type": "warn", "text": "Daniel W. has no Trello activity this week. Update cards to reflect work done."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     function escapeHtml(value) {
@@ -1851,7 +1884,7 @@
       stars: '★'
     };
     function leadTrack(metricTitle, tieText, leaderPct, secondPct, thirdPct, secondLabel, thirdLabel, noWinner) {
-      return `<span class="track-dot" title="Start">●</span><div class="track-rail" aria-hidden="true"></div><div class="track-speed-bar${tieText ? ' tie-visible' : ''}" style="--leader-pct:${leaderPct};" title="${metricTitle}">${tieText ? `<span class="track-tie-label">${escapeHtml(tieText)}</span>` : ''}</div>${secondPct > 0 ? `<span class="track-gap-marker second" style="--second-pct:${secondPct};" title="2nd place pace"></span><span class="track-rank-label rank-second" style="--second-pct:${secondPct};">${escapeHtml(secondLabel || '2nd')}</span>` : ''}${thirdPct > 0 ? `<span class="track-gap-marker third" style="--third-pct:${thirdPct};" title="3rd place pace"></span><span class="track-rank-label rank-third" style="--third-pct:${thirdPct};">${escapeHtml(thirdLabel || '3rd')}</span>` : ''}${!noWinner ? `<span class="track-rank-label rank-first" style="--leader-pct:${leaderPct};">1st</span>` : ''}<span class="track-marker car${noWinner ? ' no-winner' : ''}" style="--leader-pct:${leaderPct};" title="${noWinner ? 'No winner yet' : metricTitle + ' leader'}">🚗</span>`;
+      return `<span class="track-dot" title="Start">●</span><div class="track-rail" aria-hidden="true"></div><div class="track-speed-bar${tieText ? ' tie-visible' : ''}" style="--leader-pct:${leaderPct};" title="${metricTitle}">${tieText ? `<span class="track-tie-label">${escapeHtml(tieText)}</span>` : ''}</div>${secondPct > 0 ? `<span class="track-gap-marker second" style="--second-pct:${secondPct};" title="2nd place pace"></span><span class="track-rank-label rank-second" style="--second-pct:${secondPct};">${escapeHtml(secondLabel || '2nd')}</span>` : ''}${thirdPct > 0 ? `<span class="track-gap-marker third" style="--third-pct:${thirdPct};" title="3rd place pace"></span><span class="track-rank-label rank-third" style="--third-pct:${thirdPct};">${escapeHtml(thirdLabel || '3rd')}</span>` : ''}${!noWinner ? `<span class="track-rank-label rank-first" style="--leader-pct:${leaderPct};">1st</span>` : ''}<span class="track-marker shell${noWinner ? ' no-winner' : ''}" title="Shell">🐢</span><span class="track-marker car${noWinner ? ' no-winner' : ''}" style="--leader-pct:${leaderPct};" title="${noWinner ? 'No winner yet' : metricTitle + ' leader'}">🚗</span>`;
     }
     function renderLeaderboard(lifetimeTotals) {
       const weeklyStarCounts = {};

@@ -61,6 +61,7 @@
     .track-rank-label.rank-second { left:calc(22px + (100% - 34px) * (var(--second-pct, 0) / 100)); color:#d1d5db; }
     .track-rank-label.rank-third { left:calc(22px + (100% - 34px) * (var(--third-pct, 0) / 100)); color:#cd7f32; }
     .track-marker.car { position:absolute; left:22px; top:50%; transform:translateY(-50%) scaleX(-1); z-index:4; font-size:0.85rem; }
+    .track-marker.shell { position:absolute; left:22px; top:50%; transform:translateY(-50%); z-index:4; font-size:0.8rem; opacity:0; }
     .track-marker.car.car-gone { opacity:0; }
     .hero-row .track-marker.car { font-size:1rem; }
     .row-first { min-width:12rem; display:flex; align-items:center; justify-content:flex-end; gap:0.8rem; font-weight:700; }
@@ -146,6 +147,7 @@
           <span class="track-gap-marker second" style="--second-pct:82.61;"></span><span class="track-rank-label rank-second" style="--second-pct:82.61;">Lesly M.</span>
           <span class="track-gap-marker third" style="--third-pct:56.52;"></span><span class="track-rank-label rank-third" style="--third-pct:56.52;">Maret M.</span>
           <span class="track-rank-label rank-first" style="--leader-pct:100.00;">1st</span>
+          <span class="track-marker shell">🐢</span>
           <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -172,6 +174,7 @@
           <span class="track-gap-marker second" style="--second-pct:50.00;"></span><span class="track-rank-label rank-second" style="--second-pct:50.00;">Hasani C.</span>
           <span class="track-gap-marker third" style="--third-pct:25.00;"></span><span class="track-rank-label rank-third" style="--third-pct:25.00;">Lesly M.</span>
           <span class="track-rank-label rank-first" style="--leader-pct:100.00;">1st</span>
+          <span class="track-marker shell">🐢</span>
           <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -192,6 +195,7 @@
           <span class="track-gap-marker second" style="--second-pct:40.00;"></span><span class="track-rank-label rank-second" style="--second-pct:40.00;">Maret M.</span>
           <span class="track-gap-marker third" style="--third-pct:20.00;"></span><span class="track-rank-label rank-third" style="--third-pct:20.00;">Lesly M.</span>
           <span class="track-rank-label rank-first" style="--leader-pct:100.00;">1st</span>
+          <span class="track-marker shell">🐢</span>
           <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -212,6 +216,7 @@
           <span class="track-gap-marker second" style="--second-pct:80.00;"></span><span class="track-rank-label rank-second" style="--second-pct:80.00;">Andy T.</span>
           <span class="track-gap-marker third" style="--third-pct:40.00;"></span><span class="track-rank-label rank-third" style="--third-pct:40.00;">Rodney F.</span>
           <span class="track-rank-label rank-first" style="--leader-pct:100.00;">1st</span>
+          <span class="track-marker shell">🐢</span>
           <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -232,6 +237,7 @@
           
           
           
+          <span class="track-marker shell no-winner">🐢</span>
           <span class="track-marker car no-winner" style="--leader-pct:0.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -252,6 +258,7 @@
           
           
           <span class="track-rank-label rank-first" style="--leader-pct:100.00;">1st</span>
+          <span class="track-marker shell">🐢</span>
           <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -272,6 +279,7 @@
           
           
           
+          <span class="track-marker shell no-winner">🐢</span>
           <span class="track-marker car no-winner" style="--leader-pct:0.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -292,6 +300,7 @@
           <span class="track-gap-marker second" style="--second-pct:80.00;"></span><span class="track-rank-label rank-second" style="--second-pct:80.00;">Tie 2nd</span>
           <span class="track-gap-marker third" style="--third-pct:40.00;"></span><span class="track-rank-label rank-third" style="--third-pct:40.00;">Maret M.</span>
           <span class="track-rank-label rank-first" style="--leader-pct:100.00;">1st</span>
+          <span class="track-marker shell">🐢</span>
           <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -312,6 +321,7 @@
           
           
           
+          <span class="track-marker shell no-winner">🐢</span>
           <span class="track-marker car no-winner" style="--leader-pct:0.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -332,6 +342,7 @@
           
           
           
+          <span class="track-marker shell no-winner">🐢</span>
           <span class="track-marker car no-winner" style="--leader-pct:0.00;">🚗</span>
         </div>
         <span class="row-first">
@@ -380,6 +391,7 @@
         row.classList.remove('name-visible');
         const bar = row.querySelector('.track-speed-bar');
         const car = row.querySelector('.track-marker.car');
+        const shell = row.querySelector('.track-marker.shell');
         if (bar) bar.style.width = '0px';
         if (car) {
           car.style.left = '22px';
@@ -387,6 +399,12 @@
           car.textContent = '🚗';
           car.style.transform = 'translateY(-50%) scaleX(-1)';
           car.style.opacity = '1';
+        }
+        if (shell) {
+          shell.style.left = '22px';
+          shell.style.opacity = '0';
+          shell.textContent = '🐢';
+          shell.style.transform = 'translateY(-50%)';
         }
       });
       function runRow(index) {
@@ -396,6 +414,7 @@
         const noWinner = row.getAttribute('data-no-winner') === 'true';
         const bar = row.querySelector('.track-speed-bar');
         const car = row.querySelector('.track-marker.car');
+        const shell = row.querySelector('.track-marker.shell');
         const wrap = row.querySelector('.row-track-wrap');
         const second = row.querySelector('.track-gap-marker.second');
         const third = row.querySelector('.track-gap-marker.third');
@@ -403,18 +422,42 @@
         const secondPct = second ? parseFloat(second.style.getPropertyValue('--second-pct') || '0') : 0;
         const thirdPct = third ? parseFloat(third.style.getPropertyValue('--third-pct') || '0') : 0;
         if (noWinner) {
-          const crashLeft = Math.max(22, wrap.offsetWidth - 18);
+          const trackWidthNoWinner = wrap.offsetWidth - 34;
+          const crashPct = 34 + Math.random() * 42;
+          const crashLeft = 22 + (trackWidthNoWinner * (crashPct / 100));
+          const shellStart = Math.max(22, crashLeft - 90);
+          const shellHit = Math.max(22, crashLeft - 6);
+          bar.style.width = '0px';
           car.animate([
             { left:'22px', transform:'translateY(-50%) scaleX(-1)', opacity:1 },
             { left:crashLeft + 'px', transform:'translateY(-50%) scaleX(-1)', opacity:1 }
           ], { duration: 820, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' });
+          bar.animate([
+            { width:'0px', opacity:1 },
+            { width:(crashLeft - 22) + 'px', opacity:1 }
+          ], { duration: 820, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' });
+          if (shell) {
+            shell.style.left = shellStart + 'px';
+            shell.style.opacity = '1';
+            shell.animate([
+              { left:shellStart + 'px', opacity:1, transform:'translateY(-50%) scale(0.9)' },
+              { left:shellHit + 'px', opacity:1, transform:'translateY(-50%) scale(1)' }
+            ], { duration: 430, delay: 520, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards' });
+          }
           setTimeout(() => {
             car.style.left = crashLeft + 'px';
             car.textContent = '💥';
             car.style.transform = 'translateY(-50%) scale(1.25)';
+            if (shell) shell.style.opacity = '0';
+            bar.animate([
+              { width:(crashLeft - 22) + 'px', opacity:1 },
+              { width:'0px', opacity:0 }
+            ], { duration: 260, easing:'ease-out', fill:'forwards' });
           }, 820);
           setTimeout(() => {
             car.classList.add('car-gone');
+            bar.style.width = '0px';
+            bar.style.opacity = '0';
             row.classList.add('name-visible');
             setTimeout(() => runRow(index + 1), 180);
           }, 1180);
