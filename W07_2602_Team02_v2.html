@@ -457,7 +457,7 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.59</div>
+<div class="sidebar-version">Report.version 3.60</div>
 </nav>
   <main class="content-shell">
   <div class="container">
@@ -608,13 +608,29 @@
       var reveal = document.getElementById('leaderboard-reveal');
       var content = document.getElementById('leaderboard-content');
       if (!btn || !reveal || !content) return;
+      var LEADERBOARD_TUNING = {
+        mainRaceSpeed: 0.75,
+        mainBarDurationMax: 1500,
+        mainLabelDelay: 450,
+        mainNameDuration: 600,
+        gagCarBaseDuration: 1120,
+        gagCarMinDuration: 760,
+        gagShellSpeedRatio: 1.02,
+        gagShellMinDuration: 260,
+        gagProgressFloorFactor: 0.48,
+        gagProgressCeilFactor: 0.9,
+        gagProgressFloorMin: 0.18,
+        gagProgressCeilGap: 0.08,
+        gagRandomSpreadMin: 0.06,
+        gagExplosionDuration: 520,
+        gagExplosionScale: 10,
+        gagRetractMinDuration: 420,
+        gagRowAdvanceDelay: 180
+      };
       btn.addEventListener('click', function() {
         reveal.style.display = 'none';
         content.classList.add('revealed');
         var rows = content.querySelectorAll('.leaderboard-row');
-        var barDurationMax = 1500;
-        var labelDelay = 450;
-        var nameDuration = 600;
         rows.forEach(function(row) {
           row.classList.remove('name-visible');
           var bar = row.querySelector('.track-speed-bar');
@@ -652,19 +668,24 @@
           if (noWinner) {
             var trackWidthNoWinner = wrap.offsetWidth - 32;
             var finishLeft = 20 + (trackWidthNoWinner * (currentWeekPct / 100));
-            var progressFloor = Math.max(0.18, (currentWeekPct / 100) * 0.48);
-            var progressCeil = Math.max(progressFloor + 0.08, (currentWeekPct / 100) * 0.9);
-            var chasePct = progressFloor + (Math.random() * Math.max(0.06, progressCeil - progressFloor));
+            var progressFloor = Math.max(LEADERBOARD_TUNING.gagProgressFloorMin, (currentWeekPct / 100) * LEADERBOARD_TUNING.gagProgressFloorFactor);
+            var progressCeil = Math.max(progressFloor + LEADERBOARD_TUNING.gagProgressCeilGap, (currentWeekPct / 100) * LEADERBOARD_TUNING.gagProgressCeilFactor);
+            var chasePct = progressFloor + (Math.random() * Math.max(LEADERBOARD_TUNING.gagRandomSpreadMin, progressCeil - progressFloor));
             var crashLeft = 20 + (trackWidthNoWinner * chasePct);
             crashLeft = Math.min(crashLeft, finishLeft - 14);
             var shellStart = -36;
             var shellHit = Math.max(20, crashLeft - 8);
             var carDistance = Math.max(1, crashLeft - 20);
             var finishDistance = Math.max(1, finishLeft - 20);
-            var carDuration = Math.max(760, 1120 * (carDistance / finishDistance));
+            var carDuration = Math.max(
+              LEADERBOARD_TUNING.gagCarMinDuration,
+              (LEADERBOARD_TUNING.gagCarBaseDuration * (carDistance / finishDistance)) / LEADERBOARD_TUNING.mainRaceSpeed
+            );
             var shellDistance = Math.max(1, shellHit - shellStart);
-            var shellSpeedRatio = 1.02;
-            var shellDuration = Math.max(260, carDuration * (shellDistance / (carDistance * shellSpeedRatio)));
+            var shellDuration = Math.max(
+              LEADERBOARD_TUNING.gagShellMinDuration,
+              carDuration * (shellDistance / (carDistance * LEADERBOARD_TUNING.gagShellSpeedRatio))
+            );
             var shellDelay = Math.max(0, carDuration - shellDuration);
             bar.style.width = '0px';
             car.animate([
@@ -688,14 +709,14 @@
               car.textContent = '💥';
               car.animate([
                 { transform: 'translateY(-50%) scale(1.2)', opacity: 1 },
-                { transform: 'translateY(-50%) scale(10)', opacity: 1, offset: 0.78 },
-                { transform: 'translateY(-50%) scale(10)', opacity: 0, offset: 1 }
-              ], { duration: 520, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' });
+                { transform: 'translateY(-50%) scale(' + LEADERBOARD_TUNING.gagExplosionScale + ')', opacity: 1, offset: 0.78 },
+                { transform: 'translateY(-50%) scale(' + LEADERBOARD_TUNING.gagExplosionScale + ')', opacity: 0, offset: 1 }
+              ], { duration: LEADERBOARD_TUNING.gagExplosionDuration, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' });
               if (shell) {
                 shell.style.left = shellHit + 'px';
                 shell.style.opacity = '1';
               }
-              var retractDuration = Math.max(420, carDuration);
+              var retractDuration = Math.max(LEADERBOARD_TUNING.gagRetractMinDuration, carDuration);
               bar.animate([
                 { width: (crashLeft - 20) + 'px', opacity: 1 },
                 { width: '0px', opacity: 0 }
@@ -707,11 +728,11 @@
               car.classList.add('car-gone');
               car.style.opacity = '0';
               row.classList.add('name-visible');
-              setTimeout(function() { runRow(index + 1); }, 180);
-            }, carDuration + Math.max(420, carDuration));
+              setTimeout(function() { runRow(index + 1); }, LEADERBOARD_TUNING.gagRowAdvanceDelay);
+            }, carDuration + Math.max(LEADERBOARD_TUNING.gagRetractMinDuration, carDuration));
             return;
           }
-          var barDuration = Math.max(400, (targetPct / 100) * barDurationMax);
+          var barDuration = Math.max(400, ((targetPct / 100) * LEADERBOARD_TUNING.mainBarDurationMax) / LEADERBOARD_TUNING.mainRaceSpeed);
           var start = performance.now();
           function step(now) {
             var elapsed = now - start;
@@ -731,8 +752,8 @@
             } else {
               setTimeout(function() {
                 row.classList.add('name-visible');
-                setTimeout(function() { runRow(index + 1); }, nameDuration);
-              }, labelDelay);
+                setTimeout(function() { runRow(index + 1); }, LEADERBOARD_TUNING.mainNameDuration);
+              }, LEADERBOARD_TUNING.mainLabelDelay);
             }
           }
           requestAnimationFrame(step);
@@ -1330,7 +1351,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-25-2026 - 18:12", "period": "2026-03-16 to 2026-03-22", "cycle": "2602", "week": 7, "team": "2602_Team02", "sourceUrl": "W07_2602_Team02_v1.html"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Rodney Ford", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "Rodford", "githubEmail": "rodford37@gmail.com", "trelloConnected": true, "trelloEmail": "rmford@student.fullsail.edu", "trelloUsername": "rodney_ford", "trelloMemberId": "69816570d1d8fee72b70882f"}}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Lesly Morales", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "Lesly-AM", "githubEmail": "LDMorales1@student.fullsail.edu", "trelloConnected": true, "trelloEmail": "LDMorales1@student.fullsail.edu", "trelloUsername": "leslymorales13", "trelloMemberId": "6983f53993fd6b41176e7efa"}}, {"name": "Hasani C.", "git": "active", "trello": false, "discord": true, "githubUsername": "4hzzz", "pnp2Setup": {"name": "Hasani Carter", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "4hzzz", "githubEmail": "pbmhasani@gmail.com", "trelloConnected": true, "trelloEmail": "hscarter@student.fullsail.edu", "trelloUsername": "hscarter", "trelloMemberId": "698238572995a2bc2d19f06f"}}, {"name": "Maret M.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Maret G. Rivera Merced", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "MarRivMer", "githubEmail": "maretr50@gmail.com", "trelloConnected": true, "trelloEmail": "mgriveramerced@student.fullsail.edu", "trelloUsername": "mgriveramerced", "trelloMemberId": "6984f01ab2de073c425e00d7"}}, {"name": "Andy T.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Andy Tran", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "717Andy", "githubEmail": "andytran7381@yahoo.com", "trelloConnected": true, "trelloEmail": "ahtran@student.fullsail.edu", "trelloUsername": "ahtran1", "trelloMemberId": "6990c0ea796cdff5a95fa3d9"}}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Inactive", "activity": "23d ago", "contribution": "+94/-24", "aheadBehind": "0 / 113", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "3d ago", "contribution": "+94/-24", "aheadBehind": "0 / 19", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Diverged", "activity": "TODAY", "contribution": "+1727/-667", "aheadBehind": "4 / 15", "risk": "HIGH", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Behind", "activity": "TODAY", "contribution": "+3512/-1433", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "TODAY", "contribution": "+269/-100", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "1d ago", "contribution": "+3792/-1028", "aheadBehind": "0 / 9", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Lesly M.", "workingFrom": "Org repo", "commits": 16, "additions": 3512, "deletions": 1433, "net": 2079, "files": [{"path": "EditEventActivity.kt +930/-445"}, {"path": "EditItemActivity.kt +439/-319"}, {"path": "EventViewModel.kt +418/-48"}, {"path": "ProfileActivity.kt +385/-68"}, {"path": "EventInfoActivity.kt +227/-61"}]}, {"person": "Rodney F.", "workingFrom": "Org repo", "commits": 8, "additions": 3792, "deletions": 1028, "net": 2764, "files": [{"path": "ProfileActivity.kt +770/-136"}, {"path": "EventViewModel.kt +620/-34"}, {"path": "EventInfoActivity.kt +318/-30"}, {"path": "InviteFriendsFragment.kt +276/-90"}, {"path": "SignUpActivity.kt +264/-76"}]}, {"person": "Hasani C.", "workingFrom": "Org Repo / Fork (@4hzzz)", "commits": 5, "additions": 1727, "deletions": 667, "net": 1060, "files": [{"path": "ProfileActivity.kt +624/-28"}, {"path": "EventViewModel.kt +442/-6"}, {"path": "SignUpActivity.kt +323/-148"}, {"path": "InviteFriendsFragment.kt +172/-2"}, {"path": "EventDetails.kt +58/-24"}]}, {"person": "Maret M.", "workingFrom": "Org repo", "commits": 6, "additions": 269, "deletions": 100, "net": 169, "files": [{"path": "MainActivity.kt +140/-13"}, {"path": "EventInfoActivity.kt +129/-87"}]}, {"person": "Andy T.", "workingFrom": "Org repo", "commits": 2, "additions": 94, "deletions": 24, "net": 70, "files": [{"path": "EventViewModel.kt +94/-24"}]}], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 18}, "actions": {"Andy T.": 13, "Hasani C.": 0, "Lesly M.": 20, "Maret M.": 5, "Rodney F.": 46}, "actionBreakdown": {"Andy T.": {"Create card": 1, "Move card": 6, "Complete checklist": 5}, "Lesly M.": {"Move card": 14, "Complete checklist": 1}, "Maret M.": {"Move card": 4, "Comment": 1}, "Rodney F.": {"Create card": 2, "Move card": 19, "Comment": 2, "Complete checklist": 15}}, "status": "HEALTHY"}, "discord": [{"person": "Andy T.", "posts": 6, "dates": "Mar 16, Mar 19, Mar 21, Mar 22", "summary": ""}, {"person": "Lesly M.", "posts": 6, "dates": "Mar 17, Mar 18, Mar 20, Mar 22", "summary": ""}, {"person": "Hasani C.", "posts": 5, "dates": "Mar 16, Mar 18, Mar 19", "summary": ""}, {"person": "Rodney F.", "posts": 5, "dates": "Mar 17, Mar 18, Mar 19, Mar 20, Mar 21", "summary": ""}, {"person": "Maret M.", "posts": 4, "dates": "Mar 18, Mar 20, Mar 21", "summary": ""}], "alerts": [{"type": "warn", "text": "Hasani C. has no Trello activity this week. Update cards to reflect work done."}, {"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely)."}]};
+    const data = {"report": {"generated": "03-25-2026 - 18:19", "period": "2026-03-16 to 2026-03-22", "cycle": "2602", "week": 7, "team": "2602_Team02", "sourceUrl": "W07_2602_Team02_v1.html"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Rodney Ford", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "Rodford", "githubEmail": "rodford37@gmail.com", "trelloConnected": true, "trelloEmail": "rmford@student.fullsail.edu", "trelloUsername": "rodney_ford", "trelloMemberId": "69816570d1d8fee72b70882f"}}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Lesly Morales", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "Lesly-AM", "githubEmail": "LDMorales1@student.fullsail.edu", "trelloConnected": true, "trelloEmail": "LDMorales1@student.fullsail.edu", "trelloUsername": "leslymorales13", "trelloMemberId": "6983f53993fd6b41176e7efa"}}, {"name": "Hasani C.", "git": "active", "trello": false, "discord": true, "githubUsername": "4hzzz", "pnp2Setup": {"name": "Hasani Carter", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "4hzzz", "githubEmail": "pbmhasani@gmail.com", "trelloConnected": true, "trelloEmail": "hscarter@student.fullsail.edu", "trelloUsername": "hscarter", "trelloMemberId": "698238572995a2bc2d19f06f"}}, {"name": "Maret M.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Maret G. Rivera Merced", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "MarRivMer", "githubEmail": "maretr50@gmail.com", "trelloConnected": true, "trelloEmail": "mgriveramerced@student.fullsail.edu", "trelloUsername": "mgriveramerced", "trelloMemberId": "6984f01ab2de073c425e00d7"}}, {"name": "Andy T.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Andy Tran", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "717Andy", "githubEmail": "andytran7381@yahoo.com", "trelloConnected": true, "trelloEmail": "ahtran@student.fullsail.edu", "trelloUsername": "ahtran1", "trelloMemberId": "6990c0ea796cdff5a95fa3d9"}}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Inactive", "activity": "23d ago", "contribution": "+94/-24", "aheadBehind": "0 / 113", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "3d ago", "contribution": "+94/-24", "aheadBehind": "0 / 19", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Diverged", "activity": "TODAY", "contribution": "+1727/-667", "aheadBehind": "4 / 15", "risk": "HIGH", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Behind", "activity": "TODAY", "contribution": "+3512/-1433", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "TODAY", "contribution": "+269/-100", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "1d ago", "contribution": "+3792/-1028", "aheadBehind": "0 / 9", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Lesly M.", "workingFrom": "Org repo", "commits": 16, "additions": 3512, "deletions": 1433, "net": 2079, "files": [{"path": "EditEventActivity.kt +930/-445"}, {"path": "EditItemActivity.kt +439/-319"}, {"path": "EventViewModel.kt +418/-48"}, {"path": "ProfileActivity.kt +385/-68"}, {"path": "EventInfoActivity.kt +227/-61"}]}, {"person": "Rodney F.", "workingFrom": "Org repo", "commits": 8, "additions": 3792, "deletions": 1028, "net": 2764, "files": [{"path": "ProfileActivity.kt +770/-136"}, {"path": "EventViewModel.kt +620/-34"}, {"path": "EventInfoActivity.kt +318/-30"}, {"path": "InviteFriendsFragment.kt +276/-90"}, {"path": "SignUpActivity.kt +264/-76"}]}, {"person": "Hasani C.", "workingFrom": "Org Repo / Fork (@4hzzz)", "commits": 5, "additions": 1727, "deletions": 667, "net": 1060, "files": [{"path": "ProfileActivity.kt +624/-28"}, {"path": "EventViewModel.kt +442/-6"}, {"path": "SignUpActivity.kt +323/-148"}, {"path": "InviteFriendsFragment.kt +172/-2"}, {"path": "EventDetails.kt +58/-24"}]}, {"person": "Maret M.", "workingFrom": "Org repo", "commits": 6, "additions": 269, "deletions": 100, "net": 169, "files": [{"path": "MainActivity.kt +140/-13"}, {"path": "EventInfoActivity.kt +129/-87"}]}, {"person": "Andy T.", "workingFrom": "Org repo", "commits": 2, "additions": 94, "deletions": 24, "net": 70, "files": [{"path": "EventViewModel.kt +94/-24"}]}], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 18}, "actions": {"Andy T.": 13, "Hasani C.": 0, "Lesly M.": 20, "Maret M.": 5, "Rodney F.": 46}, "actionBreakdown": {"Andy T.": {"Create card": 1, "Move card": 6, "Complete checklist": 5}, "Lesly M.": {"Move card": 14, "Complete checklist": 1}, "Maret M.": {"Move card": 4, "Comment": 1}, "Rodney F.": {"Create card": 2, "Move card": 19, "Comment": 2, "Complete checklist": 15}}, "status": "HEALTHY"}, "discord": [{"person": "Andy T.", "posts": 6, "dates": "Mar 16, Mar 19, Mar 21, Mar 22", "summary": ""}, {"person": "Lesly M.", "posts": 6, "dates": "Mar 17, Mar 18, Mar 20, Mar 22", "summary": ""}, {"person": "Hasani C.", "posts": 5, "dates": "Mar 16, Mar 18, Mar 19", "summary": ""}, {"person": "Rodney F.", "posts": 5, "dates": "Mar 17, Mar 18, Mar 19, Mar 20, Mar 21", "summary": ""}, {"person": "Maret M.", "posts": 4, "dates": "Mar 18, Mar 20, Mar 21", "summary": ""}], "alerts": [{"type": "warn", "text": "Hasani C. has no Trello activity this week. Update cards to reflect work done."}, {"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely)."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     function escapeHtml(value) {

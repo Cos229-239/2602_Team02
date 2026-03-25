@@ -129,13 +129,13 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week active">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.59</div>
+<div class="sidebar-version">Report.version 3.60</div>
 </nav>
     <main class="content">
       <section class="hero">
         <h1>Cycle 2602 Class Leaderboard</h1>
         <p>Class-wide star leaders across the published report pages. The top row shows the lifetime allstar leader, then the category leaders for each star type.</p>
-        <div class="hero-meta">Leaderboard.version 3.59</div>
+        <div class="hero-meta">Leaderboard.version 3.60</div>
       </section>
       <section class="card">
         <h2>Lifetime Allstar</h2>
@@ -363,6 +363,25 @@
   </div>
   <script>
     const currentWeekPct = 100.00;
+    const LEADERBOARD_TUNING = {
+      mainRaceSpeed: 0.75,
+      mainBaseDuration: 900,
+      mainDurationRange: 600,
+      gagCarBaseDuration: 1120,
+      gagCarMinDuration: 760,
+      gagShellSpeedRatio: 1.02,
+      gagShellMinDuration: 260,
+      gagProgressFloorFactor: 0.48,
+      gagProgressCeilFactor: 0.9,
+      gagProgressFloorMin: 0.18,
+      gagProgressCeilGap: 0.08,
+      gagRandomSpreadMin: 0.06,
+      gagExplosionDuration: 520,
+      gagExplosionScale: 10,
+      gagRetractMinDuration: 420,
+      rowAdvanceDelay: 220,
+      gagRowAdvanceDelay: 180
+    };
     function burstBehindName(target) {
       if (!target) return;
       const colors = ['#58a6ff', '#f0c14b', '#7ee787', '#f472b6', '#a78bfa'];
@@ -432,19 +451,24 @@
         if (noWinner) {
           const trackWidthNoWinner = wrap.offsetWidth - 34;
           const finishLeft = 22 + (trackWidthNoWinner * (currentWeekPct / 100));
-          const progressFloor = Math.max(0.18, (currentWeekPct / 100) * 0.48);
-          const progressCeil = Math.max(progressFloor + 0.08, (currentWeekPct / 100) * 0.9);
-          const chasePct = progressFloor + (Math.random() * Math.max(0.06, progressCeil - progressFloor));
+          const progressFloor = Math.max(LEADERBOARD_TUNING.gagProgressFloorMin, (currentWeekPct / 100) * LEADERBOARD_TUNING.gagProgressFloorFactor);
+          const progressCeil = Math.max(progressFloor + LEADERBOARD_TUNING.gagProgressCeilGap, (currentWeekPct / 100) * LEADERBOARD_TUNING.gagProgressCeilFactor);
+          const chasePct = progressFloor + (Math.random() * Math.max(LEADERBOARD_TUNING.gagRandomSpreadMin, progressCeil - progressFloor));
           let crashLeft = 22 + (trackWidthNoWinner * chasePct);
           crashLeft = Math.min(crashLeft, finishLeft - 14);
           const shellStart = -34;
           const shellHit = Math.max(22, crashLeft - 8);
           const carDistance = Math.max(1, crashLeft - 22);
           const finishDistance = Math.max(1, finishLeft - 22);
-          const carDuration = Math.max(760, 1120 * (carDistance / finishDistance));
+          const carDuration = Math.max(
+            LEADERBOARD_TUNING.gagCarMinDuration,
+            (LEADERBOARD_TUNING.gagCarBaseDuration * (carDistance / finishDistance)) / LEADERBOARD_TUNING.mainRaceSpeed
+          );
           const shellDistance = Math.max(1, shellHit - shellStart);
-          const shellSpeedRatio = 1.02;
-          const shellDuration = Math.max(260, carDuration * (shellDistance / (carDistance * shellSpeedRatio)));
+          const shellDuration = Math.max(
+            LEADERBOARD_TUNING.gagShellMinDuration,
+            carDuration * (shellDistance / (carDistance * LEADERBOARD_TUNING.gagShellSpeedRatio))
+          );
           const shellDelay = Math.max(0, carDuration - shellDuration);
           bar.style.width = '0px';
           car.animate([
@@ -468,14 +492,14 @@
             car.textContent = '💥';
             car.animate([
               { transform:'translateY(-50%) scale(1.2)', opacity:1 },
-              { transform:'translateY(-50%) scale(10)', opacity:1, offset:0.78 },
-              { transform:'translateY(-50%) scale(10)', opacity:0, offset:1 }
-            ], { duration: 520, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' });
+              { transform:'translateY(-50%) scale(' + LEADERBOARD_TUNING.gagExplosionScale + ')', opacity:1, offset:0.78 },
+              { transform:'translateY(-50%) scale(' + LEADERBOARD_TUNING.gagExplosionScale + ')', opacity:0, offset:1 }
+            ], { duration: LEADERBOARD_TUNING.gagExplosionDuration, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' });
             if (shell) {
               shell.style.left = shellHit + 'px';
               shell.style.opacity = '1';
             }
-            const retractDuration = Math.max(420, carDuration);
+            const retractDuration = Math.max(LEADERBOARD_TUNING.gagRetractMinDuration, carDuration);
             bar.animate([
               { width:(crashLeft - 22) + 'px', opacity:1 },
               { width:'0px', opacity:0 }
@@ -487,12 +511,12 @@
             car.classList.add('car-gone');
             car.style.opacity = '0';
             row.classList.add('name-visible');
-            setTimeout(() => runRow(index + 1), 180);
-          }, carDuration + Math.max(420, carDuration));
+            setTimeout(() => runRow(index + 1), LEADERBOARD_TUNING.gagRowAdvanceDelay);
+          }, carDuration + Math.max(LEADERBOARD_TUNING.gagRetractMinDuration, carDuration));
           return;
         }
         const start = performance.now();
-        const duration = 900 + (targetPct / 100) * 600;
+        const duration = (LEADERBOARD_TUNING.mainBaseDuration + (targetPct / 100) * LEADERBOARD_TUNING.mainDurationRange) / LEADERBOARD_TUNING.mainRaceSpeed;
         function step(now) {
           const t = Math.min(1, (now - start) / duration);
           const eased = 1 - Math.pow(1 - t, 1.25);
@@ -508,7 +532,7 @@
           } else {
             row.classList.add('name-visible');
             burstBehindName(row.querySelector('.row-name'));
-            setTimeout(() => runRow(index + 1), 220);
+            setTimeout(() => runRow(index + 1), LEADERBOARD_TUNING.rowAdvanceDelay);
           }
         }
         requestAnimationFrame(step);
