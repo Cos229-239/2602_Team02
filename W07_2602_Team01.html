@@ -247,14 +247,14 @@
     .member-row .avatar-star { cursor: default; font-size: 0.54rem; color: #f0c14b; line-height: 1; background: rgba(15,20,25,0.92); border: 1px solid rgba(240,193,75,0.7); border-radius: 999px; padding: 0.12rem 0.17rem; }
     .member-row .avatar-star.elite { font-size: 1.08rem; padding: 0.14rem 0.26rem; box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 0 12px rgba(240,193,75,0.18); }
     .member-row .avatar-star.badge-code,
-    .member-row .avatar-star.badge-sync,
-    .member-row .avatar-star.badge-current,
-    .member-row .avatar-star.badge-build-ready,
-    .member-row .avatar-star.badge-zero-miss { color: #58a6ff; border-color: rgba(88,166,255,0.7); background: rgba(16,30,46,0.92); }
+    .member-row .avatar-star.badge-current { color: #58a6ff; border-color: rgba(88,166,255,0.7); background: rgba(16,30,46,0.92); }
     .member-row .avatar-star.badge-trello { color: #fb923c; border-color: rgba(251,146,60,0.74); background: rgba(52,28,10,0.92); }
     .member-row .avatar-star.badge-standups { color: #a78bfa; border-color: rgba(167,139,250,0.72); background: rgba(28,22,46,0.92); }
+    .member-row .avatar-star.badge-sync,
+    .member-row .avatar-star.badge-build-ready,
+    .member-row .avatar-star.badge-zero-miss,
+    .member-row .avatar-star.badge-standup-streak { color: #fde68a; border-color: rgba(253,230,138,0.9); background: rgba(67,52,8,0.94); box-shadow: 0 0 0 1px rgba(255,223,107,0.18), 0 0 14px rgba(240,193,75,0.22); }
     .member-row .avatar-star.badge-consistent { color: #fb923c; border-color: rgba(251,146,60,0.74); background: rgba(52,28,10,0.92); }
-    .member-row .avatar-star.badge-standup-streak { color: #fde047; border-color: rgba(253,224,71,0.78); background: rgba(54,45,9,0.92); }
     .has-tip { position: relative; z-index: 40; cursor: default; }
     .has-tip:hover::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); background: rgba(15,20,25,0.98); color: var(--text); border: 1px solid var(--surface2); border-radius: 6px; padding: 0.45rem 0.6rem; font-size: 0.72rem; white-space: pre-line; min-width: 11rem; max-width: 16rem; z-index: 9999; box-shadow: 0 10px 24px rgba(0,0,0,0.28); pointer-events: none; text-align: left; }
     .has-tip:hover::before { content: ''; position: absolute; left: 50%; bottom: calc(100% + 2px); transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--surface2); z-index: 9998; pointer-events: none; }
@@ -1351,7 +1351,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-25-2026 - 18:25", "period": "2026-03-16 to 2026-03-22", "cycle": "2602", "week": 7, "team": "2602_Team01", "sourceUrl": "W07_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+299/-95", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 2, "additions": 299, "deletions": 95, "net": 204, "files": [{"path": "NodeScreen.kt +185/-48"}, {"path": "App.kt +79/-36"}, {"path": "CategoryTile.kt +31/-7"}, {"path": "AddMenuSheet.kt +3/-3"}, {"path": "FieldsScreen.kt +1/-1"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 15}, "actionBreakdown": {"Daniel W.": {"Create card": 3, "Move card": 12}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 1, "dates": "Mar 22", "summary": ""}], "alerts": []};
+    const data = {"report": {"generated": "03-25-2026 - 18:28", "period": "2026-03-16 to 2026-03-22", "cycle": "2602", "week": 7, "team": "2602_Team01", "sourceUrl": "W07_2602_Team01_v1.html"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+299/-95", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 2, "additions": 299, "deletions": 95, "net": 204, "files": [{"path": "NodeScreen.kt +185/-48"}, {"path": "App.kt +79/-36"}, {"path": "CategoryTile.kt +31/-7"}, {"path": "AddMenuSheet.kt +3/-3"}, {"path": "FieldsScreen.kt +1/-1"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 15}, "actionBreakdown": {"Daniel W.": {"Create card": 3, "Move card": 12}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 1, "dates": "Mar 22", "summary": ""}], "alerts": []};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     function escapeHtml(value) {
