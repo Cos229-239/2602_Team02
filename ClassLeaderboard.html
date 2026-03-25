@@ -443,7 +443,7 @@
           const finishDistance = Math.max(1, finishLeft - 22);
           const carDuration = Math.max(760, 1120 * (carDistance / finishDistance));
           const shellDistance = Math.max(1, shellHit - shellStart);
-          const shellSpeedRatio = 1.10;
+          const shellSpeedRatio = 1.02;
           const shellDuration = Math.max(260, carDuration * (shellDistance / (carDistance * shellSpeedRatio)));
           const shellDelay = Math.max(0, carDuration - shellDuration);
           bar.style.width = '0px';
