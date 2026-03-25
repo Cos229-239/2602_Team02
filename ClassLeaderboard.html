@@ -69,7 +69,8 @@
     .row-first { min-width:12rem; display:flex; align-items:center; justify-content:flex-end; gap:0.8rem; font-weight:700; }
     .row-name-wrap { position:relative; display:inline-flex; align-items:center; justify-content:flex-end; min-width:8rem; }
     .row-name { opacity:0; transform:scale(8); transform-origin:right center; transition:opacity 0.6s ease, transform 0.6s ease; position:relative; z-index:2; }
-    .row-trophy { color:#f0c14b; font-size:0.88rem; margin-left:0.22rem; letter-spacing:0.05em; }
+    .row-trophy { color:#f0c14b; font-size:0.88rem; margin-left:0.22rem; letter-spacing:0.05em; display:inline-flex; align-items:center; }
+    .row-trophy.lifetime { font-size:2.64rem; line-height:0.8; margin-left:0.28rem; }
     .row-name-wrap.bursting .row-name { text-shadow:0 0 18px rgba(255,255,255,0.22), 0 0 28px rgba(88,166,255,0.32), 0 0 38px rgba(240,193,75,0.28); }
     .leaderboard-row.name-visible .row-name { opacity:1; transform:scale(1); }
     .hero-row .row-name { font-size:1.3rem; font-weight:800; }
@@ -130,13 +131,13 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week active">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.64</div>
+<div class="sidebar-version">Report.version 3.65</div>
 </nav>
     <main class="content">
       <section class="hero">
         <h1>Cycle 2602 Class Leaderboard</h1>
         <p>Class-wide star leaders across the published report pages. The top row shows the lifetime allstar leader, then the category leaders for each star type.</p>
-        <div class="hero-meta">Leaderboard.version 3.64</div>
+        <div class="hero-meta">Leaderboard.version 3.65</div>
       </section>
       <section class="card">
         <h2>Lifetime Allstar</h2>
@@ -157,7 +158,7 @@
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
-            <span class="row-name">Rodney F.</span><span class="row-trophy">🏆🏆🏆</span>
+            <span class="row-name">Rodney F.</span><span class="row-trophy lifetime">🏆</span>
           </span>
           <span class="row-value">23</span>
         </span>

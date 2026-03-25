@@ -323,7 +323,8 @@
     .member-row .badge-name.tier-legendary { color: #fde68a; }
     .member-row .badge-multiplier { margin-left: 0.3rem; font-size: 0.66rem; letter-spacing: 0.05em; color: var(--text-muted); text-transform: uppercase; }
     .member-row .badges-earned-section { margin-top: 0.8rem; padding-top: 0.7rem; border-top: 1px solid rgba(255,255,255,0.08); }
-    .leaderboard-row .row-trophy { color: #f0c14b; font-size: 0.8rem; margin-left: 0.18rem; letter-spacing: 0.04em; }
+    .leaderboard-row .row-trophy { color: #f0c14b; font-size: 0.8rem; margin-left: 0.18rem; letter-spacing: 0.04em; display: inline-flex; align-items: center; }
+    .leaderboard-row .row-trophy.lifetime { font-size: 2.4rem; line-height: 0.8; margin-left: 0.26rem; }
     .member-row .star-total { display: inline-flex; align-items: center; gap: 0.2rem; font-weight: 700; color: #f0c14b; }
     .member-row .star-total .star-icon { font-size: 0.82rem; }
     .pill { font-size: 0.65rem; padding: 0.2rem 0.45rem; border-radius: 999px; }
@@ -464,7 +465,7 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.64</div>
+<div class="sidebar-version">Report.version 3.65</div>
 </nav>
   <main class="content-shell">
   <div class="container">
@@ -1358,7 +1359,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-25-2026 - 19:37", "period": "2026-02-16 to 2026-02-22", "cycle": "2602", "week": 3, "team": "2602_Team01", "sourceUrl": "W03_2602_Team01_v1.html", "assignmentTitle": "PNP2 \u2014 Week 03 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 03 Assignment Checks", "items": [{"assignment": "3.1 Daily Standups", "what": "Post at least one daily standup in the team standup thread.", "criteria": "At least one standup-style post should be captured for the student during the report window."}, {"assignment": "3.2 Weekly Git Activity", "what": "Push some code tied to the project repo.", "criteria": "The report should capture commits or file-touch evidence showing that the student pushed code this week."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}, "pnp2Previous": {"week": 2, "gitConnected": true, "commits": 6, "additions": 3006, "deletions": 6, "net": 3000, "posts": 4}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+17/-20", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 1, "additions": 17, "deletions": 20, "net": -3, "files": [{"path": "App.kt +17/-20"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 13}, "actionBreakdown": {"Daniel W.": {"Move card": 7}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 4, "dates": "Feb 17, Feb 19, Feb 20", "summary": ""}], "alerts": []};
+    const data = {"report": {"generated": "03-25-2026 - 19:39", "period": "2026-02-16 to 2026-02-22", "cycle": "2602", "week": 3, "team": "2602_Team01", "sourceUrl": "W03_2602_Team01_v1.html", "assignmentTitle": "PNP2 \u2014 Week 03 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 03 Assignment Checks", "items": [{"assignment": "3.1 Daily Standups", "what": "Post at least one daily standup in the team standup thread.", "criteria": "At least one standup-style post should be captured for the student during the report window."}, {"assignment": "3.2 Weekly Git Activity", "what": "Push some code tied to the project repo.", "criteria": "The report should capture commits or file-touch evidence showing that the student pushed code this week."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Daniel W.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc"}, "pnp2Previous": {"week": 2, "gitConnected": true, "commits": 6, "additions": 3006, "deletions": 6, "net": 3000, "posts": 4}}], "branchHealth": [{"person": "Daniel W.", "branch": "daniel", "status": "Ahead", "activity": "5d ago", "contribution": "+17/-20", "aheadBehind": "2 / 0", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Daniel W.", "workingFrom": "Org repo", "commits": 1, "additions": 17, "deletions": 20, "net": -3, "files": [{"path": "App.kt +17/-20"}]}], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 13}, "actionBreakdown": {"Daniel W.": {"Move card": 7}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 4, "dates": "Feb 17, Feb 19, Feb 20", "summary": ""}], "alerts": []};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     function escapeHtml(value) {
@@ -1987,7 +1988,7 @@
         const labelText = r.labelText;
         const names = Array.isArray(r.first) ? r.first : (r.first ? [r.first] : []);
         const nameText = names.length ? names.join(' & ') : '—';
-        const trophyHtml = r.title === 'Lifetime Stars' ? '<span class="row-trophy">🏆🏆🏆</span>' : '<span class="row-trophy">🏆</span>';
+        const trophyHtml = r.title === 'Lifetime Stars' ? '<span class="row-trophy lifetime">🏆</span>' : '<span class="row-trophy">🏆</span>';
         const firstContent = names.length ? `<span class="row-name">${nameText}</span>${trophyHtml}` : '<span class="row-name">—</span>';
         const badgeEl = `<span class="row-badge badge-${r.badge}" title="${r.title}" aria-label="${r.title}">${BADGE_LOGOS[r.badge]}</span>`;
         const tieText = names.length > 1 ? tieLabel(names.length) : '';
