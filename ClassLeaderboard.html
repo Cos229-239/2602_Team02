@@ -62,8 +62,8 @@
     .track-rank-label.rank-first { left:calc(22px + (100% - 34px) * (var(--leader-pct, 0) / 100)); color:#f0c14b; }
     .track-rank-label.rank-second { left:calc(22px + (100% - 34px) * (var(--second-pct, 0) / 100)); color:#d1d5db; }
     .track-rank-label.rank-third { left:calc(22px + (100% - 34px) * (var(--third-pct, 0) / 100)); color:#cd7f32; }
-    .track-marker.car { position:absolute; left:22px; top:50%; transform:translateY(-50%) scaleX(-1); z-index:4; font-size:0.85rem; }
-    .track-marker.shell { position:absolute; left:22px; top:50%; transform:translateY(-50%) scaleX(-1); z-index:4; font-size:1.6rem; opacity:0; }
+    .track-marker.car { position:absolute; left:22px; top:50%; transform:translateY(-50%) scaleX(-1) scale(1.5); z-index:4; font-size:0.85rem; }
+    .track-marker.shell { position:absolute; left:22px; top:50%; transform:translateY(-50%) scaleX(-1) scale(1.25); z-index:4; font-size:1.6rem; opacity:0; }
     .track-marker.car.car-gone { opacity:0; }
     .hero-row .track-marker.car { font-size:1rem; }
     .row-first { min-width:12rem; display:flex; align-items:center; justify-content:flex-end; gap:0.8rem; font-weight:700; }
@@ -129,13 +129,13 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week active">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.60</div>
+<div class="sidebar-version">Report.version 3.62</div>
 </nav>
     <main class="content">
       <section class="hero">
         <h1>Cycle 2602 Class Leaderboard</h1>
         <p>Class-wide star leaders across the published report pages. The top row shows the lifetime allstar leader, then the category leaders for each star type.</p>
-        <div class="hero-meta">Leaderboard.version 3.60</div>
+        <div class="hero-meta">Leaderboard.version 3.62</div>
       </section>
       <section class="card">
         <h2>Lifetime Allstar</h2>
@@ -369,7 +369,7 @@
       mainDurationRange: 600,
       gagCarBaseDuration: 1120,
       gagCarMinDuration: 760,
-      gagShellSpeedRatio: 1.02,
+      gagShellSpeedRatio: 1.10,
       gagShellMinDuration: 260,
       gagProgressFloorFactor: 0.48,
       gagProgressCeilFactor: 0.9,
@@ -424,14 +424,14 @@
           car.style.left = '22px';
           car.classList.remove('car-gone');
           car.textContent = '🚗';
-          car.style.transform = 'translateY(-50%) scaleX(-1)';
+          car.style.transform = 'translateY(-50%) scaleX(-1) scale(1.5)';
           car.style.opacity = '1';
         }
         if (shell) {
           shell.style.left = '22px';
           shell.style.opacity = '0';
           shell.textContent = '🐢';
-          shell.style.transform = 'translateY(-50%) scaleX(-1)';
+          shell.style.transform = 'translateY(-50%) scaleX(-1) scale(1.25)';
         }
       });
       function runRow(index) {
@@ -472,8 +472,8 @@
           const shellDelay = Math.max(0, carDuration - shellDuration);
           bar.style.width = '0px';
           car.animate([
-            { left:'22px', transform:'translateY(-50%) scaleX(-1)', opacity:1 },
-            { left:crashLeft + 'px', transform:'translateY(-50%) scaleX(-1)', opacity:1 }
+            { left:'22px', transform:'translateY(-50%) scaleX(-1) scale(1.5)', opacity:1 },
+            { left:crashLeft + 'px', transform:'translateY(-50%) scaleX(-1) scale(1.5)', opacity:1 }
           ], { duration: carDuration, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' });
           bar.animate([
             { width:'0px', opacity:1 },
@@ -483,8 +483,8 @@
             shell.style.left = shellStart + 'px';
             shell.style.opacity = '1';
             shell.animate([
-              { left:shellStart + 'px', opacity:1, transform:'translateY(-50%) scaleX(-1) scale(0.92)' },
-              { left:shellHit + 'px', opacity:1, transform:'translateY(-50%) scaleX(-1) scale(1)' }
+              { left:shellStart + 'px', opacity:1, transform:'translateY(-50%) scaleX(-1) scale(1.15)' },
+              { left:shellHit + 'px', opacity:1, transform:'translateY(-50%) scaleX(-1) scale(1.25)' }
             ], { duration: shellDuration, delay: shellDelay, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards' });
           }
           setTimeout(() => {
