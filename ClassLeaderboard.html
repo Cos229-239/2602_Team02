@@ -61,6 +61,7 @@
     .track-rank-label.rank-second { left:calc(22px + (100% - 34px) * (var(--second-pct, 0) / 100)); color:#d1d5db; }
     .track-rank-label.rank-third { left:calc(22px + (100% - 34px) * (var(--third-pct, 0) / 100)); color:#cd7f32; }
     .track-marker.car { position:absolute; left:22px; top:50%; transform:translateY(-50%) scaleX(-1); z-index:4; font-size:0.85rem; }
+    .track-marker.car.car-gone { opacity:0; }
     .hero-row .track-marker.car { font-size:1rem; }
     .row-first { min-width:12rem; display:flex; align-items:center; justify-content:flex-end; gap:0.8rem; font-weight:700; }
     .row-name-wrap { position:relative; display:inline-flex; align-items:center; justify-content:flex-end; min-width:8rem; }
@@ -136,7 +137,7 @@
         <div class="reveal" id="hero-reveal"><button type="button" data-target="hero-content">Reveal Lifetime Leader</button></div>
         <div class="content-block" id="hero-content">
           <div class="leaderboard">
-      <div class="leaderboard-row hero-row" data-lead-pct="100.00">
+      <div class="leaderboard-row hero-row" data-lead-pct="100.00" data-no-winner="false">
         <span class="row-label">Lifetime Allstar</span>
         <div class="row-track-wrap">
           <span class="track-dot">●</span>
@@ -162,14 +163,14 @@
         <div class="reveal" id="cats-reveal"><button type="button" data-target="cats-content">Reveal Category Leaders</button></div>
         <div class="content-block" id="cats-content">
           <div class="leaderboard">
-      <div class="leaderboard-row " data-lead-pct="100.00">
+      <div class="leaderboard-row " data-lead-pct="100.00" data-no-winner="false">
         <span class="row-label">Code Allstar</span>
         <div class="row-track-wrap">
           <span class="track-dot">●</span>
           <div class="track-rail" aria-hidden="true"></div>
           <div class="track-speed-bar" title="Code Allstar" style="--leader-pct:100.00;"></div>
-          <span class="track-gap-marker second" style="--second-pct:50.00;"></span><span class="track-rank-label rank-second" style="--second-pct:50.00;">2nd</span>
-          <span class="track-gap-marker third" style="--third-pct:25.00;"></span><span class="track-rank-label rank-third" style="--third-pct:25.00;">3rd</span>
+          <span class="track-gap-marker second" style="--second-pct:50.00;"></span><span class="track-rank-label rank-second" style="--second-pct:50.00;">Hasani C.</span>
+          <span class="track-gap-marker third" style="--third-pct:25.00;"></span><span class="track-rank-label rank-third" style="--third-pct:25.00;">Lesly M.</span>
           <span class="track-rank-label rank-first" style="--leader-pct:100.00;">1st</span>
           <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
         </div>
@@ -182,14 +183,14 @@
       </div>
     
 
-      <div class="leaderboard-row " data-lead-pct="100.00">
+      <div class="leaderboard-row " data-lead-pct="100.00" data-no-winner="false">
         <span class="row-label">Trello Allstar</span>
         <div class="row-track-wrap">
           <span class="track-dot">●</span>
           <div class="track-rail" aria-hidden="true"></div>
           <div class="track-speed-bar" title="Trello Allstar" style="--leader-pct:100.00;"></div>
-          <span class="track-gap-marker second" style="--second-pct:40.00;"></span><span class="track-rank-label rank-second" style="--second-pct:40.00;">2nd</span>
-          <span class="track-gap-marker third" style="--third-pct:20.00;"></span><span class="track-rank-label rank-third" style="--third-pct:20.00;">3rd</span>
+          <span class="track-gap-marker second" style="--second-pct:40.00;"></span><span class="track-rank-label rank-second" style="--second-pct:40.00;">Maret M.</span>
+          <span class="track-gap-marker third" style="--third-pct:20.00;"></span><span class="track-rank-label rank-third" style="--third-pct:20.00;">Lesly M.</span>
           <span class="track-rank-label rank-first" style="--leader-pct:100.00;">1st</span>
           <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
         </div>
@@ -202,14 +203,14 @@
       </div>
     
 
-      <div class="leaderboard-row " data-lead-pct="100.00">
+      <div class="leaderboard-row " data-lead-pct="100.00" data-no-winner="false">
         <span class="row-label">Standup Allstar</span>
         <div class="row-track-wrap">
           <span class="track-dot">●</span>
           <div class="track-rail" aria-hidden="true"></div>
           <div class="track-speed-bar" title="Standup Allstar" style="--leader-pct:100.00;"></div>
-          <span class="track-gap-marker second" style="--second-pct:80.00;"></span><span class="track-rank-label rank-second" style="--second-pct:80.00;">2nd</span>
-          <span class="track-gap-marker third" style="--third-pct:40.00;"></span><span class="track-rank-label rank-third" style="--third-pct:40.00;">3rd</span>
+          <span class="track-gap-marker second" style="--second-pct:80.00;"></span><span class="track-rank-label rank-second" style="--second-pct:80.00;">Andy T.</span>
+          <span class="track-gap-marker third" style="--third-pct:40.00;"></span><span class="track-rank-label rank-third" style="--third-pct:40.00;">Rodney F.</span>
           <span class="track-rank-label rank-first" style="--leader-pct:100.00;">1st</span>
           <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
         </div>
@@ -222,7 +223,7 @@
       </div>
     
 
-      <div class="leaderboard-row " data-lead-pct="0.00">
+      <div class="leaderboard-row " data-lead-pct="0.00" data-no-winner="true">
         <span class="row-label">No Issue Branch Star</span>
         <div class="row-track-wrap">
           <span class="track-dot">●</span>
@@ -230,8 +231,8 @@
           <div class="track-speed-bar" title="No Issue Branch Star" style="--leader-pct:0.00;"></div>
           
           
-          <span class="track-rank-label rank-first" style="--leader-pct:0.00;">1st</span>
-          <span class="track-marker car" style="--leader-pct:0.00;">🚗</span>
+          
+          <span class="track-marker car no-winner" style="--leader-pct:0.00;">🚗</span>
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
@@ -242,7 +243,7 @@
       </div>
     
 
-      <div class="leaderboard-row " data-lead-pct="100.00">
+      <div class="leaderboard-row " data-lead-pct="100.00" data-no-winner="false">
         <span class="row-label">Current Branch Star</span>
         <div class="row-track-wrap">
           <span class="track-dot">●</span>
@@ -262,7 +263,7 @@
       </div>
     
 
-      <div class="leaderboard-row " data-lead-pct="0.00">
+      <div class="leaderboard-row " data-lead-pct="0.00" data-no-winner="true">
         <span class="row-label">Standup Streak Star</span>
         <div class="row-track-wrap">
           <span class="track-dot">●</span>
@@ -270,8 +271,8 @@
           <div class="track-speed-bar" title="Standup Streak Star" style="--leader-pct:0.00;"></div>
           
           
-          <span class="track-rank-label rank-first" style="--leader-pct:0.00;">1st</span>
-          <span class="track-marker car" style="--leader-pct:0.00;">🚗</span>
+          
+          <span class="track-marker car no-winner" style="--leader-pct:0.00;">🚗</span>
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
@@ -282,14 +283,14 @@
       </div>
     
 
-      <div class="leaderboard-row " data-lead-pct="100.00">
+      <div class="leaderboard-row " data-lead-pct="100.00" data-no-winner="false">
         <span class="row-label">Consistent Contributor Star</span>
         <div class="row-track-wrap">
           <span class="track-dot">●</span>
           <div class="track-rail" aria-hidden="true"></div>
           <div class="track-speed-bar" title="Consistent Contributor Star" style="--leader-pct:100.00;"></div>
-          <span class="track-gap-marker second" style="--second-pct:80.00;"></span><span class="track-rank-label rank-second" style="--second-pct:80.00;">2nd</span>
-          <span class="track-gap-marker third" style="--third-pct:40.00;"></span><span class="track-rank-label rank-third" style="--third-pct:40.00;">3rd</span>
+          <span class="track-gap-marker second" style="--second-pct:80.00;"></span><span class="track-rank-label rank-second" style="--second-pct:80.00;">Tie 2nd</span>
+          <span class="track-gap-marker third" style="--third-pct:40.00;"></span><span class="track-rank-label rank-third" style="--third-pct:40.00;">Maret M.</span>
           <span class="track-rank-label rank-first" style="--leader-pct:100.00;">1st</span>
           <span class="track-marker car" style="--leader-pct:100.00;">🚗</span>
         </div>
@@ -302,7 +303,7 @@
       </div>
     
 
-      <div class="leaderboard-row " data-lead-pct="0.00">
+      <div class="leaderboard-row " data-lead-pct="0.00" data-no-winner="true">
         <span class="row-label">Zero Misses Star</span>
         <div class="row-track-wrap">
           <span class="track-dot">●</span>
@@ -310,8 +311,8 @@
           <div class="track-speed-bar" title="Zero Misses Star" style="--leader-pct:0.00;"></div>
           
           
-          <span class="track-rank-label rank-first" style="--leader-pct:0.00;">1st</span>
-          <span class="track-marker car" style="--leader-pct:0.00;">🚗</span>
+          
+          <span class="track-marker car no-winner" style="--leader-pct:0.00;">🚗</span>
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
@@ -322,7 +323,7 @@
       </div>
     
 
-      <div class="leaderboard-row " data-lead-pct="0.00">
+      <div class="leaderboard-row " data-lead-pct="0.00" data-no-winner="true">
         <span class="row-label">Build Ready Star</span>
         <div class="row-track-wrap">
           <span class="track-dot">●</span>
@@ -330,8 +331,8 @@
           <div class="track-speed-bar" title="Build Ready Star" style="--leader-pct:0.00;"></div>
           
           
-          <span class="track-rank-label rank-first" style="--leader-pct:0.00;">1st</span>
-          <span class="track-marker car" style="--leader-pct:0.00;">🚗</span>
+          
+          <span class="track-marker car no-winner" style="--leader-pct:0.00;">🚗</span>
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
@@ -380,12 +381,19 @@
         const bar = row.querySelector('.track-speed-bar');
         const car = row.querySelector('.track-marker.car');
         if (bar) bar.style.width = '0px';
-        if (car) car.style.left = '22px';
+        if (car) {
+          car.style.left = '22px';
+          car.classList.remove('car-gone');
+          car.textContent = '🚗';
+          car.style.transform = 'translateY(-50%) scaleX(-1)';
+          car.style.opacity = '1';
+        }
       });
       function runRow(index) {
         if (index >= rows.length) return;
         const row = rows[index];
         const targetPct = parseFloat(row.getAttribute('data-lead-pct') || '0');
+        const noWinner = row.getAttribute('data-no-winner') === 'true';
         const bar = row.querySelector('.track-speed-bar');
         const car = row.querySelector('.track-marker.car');
         const wrap = row.querySelector('.row-track-wrap');
@@ -394,6 +402,24 @@
         if (!bar || !car || !wrap) { runRow(index + 1); return; }
         const secondPct = second ? parseFloat(second.style.getPropertyValue('--second-pct') || '0') : 0;
         const thirdPct = third ? parseFloat(third.style.getPropertyValue('--third-pct') || '0') : 0;
+        if (noWinner) {
+          car.animate([
+            { transform:'translateY(-50%) scaleX(-1) scale(1)', opacity:1 },
+            { transform:'translateY(-50%) scaleX(-1) scale(1.15)', opacity:1, offset:0.35 },
+            { transform:'translateY(-50%) scale(1.65)', opacity:1, offset:0.55 },
+            { transform:'translateY(-50%) scale(0.6)', opacity:0, offset:1 }
+          ], { duration: 650, easing:'cubic-bezier(.22,1,.36,1)' });
+          setTimeout(() => {
+            car.textContent = '💥';
+            car.style.transform = 'translateY(-50%) scale(1.25)';
+          }, 260);
+          setTimeout(() => {
+            car.classList.add('car-gone');
+            row.classList.add('name-visible');
+            setTimeout(() => runRow(index + 1), 180);
+          }, 700);
+          return;
+        }
         const start = performance.now();
         const duration = 900 + (targetPct / 100) * 600;
         function step(now) {
