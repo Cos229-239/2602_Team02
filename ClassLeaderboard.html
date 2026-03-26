@@ -74,6 +74,7 @@
     .row-name { opacity:0; transform:scale(8); transform-origin:right center; transition:opacity 0.6s ease, transform 0.6s ease; position:relative; z-index:2; }
     .row-trophy { color:#f0c14b; font-size:0.88rem; margin-left:0.22rem; letter-spacing:0.05em; display:inline-flex; align-items:center; }
     .row-trophy.lifetime { font-size:2.64rem; line-height:0.8; margin-left:0.28rem; }
+    .row-trophy.skull { color:#e6edf3; }
     .row-name-wrap.bursting .row-name { text-shadow:0 0 18px rgba(255,255,255,0.22), 0 0 28px rgba(88,166,255,0.32), 0 0 38px rgba(240,193,75,0.28); }
     .leaderboard-row.name-visible .row-name { opacity:1; transform:scale(1); }
     .hero-row .row-name { font-size:inherit; font-weight:inherit; }
@@ -138,13 +139,13 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week active">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.81</div>
+<div class="sidebar-version">Report.version 3.82</div>
 </nav>
     <main class="content">
       <section class="hero">
         <h1>Cycle 2602 Class Leaderboard</h1>
         <p>Class-wide star leaders across the published report pages. The top row shows the lifetime allstar leader, then the category leaders for each star type.</p>
-        <div class="hero-meta">Leaderboard.version 3.81</div>
+        <div class="hero-meta">Leaderboard.version 3.82</div>
       </section>
       <section class="card">
         <h2>Lifetime Allstar</h2>
@@ -165,7 +166,7 @@
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
-            <span class="row-name">Rodney F.</span><span class="row-trophy lifetime">🏆</span>
+            <span class="row-name">Rodney F.</span><span class="row-trophy lifetime" data-default-icon="🏆">🏆</span>
           </span>
           <span class="row-value">23</span>
         </span>
@@ -192,7 +193,7 @@
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
-            <span class="row-name">Rodney F.</span><span class="row-trophy">🏆</span>
+            <span class="row-name">Rodney F.</span><span class="row-trophy" data-default-icon="🏆">🏆</span>
           </span>
           <span class="row-value">4</span>
         </span>
@@ -213,7 +214,7 @@
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
-            <span class="row-name">Rodney F.</span><span class="row-trophy">🏆</span>
+            <span class="row-name">Rodney F.</span><span class="row-trophy" data-default-icon="🏆">🏆</span>
           </span>
           <span class="row-value">5</span>
         </span>
@@ -234,7 +235,7 @@
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
-            <span class="row-name">Lesly M.</span><span class="row-trophy">🏆</span>
+            <span class="row-name">Lesly M.</span><span class="row-trophy" data-default-icon="🏆">🏆</span>
           </span>
           <span class="row-value">5</span>
         </span>
@@ -255,7 +256,7 @@
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
-            <span class="row-name">—</span><span class="row-trophy">🏆</span>
+            <span class="row-name">—</span><span class="row-trophy" data-default-icon="🏆">🏆</span>
           </span>
           <span class="row-value">0</span>
         </span>
@@ -276,7 +277,7 @@
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
-            <span class="row-name">Andy T. & Hasani C. & Lesly M. & Maret M. & Rodney F.</span><span class="row-trophy">🏆</span>
+            <span class="row-name">Andy T. & Hasani C. & Lesly M. & Maret M. & Rodney F.</span><span class="row-trophy" data-default-icon="🏆">🏆</span>
           </span>
           <span class="row-value">8</span>
         </span>
@@ -297,7 +298,7 @@
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
-            <span class="row-name">—</span><span class="row-trophy">🏆</span>
+            <span class="row-name">—</span><span class="row-trophy" data-default-icon="🏆">🏆</span>
           </span>
           <span class="row-value">0</span>
         </span>
@@ -318,7 +319,7 @@
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
-            <span class="row-name">Daniel W.</span><span class="row-trophy">🏆</span>
+            <span class="row-name">Daniel W.</span><span class="row-trophy" data-default-icon="🏆">🏆</span>
           </span>
           <span class="row-value">5</span>
         </span>
@@ -339,7 +340,7 @@
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
-            <span class="row-name">—</span><span class="row-trophy">🏆</span>
+            <span class="row-name">—</span><span class="row-trophy" data-default-icon="🏆">🏆</span>
           </span>
           <span class="row-value">0</span>
         </span>
@@ -360,7 +361,7 @@
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
-            <span class="row-name">—</span><span class="row-trophy">🏆</span>
+            <span class="row-name">—</span><span class="row-trophy" data-default-icon="🏆">🏆</span>
           </span>
           <span class="row-value">0</span>
         </span>
@@ -517,6 +518,12 @@
           shell.textContent = '🐢';
           shell.style.transform = 'translateY(-50%) scaleX(-1) scale(1.25)';
         }
+        const rowTrophy = row.querySelector('.row-trophy');
+        if (rowTrophy) {
+          rowTrophy.classList.remove('skull');
+          rowTrophy.textContent = rowTrophy.getAttribute('data-default-icon') || '🏆';
+          rowTrophy.style.opacity = '1';
+        }
       });
       function runRow(index) {
         if (index >= rows.length) {
@@ -604,12 +611,14 @@
             bar.style.width = '0px';
             bar.style.opacity = '0';
             car.classList.remove('car-gone');
-            car.textContent = '💀';
+            car.textContent = '';
             car.style.left = crashLeft + 'px';
-            car.style.opacity = '1';
+            car.style.opacity = '0';
             car.style.transform = 'translateY(-50%) scale(1)';
             if (rowTrophy) {
-              rowTrophy.style.opacity = '0';
+              rowTrophy.classList.add('skull');
+              rowTrophy.textContent = '💀';
+              rowTrophy.style.opacity = '1';
             }
             row.classList.add('name-visible');
             setTimeout(() => runRow(index + 1), LEADERBOARD_TUNING.gagRowAdvanceDelay / PRE_FINALE_SPEED_MULTIPLIER);
