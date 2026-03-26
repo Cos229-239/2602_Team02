@@ -8,15 +8,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.wepartyapp.ui.api.Constant
 import com.example.wepartyapp.ui.api.NetworkResponse
 import com.example.wepartyapp.ui.api.RetrofitInstance
-import com.google.firebase.firestore.FirebaseFirestore // <-- Added Firestore Import
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
-class ItemPriceViewModel : ViewModel(){                     //when we click on the add btn, it'll get data from the retrofit
-
+class ItemPriceViewModel : ViewModel(){
     private val priceApi = RetrofitInstance.priceApi
-    private val db = FirebaseFirestore.getInstance() // <-- Added Firestore Instance
-
-    // Notice we changed the response to a String. The ViewModel now does the parsing for us.
+    private val db = FirebaseFirestore.getInstance()
     private val _priceResult = MutableLiveData<NetworkResponse<Pair<String, String>>>()
     val priceResult : LiveData<NetworkResponse<Pair<String, String>>> = _priceResult
 
@@ -48,14 +45,12 @@ class ItemPriceViewModel : ViewModel(){                     //when we click on t
                                 } else {
                                     "Not Found"
                                 }
-
                                 // --- The "Permanent Typo" Fix ---
                                 // Only save it to Firebase if we actually found a price
                                 if (exactPrice != "Not Found") {
                                     val priceMap = hashMapOf("price" to exactPrice)
                                     db.collection("item_prices").document(normalizedItem).set(priceMap)
                                 }
-
                                 // Return both the original item name and the newly fetched price
                                 _priceResult.value = NetworkResponse.Success(Pair(item, exactPrice))
 
