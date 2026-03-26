@@ -306,7 +306,7 @@
     .member-row .member-toggle:hover { color: var(--text); border-color: var(--accent); }
     .member-row .member-dropdown-panel { display: none; width: 100%; margin-top: 0.4rem; padding: 0.65rem 0.75rem; background: rgba(15,20,25,0.55); border: 1px solid var(--surface2); border-radius: var(--radius-sm); text-align: left; }
     .member-row.open .member-dropdown-panel { display: block; }
-    .member-row .member-dropdown-panel h4 { margin: 0 0 0.35rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .member-row .member-dropdown-panel h4 { margin: 0 0 0.7rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); text-align: center; }
     .member-row .member-dropdown-panel p { margin: 0 0 0.45rem; color: var(--text-muted); font-size: 0.76rem; }
     .member-row .member-dropdown-panel ul { margin: 0; padding-left: 1rem; color: var(--text-muted); font-size: 0.76rem; }
     .member-row .member-dropdown-panel li { margin: 0.2rem 0; }
@@ -341,9 +341,11 @@
     }
     .member-row .badge-multiplier { margin-left: 0.3rem; font-size: 0.66rem; letter-spacing: 0.05em; color: var(--text-muted); text-transform: uppercase; }
     .member-row .badges-earned-section { margin-top: 0.8rem; padding-top: 0.7rem; border-top: 1px solid rgba(255,255,255,0.08); }
+    .member-row .lifetime-stars-section { margin-top: 0.8rem; padding-top: 0.7rem; border-top: 1px solid rgba(255,255,255,0.08); }
+    .member-row .lifetime-stars-section p { margin: 0; text-align: center; }
     .leaderboard-row .row-trophy { color: #f0c14b; font-size: 0.8rem; margin-left: 0.18rem; letter-spacing: 0.04em; display: inline-flex; align-items: center; }
     .leaderboard-row .row-trophy.lifetime { font-size: 2.4rem; line-height: 0.8; margin-left: 0.26rem; }
-    .member-row .star-total { display: inline-flex; align-items: center; gap: 0.2rem; font-weight: 700; color: #f0c14b; }
+    .member-row .star-total { display: inline-flex; align-items: center; justify-content: center; gap: 0.2rem; font-weight: 700; color: #f0c14b; }
     .member-row .star-total .star-icon { font-size: 0.82rem; }
     .pill { font-size: 0.65rem; padding: 0.2rem 0.45rem; border-radius: 999px; }
     .pill.ok { background: var(--success); color: #000; }
@@ -483,7 +485,7 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.95</div>
+<div class="sidebar-version">Report.version 3.96</div>
 </nav>
   <main class="content-shell">
   <div class="container">
@@ -1391,7 +1393,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-25-2026 - 22:23", "period": "2026-03-09 to 2026-03-15", "cycle": "2602", "week": 6, "team": "2602_Team02", "sourceUrl": "W06_2602_Team02_v1.html"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Rodney Ford", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "Rodford", "githubEmail": "rodford37@gmail.com", "trelloConnected": true, "trelloEmail": "rmford@student.fullsail.edu", "trelloUsername": "rodney_ford", "trelloMemberId": "69816570d1d8fee72b70882f"}}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Lesly Morales", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "Lesly-AM", "githubEmail": "LDMorales1@student.fullsail.edu", "trelloConnected": true, "trelloEmail": "LDMorales1@student.fullsail.edu", "trelloUsername": "leslymorales13", "trelloMemberId": "6983f53993fd6b41176e7efa"}}, {"name": "Hasani C.", "git": "active", "trello": true, "discord": true, "githubUsername": "4hzzz", "pnp2Setup": {"name": "Hasani Carter", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "4hzzz", "githubEmail": "pbmhasani@gmail.com", "trelloConnected": true, "trelloEmail": "hscarter@student.fullsail.edu", "trelloUsername": "hscarter", "trelloMemberId": "698238572995a2bc2d19f06f"}}, {"name": "Maret M.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Maret G. Rivera Merced", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "MarRivMer", "githubEmail": "maretr50@gmail.com", "trelloConnected": true, "trelloEmail": "mgriveramerced@student.fullsail.edu", "trelloUsername": "mgriveramerced", "trelloMemberId": "6984f01ab2de073c425e00d7"}}, {"name": "Andy T.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Andy Tran", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "717Andy", "githubEmail": "andytran7381@yahoo.com", "trelloConnected": true, "trelloEmail": "ahtran@student.fullsail.edu", "trelloUsername": "ahtran1", "trelloMemberId": "6990c0ea796cdff5a95fa3d9"}}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Inactive", "activity": "23d ago", "contribution": "+60/-48", "aheadBehind": "0 / 113", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "3d ago", "contribution": "+60/-48", "aheadBehind": "0 / 19", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Diverged", "activity": "TODAY", "contribution": "+12381/-628", "aheadBehind": "4 / 15", "risk": "HIGH", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Behind", "activity": "TODAY", "contribution": "+1776/-945", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "TODAY", "contribution": "+932/-420", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "1d ago", "contribution": "+1208/-667", "aheadBehind": "0 / 9", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Hasani C.", "workingFrom": "Org Repo / Fork (@4hzzz)", "commits": 3, "additions": 12381, "deletions": 628, "net": 11753, "files": [{"path": "package-lock.json +7247/-0"}, {"path": "MainActivity.kt +573/-96"}, {"path": "ProfileActivity.kt +425/-0"}, {"path": "EventViewModel.kt +412/-19"}, {"path": "EventDashboardActivity.kt +391/-13"}]}, {"person": "Lesly M.", "workingFrom": "Org repo", "commits": 5, "additions": 1776, "deletions": 945, "net": 831, "files": [{"path": "AddItems.kt +399/-273"}, {"path": "InviteFriendsFragment.kt +314/-230"}, {"path": "ChatFeedContent.kt +272/-58"}, {"path": "CreateEventActivity.kt +266/-163"}, {"path": "EventViewModel.kt +204/-58"}]}, {"person": "Rodney F.", "workingFrom": "Org repo", "commits": 8, "additions": 1208, "deletions": 667, "net": 541, "files": [{"path": "AddItems.kt +255/-144"}, {"path": "InviteFriendsFragment.kt +196/-130"}, {"path": "CreateEventActivity.kt +181/-86"}, {"path": "ProfileActivity.kt +138/-82"}, {"path": "EditItemActivity.kt +100/-56"}]}, {"person": "Maret M.", "workingFrom": "Org repo", "commits": 6, "additions": 932, "deletions": 420, "net": 512, "files": [{"path": "EventInfoActivity.kt +278/-42"}, {"path": "AddItems.kt +181/-134"}, {"path": "EventViewModel.kt +148/-6"}, {"path": "InviteFriendsFragment.kt +147/-110"}, {"path": "CreateEventActivity.kt +117/-80"}]}, {"person": "Andy T.", "workingFrom": "Org repo", "commits": 2, "additions": 60, "deletions": 48, "net": 12, "files": [{"path": "EventViewModel.kt +40/-30"}, {"path": "EventDashboardActivity.kt +18/-16"}, {"path": "ChatFeedContent.kt +2/-2"}]}], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 18}, "actions": {"Andy T.": 11, "Hasani C.": 1, "Lesly M.": 13, "Maret M.": 20, "Rodney F.": 18}, "actionBreakdown": {"Andy T.": {"Create card": 1, "Move card": 3, "Complete checklist": 4}, "Hasani C.": {"Comment": 1}, "Lesly M.": {"Move card": 9}, "Maret M.": {"Create card": 1, "Move card": 6, "Complete checklist": 8}, "Rodney F.": {"Create card": 1, "Move card": 8, "Complete checklist": 6}}, "status": "HEALTHY"}, "discord": [{"person": "Lesly M.", "posts": 5, "dates": "Mar 10, Mar 11, Mar 12, Mar 13", "summary": ""}, {"person": "Andy T.", "posts": 4, "dates": "Mar 11, Mar 12, Mar 14, Mar 15", "summary": ""}, {"person": "Hasani C.", "posts": 4, "dates": "Mar 9, Mar 11, Mar 12", "summary": ""}, {"person": "Maret M.", "posts": 4, "dates": "Mar 11, Mar 12, Mar 14", "summary": ""}, {"person": "Rodney F.", "posts": 3, "dates": "Mar 9, Mar 12, Mar 14", "summary": ""}], "alerts": [{"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely)."}]};
+    const data = {"report": {"generated": "03-25-2026 - 22:29", "period": "2026-03-09 to 2026-03-15", "cycle": "2602", "week": 6, "team": "2602_Team02", "sourceUrl": "W06_2602_Team02_v1.html"}, "members": [{"name": "Rodney F.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Rodney Ford", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "Rodford", "githubEmail": "rodford37@gmail.com", "trelloConnected": true, "trelloEmail": "rmford@student.fullsail.edu", "trelloUsername": "rodney_ford", "trelloMemberId": "69816570d1d8fee72b70882f"}}, {"name": "Lesly M.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Lesly Morales", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "Lesly-AM", "githubEmail": "LDMorales1@student.fullsail.edu", "trelloConnected": true, "trelloEmail": "LDMorales1@student.fullsail.edu", "trelloUsername": "leslymorales13", "trelloMemberId": "6983f53993fd6b41176e7efa"}}, {"name": "Hasani C.", "git": "active", "trello": true, "discord": true, "githubUsername": "4hzzz", "pnp2Setup": {"name": "Hasani Carter", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "4hzzz", "githubEmail": "pbmhasani@gmail.com", "trelloConnected": true, "trelloEmail": "hscarter@student.fullsail.edu", "trelloUsername": "hscarter", "trelloMemberId": "698238572995a2bc2d19f06f"}}, {"name": "Maret M.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Maret G. Rivera Merced", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "MarRivMer", "githubEmail": "maretr50@gmail.com", "trelloConnected": true, "trelloEmail": "mgriveramerced@student.fullsail.edu", "trelloUsername": "mgriveramerced", "trelloMemberId": "6984f01ab2de073c425e00d7"}}, {"name": "Andy T.", "git": "active", "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Andy Tran", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "717Andy", "githubEmail": "andytran7381@yahoo.com", "trelloConnected": true, "trelloEmail": "ahtran@student.fullsail.edu", "trelloUsername": "ahtran1", "trelloMemberId": "6990c0ea796cdff5a95fa3d9"}}], "branchHealth": [{"person": "Andy T.", "branch": "AndyPersonal", "status": "Inactive", "activity": "23d ago", "contribution": "+60/-48", "aheadBehind": "0 / 113", "risk": "LOW", "suggestedSteps": []}, {"person": "Andy T.", "branch": "AndyPersonal2", "status": "Behind", "activity": "3d ago", "contribution": "+60/-48", "aheadBehind": "0 / 19", "risk": "LOW", "suggestedSteps": []}, {"person": "Hasani C.", "branch": "HasaniPersonal", "status": "Diverged", "activity": "TODAY", "contribution": "+12381/-628", "aheadBehind": "4 / 15", "risk": "HIGH", "suggestedSteps": []}, {"person": "Lesly M.", "branch": "LeslyMorales-personal", "status": "Behind", "activity": "TODAY", "contribution": "+1776/-945", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Maret M.", "branch": "MaretRiveraPersonal", "status": "Behind", "activity": "TODAY", "contribution": "+932/-420", "aheadBehind": "0 / 5", "risk": "LOW", "suggestedSteps": []}, {"person": "Rodney F.", "branch": "RodneyPersonal", "status": "Behind", "activity": "1d ago", "contribution": "+1208/-667", "aheadBehind": "0 / 9", "risk": "LOW", "suggestedSteps": []}], "filesTouched": [{"person": "Hasani C.", "workingFrom": "Org Repo / Fork (@4hzzz)", "commits": 3, "additions": 12381, "deletions": 628, "net": 11753, "files": [{"path": "package-lock.json +7247/-0"}, {"path": "MainActivity.kt +573/-96"}, {"path": "ProfileActivity.kt +425/-0"}, {"path": "EventViewModel.kt +412/-19"}, {"path": "EventDashboardActivity.kt +391/-13"}]}, {"person": "Lesly M.", "workingFrom": "Org repo", "commits": 5, "additions": 1776, "deletions": 945, "net": 831, "files": [{"path": "AddItems.kt +399/-273"}, {"path": "InviteFriendsFragment.kt +314/-230"}, {"path": "ChatFeedContent.kt +272/-58"}, {"path": "CreateEventActivity.kt +266/-163"}, {"path": "EventViewModel.kt +204/-58"}]}, {"person": "Rodney F.", "workingFrom": "Org repo", "commits": 8, "additions": 1208, "deletions": 667, "net": 541, "files": [{"path": "AddItems.kt +255/-144"}, {"path": "InviteFriendsFragment.kt +196/-130"}, {"path": "CreateEventActivity.kt +181/-86"}, {"path": "ProfileActivity.kt +138/-82"}, {"path": "EditItemActivity.kt +100/-56"}]}, {"person": "Maret M.", "workingFrom": "Org repo", "commits": 6, "additions": 932, "deletions": 420, "net": 512, "files": [{"path": "EventInfoActivity.kt +278/-42"}, {"path": "AddItems.kt +181/-134"}, {"path": "EventViewModel.kt +148/-6"}, {"path": "InviteFriendsFragment.kt +147/-110"}, {"path": "CreateEventActivity.kt +117/-80"}]}, {"person": "Andy T.", "workingFrom": "Org repo", "commits": 2, "additions": 60, "deletions": 48, "net": 12, "files": [{"path": "EventViewModel.kt +40/-30"}, {"path": "EventDashboardActivity.kt +18/-16"}, {"path": "ChatFeedContent.kt +2/-2"}]}], "trello": {"assignments": {"Andy T.": 6, "Hasani C.": 3, "Lesly M.": 7, "Maret M.": 4, "Rodney F.": 18}, "actions": {"Andy T.": 11, "Hasani C.": 1, "Lesly M.": 13, "Maret M.": 20, "Rodney F.": 18}, "actionBreakdown": {"Andy T.": {"Create card": 1, "Move card": 3, "Complete checklist": 4}, "Hasani C.": {"Comment": 1}, "Lesly M.": {"Move card": 9}, "Maret M.": {"Create card": 1, "Move card": 6, "Complete checklist": 8}, "Rodney F.": {"Create card": 1, "Move card": 8, "Complete checklist": 6}}, "status": "HEALTHY"}, "discord": [{"person": "Lesly M.", "posts": 5, "dates": "Mar 10, Mar 11, Mar 12, Mar 13", "summary": ""}, {"person": "Andy T.", "posts": 4, "dates": "Mar 11, Mar 12, Mar 14, Mar 15", "summary": ""}, {"person": "Hasani C.", "posts": 4, "dates": "Mar 9, Mar 11, Mar 12", "summary": ""}, {"person": "Maret M.", "posts": 4, "dates": "Mar 11, Mar 12, Mar 14", "summary": ""}, {"person": "Rodney F.", "posts": 3, "dates": "Mar 9, Mar 12, Mar 14", "summary": ""}], "alerts": [{"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely). Follow directions above."}, {"type": "warn", "text": "Hasani C. has a diverged branch (merge conflict likely)."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     function escapeHtml(value) {
@@ -1947,6 +1949,18 @@
       if (tier === 'legendary') return 'Artifact';
       return tier;
     }
+    function emptyTierCounts() {
+      return { common: 0, unique: 0, rare: 0, epic: 0, legendary: 0 };
+    }
+    function lifetimeTierBreakdownText(counts) {
+      return [
+        `${badgeTierTitleFor('common')}: ${counts.common}`,
+        `${badgeTierTitleFor('unique')}: ${counts.unique}`,
+        `${badgeTierTitleFor('rare')}: ${counts.rare}`,
+        `${badgeTierTitleFor('epic')}: ${counts.epic}`,
+        `${badgeTierTitleFor('legendary')}: ${counts.legendary}`
+      ].join('\n');
+    }
     function badgeMultiplierFor(key) {
       if (key === 'sync' || key === 'consistent') return '2X';
       if (key === 'standup-streak') return '3X';
@@ -2100,10 +2114,14 @@
       const currentWeek = parseInt((data.report && data.report.week) || 0, 10);
       if (!team) return;
       const totals = {};
+      const tierTotals = {};
       function addBadgeCounts(dataset) {
         (dataset.members || []).forEach(member => {
-          badgesForDataset(dataset, member.name).forEach(() => {
+          badgesForDataset(dataset, member.name).forEach((badge) => {
             totals[member.name] = (totals[member.name] || 0) + 1;
+            if (!tierTotals[member.name]) tierTotals[member.name] = emptyTierCounts();
+            const tier = badgeTierFor(badge.key);
+            tierTotals[member.name][tier] = (tierTotals[member.name][tier] || 0) + 1;
           });
         });
       }
@@ -2119,6 +2137,10 @@
       document.querySelectorAll('.member-row .star-total[data-member]').forEach(el => {
         const name = el.getAttribute('data-member') || '';
         const total = totals[name] || 0;
+        const tierCounts = tierTotals[name] || emptyTierCounts();
+        el.setAttribute('data-tip', lifetimeTierBreakdownText(tierCounts));
+        el.classList.add('has-tip');
+        el.setAttribute('aria-label', `Lifetime stars: ${total}`);
         el.innerHTML = `<span class="star-icon">★</span><span class="star-num">${total}</span>`;
       });
       renderLeaderboard(totals);
@@ -2313,8 +2335,10 @@
             <h4>Badges Earned This Week</h4>
             ${badgeListHtml}
           </div>
-          <h4 style="margin-top:0.7rem;">Lifetime Stars</h4>
-          <p><span class="star-total" data-member="${escapeHtml(m.name)}"><span class="star-icon">★</span><span class="star-num">${stars.length}</span></span></p>
+          <div class="lifetime-stars-section">
+            <h4>Lifetime Stars</h4>
+            <p><span class="star-total" data-member="${escapeHtml(m.name)}"><span class="star-icon">★</span><span class="star-num">${stars.length}</span></span></p>
+          </div>
         </div>
       </div>
     `;
