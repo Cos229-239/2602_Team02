@@ -139,13 +139,13 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week active">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.84</div>
+<div class="sidebar-version">Report.version 3.85</div>
 </nav>
     <main class="content">
       <section class="hero">
         <h1>Cycle 2602 Class Leaderboard</h1>
         <p>Class-wide star leaders across the published report pages. The top row shows the lifetime allstar leader, then the category leaders for each star type.</p>
-        <div class="hero-meta">Leaderboard.version 3.84</div>
+        <div class="hero-meta">Leaderboard.version 3.85</div>
       </section>
       <section class="card">
         <h2>Lifetime Allstar</h2>
@@ -465,13 +465,14 @@
         [50, 26, 42]
       ];
       let burstIndex = 0;
-      const marioJumpDuration = 1400;
-      const marioHoldDuration = 4000;
-      const marioSpinDuration = 2000;
+      const marioJumpDuration = 700;
+      const marioHoldDuration = 1000;
+      const marioSpinDuration = 1000;
+      const marioPostSpinPause = 350;
       const marioFadeDuration = 300;
       const marioSpinMultiplier = 1;
       const marioSpinDegrees = 1080 * marioSpinMultiplier;
-      const marioDuration = marioJumpDuration + marioHoldDuration + marioSpinDuration + marioFadeDuration;
+      const marioDuration = marioJumpDuration + marioHoldDuration + marioSpinDuration + marioPostSpinPause + marioFadeDuration;
       const burstEvery = 450;
       const fireBurst = () => {
         const entry = burstPlan[burstIndex % burstPlan.length];
@@ -502,9 +503,10 @@
             { transform:'translate(-50%, -50%) rotate(0deg) scale(1)', opacity:1, offset:0 },
             { transform:'translate(-50%, -50%) rotate(' + (marioSpinDegrees * 0.18) + 'deg) scale(1.18)', opacity:1, offset:0.28 },
             { transform:'translate(-50%, -50%) rotate(' + (marioSpinDegrees * 0.52) + 'deg) scale(1.85)', opacity:1, offset:0.62 },
-            { transform:'translate(-50%, -50%) rotate(' + marioSpinDegrees + 'deg) scale(3)', opacity:1, offset:marioSpinDuration / (marioSpinDuration + marioFadeDuration) },
+            { transform:'translate(-50%, -50%) rotate(' + marioSpinDegrees + 'deg) scale(3)', opacity:1, offset:marioSpinDuration / (marioSpinDuration + marioPostSpinPause + marioFadeDuration) },
+            { transform:'translate(-50%, -50%) rotate(' + marioSpinDegrees + 'deg) scale(3)', opacity:1, offset:(marioSpinDuration + marioPostSpinPause) / (marioSpinDuration + marioPostSpinPause + marioFadeDuration) },
             { transform:'translate(-50%, -50%) rotate(' + marioSpinDegrees + 'deg) scale(3)', opacity:0, offset:1 }
-          ], { duration: marioSpinDuration + marioFadeDuration, easing:'cubic-bezier(.22,.05,.9,1)', fill:'forwards' });
+          ], { duration: marioSpinDuration + marioPostSpinPause + marioFadeDuration, easing:'cubic-bezier(.22,.05,.9,1)', fill:'forwards' });
         }, marioJumpDuration + marioHoldDuration);
         setTimeout(() => host.classList.add('hidden'), marioDuration + 100);
       };
