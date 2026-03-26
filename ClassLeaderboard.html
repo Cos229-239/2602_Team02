@@ -45,6 +45,9 @@
     .content-block { display:none; padding:0.35rem 1.2rem 1.2rem; }
     .content-block.revealed { display:block; }
     .leaderboard { display:flex; flex-direction:column; gap:1.05rem; }
+    .debug-strip { padding:0 1.2rem 1.25rem; display:flex; justify-content:flex-end; }
+    .debug-btn { padding:0.65rem 1rem; border:none; border-radius:999px; background:#2a3550; color:#e6edf3; font-weight:800; cursor:pointer; box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08); }
+    .debug-btn:hover { background:#354466; }
     .leaderboard-row { display:flex; align-items:center; gap:1rem; padding:0.55rem 0 0.2rem; }
     .leaderboard-row.hero-row { padding:0.55rem 0 0.2rem; }
     .row-label { flex:0 0 11.5rem; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); }
@@ -135,13 +138,13 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week active">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.79</div>
+<div class="sidebar-version">Report.version 3.80</div>
 </nav>
     <main class="content">
       <section class="hero">
         <h1>Cycle 2602 Class Leaderboard</h1>
         <p>Class-wide star leaders across the published report pages. The top row shows the lifetime allstar leader, then the category leaders for each star type.</p>
-        <div class="hero-meta">Leaderboard.version 3.79</div>
+        <div class="hero-meta">Leaderboard.version 3.80</div>
       </section>
       <section class="card">
         <h2>Lifetime Allstar</h2>
@@ -365,6 +368,9 @@
     </div>
         </div>
       </section>
+      <div class="debug-strip">
+        <button type="button" class="debug-btn" id="mario-debug-trigger">Mario Debug</button>
+      </div>
     </main>
   </div>
   <div class="mario-finale hidden" id="mario-finale">
@@ -372,7 +378,7 @@
   </div>
   <script>
     const currentWeekPct = 100.00;
-    const PRE_FINALE_SPEED_MULTIPLIER = 4;
+    const PRE_FINALE_SPEED_MULTIPLIER = 1;
     const LEADERBOARD_TUNING = {
       mainRaceSpeed: 0.75,
       mainBaseDuration: 900,
@@ -633,6 +639,12 @@
         animateRows(target, target.id === 'cats-content' ? playMarioFinale : null);
       });
     });
+    const marioDebugTrigger = document.getElementById('mario-debug-trigger');
+    if (marioDebugTrigger) {
+      marioDebugTrigger.addEventListener('click', () => {
+        playMarioFinale();
+      });
+    }
   </script>
 </body>
 </html>
