@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -15,26 +16,26 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -58,19 +59,26 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.home.MainActivity
+import com.example.wepartyapp.ui.onboarding.OnboardingActivity // <-- ADDED IMPORT
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.fragment.app.FragmentActivity
 
 class LoginActivity : FragmentActivity() {
+
+    companion object {
+        var isColdBoot = true
+    }
 
     private lateinit var auth: FirebaseAuth
     private val db = FirebaseFirestore.getInstance()
@@ -96,6 +104,11 @@ class LoginActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
 
+        if (isColdBoot) {
+            auth.signOut()
+            isColdBoot = false
+        }
+
         setContent {
             val view = LocalView.current
             if (!view.isInEditMode) {
@@ -108,6 +121,10 @@ class LoginActivity : FragmentActivity() {
             var isLoading by remember { mutableStateOf(false) }
             var errorMessage by remember { mutableStateOf<String?>(null) }
 
+            // State for the Google Username Dialog
+            var showUsernameDialog by remember { mutableStateOf(false) }
+            var pendingGoogleUser by remember { mutableStateOf<FirebaseUser?>(null) }
+
             val googleSignInLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.StartActivityForResult()
             ) { result ->
@@ -115,11 +132,19 @@ class LoginActivity : FragmentActivity() {
                     val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
                     try {
                         val account = task.getResult(ApiException::class.java)!!
-                        firebaseAuthWithGoogle(account.idToken!!) { success, errorMsg ->
+
+                        firebaseAuthWithGoogle(account.idToken!!) { success, errorMsg, isNewUser, user ->
                             isLoading = false
                             if (success) {
-                                startActivity(Intent(this, MainActivity::class.java))
-                                finish()
+                                if (isNewUser && user != null) {
+                                    // Pop the dialog to pick a username
+                                    pendingGoogleUser = user
+                                    showUsernameDialog = true
+                                } else {
+                                    // Existing user, send them straight in
+                                    startActivity(Intent(this, MainActivity::class.java))
+                                    finish()
+                                }
                             } else {
                                 errorMessage = errorMsg
                             }
@@ -131,6 +156,104 @@ class LoginActivity : FragmentActivity() {
                 } else {
                     isLoading = false
                 }
+            }
+
+            // --- The Username Selection Dialog ---
+            if (showUsernameDialog && pendingGoogleUser != null) {
+                var usernameInput by remember { mutableStateOf("") }
+                var dialogError by remember { mutableStateOf<String?>(null) }
+                var isDialogLoading by remember { mutableStateOf(false) }
+
+                AlertDialog(
+                    onDismissRequest = { /* Locked. They must pick or cancel. */ },
+                    properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
+                    title = { Text("Pick Your Username") },
+                    text = {
+                        Column {
+                            Text("Since this is your first time logging in with Google, please choose a unique UserID.")
+                            Spacer(Modifier.height(12.dp))
+                            TextField(
+                                value = usernameInput,
+                                onValueChange = { usernameInput = it },
+                                placeholder = { Text("e.g. partyanimal99") },
+                                singleLine = true
+                            )
+                            if (dialogError != null) {
+                                Spacer(Modifier.height(8.dp))
+                                Text(dialogError!!, color = Color.Red, fontSize = 14.sp)
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                val chosenId = usernameInput.trim().replace(" ", "").replace("@", "").lowercase()
+                                if (chosenId.isEmpty()) {
+                                    dialogError = "Username cannot be empty."
+                                    return@Button
+                                }
+                                isDialogLoading = true
+                                dialogError = null
+
+                                // 1. Check if the username is taken
+                                db.collection("UserId_Lookup").document(chosenId).get()
+                                    .addOnSuccessListener { doc ->
+                                        if (doc.exists()) {
+                                            isDialogLoading = false
+                                            dialogError = "That username is already taken."
+                                        } else {
+                                            // 2. Build the profile if it's available
+                                            val userMap = hashMapOf(
+                                                "uid" to pendingGoogleUser!!.uid,
+                                                "name" to (pendingGoogleUser!!.displayName ?: "Party Animal"),
+                                                "appUserId" to chosenId,
+                                                "phoneNumber" to "",
+                                                "email" to (pendingGoogleUser!!.email ?: ""),
+                                                "friends" to emptyList<String>(),
+                                                "friendRequests" to emptyList<String>()
+                                            )
+
+                                            db.collection("users").document(pendingGoogleUser!!.uid).set(userMap)
+                                                .addOnSuccessListener {
+                                                    db.collection("UserId_Lookup").document(chosenId)
+                                                        .set(mapOf("uid" to pendingGoogleUser!!.uid))
+                                                        .addOnSuccessListener {
+                                                            isDialogLoading = false
+                                                            showUsernameDialog = false
+                                                            // --- Route to Onboarding ---
+                                                            startActivity(Intent(this@LoginActivity, OnboardingActivity::class.java))
+                                                            finish()
+                                                        }
+                                                }
+                                        }
+                                    }
+                            },
+                            enabled = !isDialogLoading,
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4081))
+                        ) {
+                            if (isDialogLoading) CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White)
+                            else Text("Submit", color = Color.White)
+                        }
+                    },
+                    dismissButton = {
+                        if (!isDialogLoading) {
+                            TextButton(onClick = {
+                                isDialogLoading = true // Lock the UI while deleting
+
+                                // Completely delete the Google Auth account if they cancel
+                                pendingGoogleUser?.delete()?.addOnCompleteListener {
+                                    auth.signOut()
+                                    showUsernameDialog = false
+                                    pendingGoogleUser = null
+                                    isDialogLoading = false
+                                    errorMessage = "Account creation cancelled."
+                                }
+                            }) {
+                                Text("Cancel", color = Color.Gray)
+                            }
+                        }
+                    }
+                )
             }
 
             LoginScreenUI(
@@ -232,7 +355,7 @@ class LoginActivity : FragmentActivity() {
         biometricPrompt.authenticate(promptInfo)
     }
 
-    private fun firebaseAuthWithGoogle(idToken: String, onResult: (Boolean, String?) -> Unit) {
+    private fun firebaseAuthWithGoogle(idToken: String, onResult: (Boolean, String?, Boolean, FirebaseUser?) -> Unit) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
@@ -240,32 +363,9 @@ class LoginActivity : FragmentActivity() {
                     val isNewUser = task.result?.additionalUserInfo?.isNewUser == true
                     val user = auth.currentUser
 
-                    if (isNewUser && user != null) {
-                        val autoGeneratedHandle = user.email?.substringBefore("@")?.lowercase() + (100..999).random()
-
-                        val userMap = hashMapOf(
-                            "uid" to user.uid,
-                            "name" to (user.displayName ?: "Party Animal"),
-                            "appUserId" to autoGeneratedHandle,
-                            "phoneNumber" to "",
-                            "email" to (user.email ?: ""),
-                            "friends" to emptyList<String>(),
-                            "friendRequests" to emptyList<String>()
-                        )
-
-                        db.collection("users").document(user.uid)
-                            .set(userMap)
-                            .addOnSuccessListener {
-                                onResult(true, null)
-                            }
-                            .addOnFailureListener {
-                                onResult(false, "Failed to create user profile.")
-                            }
-                    } else {
-                        onResult(true, null)
-                    }
+                    onResult(true, null, isNewUser, user)
                 } else {
-                    onResult(false, task.exception?.message ?: "Authentication failed.")
+                    onResult(false, task.exception?.message ?: "Authentication failed.", false, null)
                 }
             }
     }
