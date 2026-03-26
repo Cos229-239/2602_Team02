@@ -138,13 +138,13 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week active">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.80</div>
+<div class="sidebar-version">Report.version 3.81</div>
 </nav>
     <main class="content">
       <section class="hero">
         <h1>Cycle 2602 Class Leaderboard</h1>
         <p>Class-wide star leaders across the published report pages. The top row shows the lifetime allstar leader, then the category leaders for each star type.</p>
-        <div class="hero-meta">Leaderboard.version 3.80</div>
+        <div class="hero-meta">Leaderboard.version 3.81</div>
       </section>
       <section class="card">
         <h2>Lifetime Allstar</h2>
@@ -453,6 +453,8 @@
       if (!host || !sprite) return;
       host.classList.remove('hidden');
       host.querySelectorAll('.mario-confetti').forEach((node) => node.remove());
+      if (host._marioBurstTimer) clearInterval(host._marioBurstTimer);
+      if (host._marioBurstStopper) clearTimeout(host._marioBurstStopper);
       const burstPlan = [
         [50, 50, 0],
         [38, 34, 28],
@@ -461,22 +463,32 @@
         [68, 61, -18],
         [50, 26, 42]
       ];
-      burstPlan.forEach((entry, index) => {
-        setTimeout(() => spawnMarioConfettiBurst(host, entry[0], entry[1], entry[2]), index * 500);
-      });
+      let burstIndex = 0;
+      const marioDuration = 5600;
+      const burstEvery = 450;
+      const fireBurst = () => {
+        const entry = burstPlan[burstIndex % burstPlan.length];
+        spawnMarioConfettiBurst(host, entry[0], entry[1], entry[2]);
+        burstIndex += 1;
+      };
+      fireBurst();
+      host._marioBurstTimer = setInterval(fireBurst, burstEvery);
+      host._marioBurstStopper = setTimeout(() => {
+        clearInterval(host._marioBurstTimer);
+        host._marioBurstTimer = null;
+      }, marioDuration);
       const startMario = () => {
         sprite.getAnimations().forEach((anim) => anim.cancel());
         sprite.style.opacity = '1';
         sprite.animate([
           { transform:'translate(-50%, calc(-50% + 460px)) scale(1)', opacity:1, offset:0 },
-          { transform:'translate(-50%, -50%) scale(1)', opacity:1, offset:0.38 },
-          { transform:'translate(-50%, -50%) scale(1)', opacity:1, offset:0.52 },
-          { transform:'translate(-50%, -50%) rotate(180deg) scale(1.4)', opacity:1, offset:0.66 },
-          { transform:'translate(-50%, -50%) rotate(540deg) scale(2.1)', opacity:1, offset:0.8 },
-          { transform:'translate(-50%, -50%) rotate(1080deg) scale(3)', opacity:1, offset:0.92 },
+          { transform:'translate(-50%, -50%) scale(1)', opacity:1, offset:0.244 },
+          { transform:'translate(-50%, -50%) scale(1)', opacity:1, offset:0.604 },
+          { transform:'translate(-50%, -50%) rotate(360deg) scale(1.7)', opacity:1, offset:0.79 },
+          { transform:'translate(-50%, -50%) rotate(1080deg) scale(3)', opacity:1, offset:0.949 },
           { transform:'translate(-50%, -50%) rotate(1080deg) scale(3)', opacity:0, offset:1 }
-        ], { duration: 7200, easing:'cubic-bezier(.08,.8,.2,1)', fill:'forwards' });
-        setTimeout(() => host.classList.add('hidden'), 7300);
+        ], { duration: marioDuration, easing:'cubic-bezier(.08,.8,.2,1)', fill:'forwards' });
+        setTimeout(() => host.classList.add('hidden'), marioDuration + 100);
       };
       startMario();
     }
