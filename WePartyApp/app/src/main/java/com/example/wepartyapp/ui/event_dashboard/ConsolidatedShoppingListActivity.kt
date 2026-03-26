@@ -62,11 +62,11 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
     val events by viewModel.events.observeAsState(emptyList())
     val today = LocalDate.now()
 
-    // --- 1. Grab current user for security filtering ---
+    // --- Grab current user for security filtering ---
     val auth = FirebaseAuth.getInstance()
     val currentUserId = auth.currentUser?.uid
 
-    // --- 2. Filter for Date and Participation ---
+    // --- Filter for Date and Participation ---
     val sortedEvents = events
         .filter { event ->
             val isUpcoming = event.date == null || event.date >= today
@@ -95,14 +95,14 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                //Page Icon
+                // -- Page Icon --
                 Icon(
                     imageVector = Icons.Default.ShoppingCart,
                     contentDescription = null,
                     Modifier.size(80.dp),
                     tint = Color(0xFFBF6363)
                 )
-                //Page Title
+                // -- Page Title --
                 Text(
                     text = "Consolidated",
                     fontSize = 45.sp
@@ -113,7 +113,6 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
                 )
             }
             Spacer(modifier = Modifier.height(25.dp))
-
             // --- The "Ghost Town" Fix ---
             if (sortedEvents.isEmpty()) {
                 Column(
@@ -137,7 +136,6 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
                         EventDetails(eventID = event.id, eventName = event.name, eventItemsList = event.eventItems)
                         Spacer(modifier = Modifier.height(20.dp))
                     }
-
                     // --- The "Hidden Bottom" Fix ---
                     item {
                         Spacer(modifier = Modifier.height(80.dp))
@@ -151,21 +149,18 @@ fun ConsolidatedShoppingListScreenUI(viewModel: EventViewModel) {
 @Composable
 fun EventDetails(eventID: String, eventName: String, eventItemsList: List<PartyItem>) {
     val context = LocalContext.current
-    //Changed the event box background and border to make the box popping more subtle - the white seemed too intense for the colors we currently have
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .border(1.dp, Color(0xFFBF6363), RoundedCornerShape(5.dp))
             .shadow(elevation = 5.dp, shape = RoundedCornerShape(5.dp))
-            .background(color = Color(0xFFFFD4D6)) // Added a white background to make the cards pop against the pink^
+            .background(color = Color(0xFFFFD4D6))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            // --- The "Text Collision" Fix ---
-            // Changed from a raw text element to a Row so the Event Name never overlaps the Button
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -178,11 +173,12 @@ fun EventDetails(eventID: String, eventName: String, eventItemsList: List<PartyI
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.weight(1f).padding(end = 8.dp)
                 )
-
+                // -- Edit Items Button --
                 Button(
                     onClick = {
                         val intent = Intent(context, EditItemActivity::class.java)
-                        intent.putExtra("Event_ID", eventID)    //passing event id to be able to find the specific event in edit item screen
+                        // passing event id to be able to find the specific event in edit item screen
+                        intent.putExtra("Event_ID", eventID)
                         context.startActivity(intent)
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
@@ -194,7 +190,7 @@ fun EventDetails(eventID: String, eventName: String, eventItemsList: List<PartyI
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            // Items List
+            // -- Items List --
             Column {
                 if (eventItemsList.isEmpty()) {
                     Text(text = "No items added yet.", fontSize = 16.sp, color = Color.Gray)

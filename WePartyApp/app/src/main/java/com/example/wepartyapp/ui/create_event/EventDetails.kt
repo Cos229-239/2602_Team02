@@ -39,11 +39,7 @@ import java.util.TimeZone
 // Event Details Screen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-// --- New: Added showErrors parameter ---
 fun EventDetailsScreenUI(viewItemModel: EventViewModel, showErrors: Boolean = false) {
-    // We removed the local rememberSaveable variables.
-    // Now everything types directly into the EventViewModel so it survives navigation.
-
     // --- Popup States ---
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
@@ -137,7 +133,7 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel, showErrors: Boolean = fa
             .fillMaxWidth()
             .padding(16.dp),
     ) {
-        // --- Event Name ---
+        // -- Event Name --
         Text(
             text = "Event Name:",
             fontSize = 20.sp,
@@ -157,7 +153,7 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel, showErrors: Boolean = fa
         }
         Spacer(modifier = Modifier.height(20.dp))
 
-        // --- Summary (Not Required, no error checking) ---
+        // -- Event Summary (Not Required, no error checking) --
         Text(
             text = "Summary:",
             fontSize = 20.sp,
@@ -170,13 +166,13 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel, showErrors: Boolean = fa
                 modifier = Modifier.weight(1f),
                 value = viewItemModel.eventSummary,
                 onValueChange = { viewItemModel.eventSummary = it },
-                minLines = 3, // Makes it look like a message box
+                minLines = 3,
                 maxLines = 5
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
 
-        // --- Date ---
+        // -- Event Date --
         Text(
             text = "Date:",
             fontSize = 20.sp,
@@ -186,7 +182,6 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel, showErrors: Boolean = fa
         Row(
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Trick: Put a transparent clickable box over the text field to trigger the popup
             Box(modifier = Modifier.weight(1f)) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -201,7 +196,7 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel, showErrors: Boolean = fa
         }
         Spacer(modifier = Modifier.height(20.dp))
 
-        // --- Time ---
+        // -- Event Time --
         Text(
             text = "Time:",
             fontSize = 20.sp,
@@ -225,7 +220,7 @@ fun EventDetailsScreenUI(viewItemModel: EventViewModel, showErrors: Boolean = fa
         }
         Spacer(modifier = Modifier.height(20.dp))
 
-        // --- Address ---
+        // -- Event Address --
         Text(
             text = "Address:",
             fontSize = 20.sp,

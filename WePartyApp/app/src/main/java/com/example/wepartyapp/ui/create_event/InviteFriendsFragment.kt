@@ -62,13 +62,13 @@ fun InviteFriendsScreenUI(
     existingEventId: String? = null // <-- Null for new events, ID for existing ones
 ) {
 
-    // --- Updated for FlowLinks Deep Linking ---
+    // --- FlowLinks Deep Linking ---
     val uniqueEventId = existingEventId ?: viewItemModel.eventId ?: "temp-id"
-    var urlLink = "https://wepartyapp-8a3a7-flowlinks.web.app/$uniqueEventId"
+    val urlLink = "https://wepartyapp-8a3a7-flowlinks.web.app/$uniqueEventId"
 
     val context = LocalContext.current
 
-    // --- New: State to hold friends and selections ---
+    // --- State to hold friends and selections ---
     val friendsList by viewItemModel.friendsList.collectAsState()
     var selectedFriendUids by remember { mutableStateOf(setOf<String>()) }
 
@@ -130,6 +130,7 @@ fun InviteFriendsScreenUI(
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // -- Back button - returns to Add Items or Edit Event page --
                     IconButton(onClick = {
                         if (navController != null) navController.popBackStack()
                         else (context as? Activity)?.finish()
@@ -151,6 +152,7 @@ fun InviteFriendsScreenUI(
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // -- Page Icon --
                     Icon(
                         imageVector = Icons.Default.FamilyRestroom,
                         contentDescription = null,
@@ -158,6 +160,7 @@ fun InviteFriendsScreenUI(
                         tint = Color(0xFFBF6363)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
+                    // -- Page Title --
                     Text(
                         text = if (existingEventId != null) "Invite More" else "Invite Friends",
                         fontWeight = FontWeight.SemiBold,
