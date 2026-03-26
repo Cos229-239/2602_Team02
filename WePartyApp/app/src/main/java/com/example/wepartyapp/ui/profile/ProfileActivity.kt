@@ -472,6 +472,20 @@ fun DeleteAccountSection(viewModel: EventViewModel) {
     var passwordVisible by remember { mutableStateOf(false) } // <-- Toggle State
     val context = LocalContext.current
 
+    var appUserId by remember { mutableStateOf("") }
+    val auth = FirebaseAuth.getInstance()
+    val currentUser = auth.currentUser
+    val db = FirebaseFirestore.getInstance()
+
+    LaunchedEffect(currentUser?.uid) {
+        currentUser?.uid?.let { uid ->
+            db.collection("users").document(uid).get()
+                .addOnSuccessListener { document ->
+                    appUserId = document.getString("appUserId") ?: ""
+                }
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -534,20 +548,70 @@ fun DeleteAccountSection(viewModel: EventViewModel) {
                 Button(
                     onClick = {
                         isDeleting = true
-                        // Pass the typed password to the ViewModel
-                        viewModel.deleteUserAccount(password) { success, errorMessage ->
-                            isDeleting = false
-                            if (success) {
-                                showDeleteDialog = false
-                                Toast.makeText(context, "Account deleted.", Toast.LENGTH_SHORT).show()
+                        val uid = currentUser?.uid
 
-                                // Boot them back to the Login Screen
-                                val intent = Intent(context, LoginActivity::class.java)
-                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                context.startActivity(intent)
-                            } else {
-                                // Show error but keep dialog open so they can re-type password
-                                Toast.makeText(context, errorMessage ?: "Error deleting account", Toast.LENGTH_LONG).show()
+                        // --- Safe Handle & Event Deletion Logic ---
+                        if (appUserId.isNotBlank() && uid != null) {
+                            // Fetch hosted events to delete them along with the account
+                            db.collection("events").whereEqualTo("hostId", uid).get()
+                                .addOnSuccessListener { eventSnaps ->
+                                    // Save copies in case of wrong password
+                                    val hostedEventsToRestore = eventSnaps.documents.associate { it.id to it.data }
+
+                                    val batch = db.batch()
+
+                                    // Step 1: Temporarily delete the handle while still authenticated
+                                    val lookupRef = db.collection("UserId_Lookup").document(appUserId)
+                                    batch.delete(lookupRef)
+
+                                    // Queue deletion for all hosted events
+                                    for (doc in eventSnaps.documents) {
+                                        batch.delete(doc.reference)
+                                    }
+
+                                    batch.commit().addOnCompleteListener {
+                                        // Step 2: Call ViewModel to check password and delete account
+                                        viewModel.deleteUserAccount(password) { success, errorMessage ->
+                                            isDeleting = false
+                                            if (success) {
+                                                showDeleteDialog = false
+                                                Toast.makeText(context, "Account and hosted events deleted.", Toast.LENGTH_SHORT).show()
+                                                val intent = Intent(context, LoginActivity::class.java).apply {
+                                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                                }
+                                                context.startActivity(intent)
+                                            } else {
+                                                // Step 3: Password was wrong. Restore the handle and events immediately
+                                                val restoreBatch = db.batch()
+                                                restoreBatch.set(lookupRef, mapOf("uid" to uid))
+                                                hostedEventsToRestore.forEach { (eventId, eventData) ->
+                                                    if (eventData != null) {
+                                                        restoreBatch.set(db.collection("events").document(eventId), eventData)
+                                                    }
+                                                }
+                                                restoreBatch.commit()
+                                                Toast.makeText(context, errorMessage ?: "Error deleting account", Toast.LENGTH_LONG).show()
+                                            }
+                                        }
+                                    }
+                                }
+                                .addOnFailureListener {
+                                    isDeleting = false
+                                    Toast.makeText(context, "Failed to prepare account deletion.", Toast.LENGTH_SHORT).show()
+                                }
+                        } else {
+                            viewModel.deleteUserAccount(password) { success, errorMessage ->
+                                isDeleting = false
+                                if (success) {
+                                    showDeleteDialog = false
+                                    Toast.makeText(context, "Account deleted.", Toast.LENGTH_SHORT).show()
+                                    val intent = Intent(context, LoginActivity::class.java).apply {
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                    }
+                                    context.startActivity(intent)
+                                } else {
+                                    Toast.makeText(context, errorMessage ?: "Error deleting account", Toast.LENGTH_LONG).show()
+                                }
                             }
                         }
                     },
