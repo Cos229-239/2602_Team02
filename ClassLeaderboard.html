@@ -79,7 +79,7 @@
     .burst { position:absolute; width:10px; height:10px; border-radius:999px; pointer-events:none; opacity:0; }
     .mario-finale { position:fixed; inset:0; pointer-events:none; z-index:9999; overflow:hidden; }
     .mario-finale.hidden { display:none; }
-    .mario-sprite { position:absolute; left:50%; top:50%; width:120px; height:auto; transform:translate(-50%, -50%) scale(1); transform-origin:center; opacity:0; filter:drop-shadow(0 18px 36px rgba(0,0,0,0.42)); }
+    .mario-sprite { position:absolute; left:50%; top:50%; width:240px; height:240px; transform:translate(-50%, -50%) scale(1); transform-origin:center; opacity:0; filter:drop-shadow(0 18px 36px rgba(0,0,0,0.42)); background-image:url('./Art/Mario.png'); background-position:center; background-repeat:no-repeat; background-size:contain; }
     .mario-confetti { position:absolute; width:12px; height:12px; border-radius:2px; opacity:0; }
   </style>
 </head>
@@ -135,13 +135,13 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week active">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.73</div>
+<div class="sidebar-version">Report.version 3.74</div>
 </nav>
     <main class="content">
       <section class="hero">
         <h1>Cycle 2602 Class Leaderboard</h1>
         <p>Class-wide star leaders across the published report pages. The top row shows the lifetime allstar leader, then the category leaders for each star type.</p>
-        <div class="hero-meta">Leaderboard.version 3.73</div>
+        <div class="hero-meta">Leaderboard.version 3.74</div>
       </section>
       <section class="card">
         <h2>Lifetime Allstar</h2>
@@ -368,7 +368,7 @@
     </main>
   </div>
   <div class="mario-finale hidden" id="mario-finale">
-    <img class="mario-sprite" id="mario-sprite" src="./Art/Mario.png" alt="">
+    <div class="mario-sprite" id="mario-sprite" aria-hidden="true"></div>
   </div>
   <script>
     const currentWeekPct = 100.00;
@@ -419,11 +419,6 @@
       setTimeout(() => host.classList.remove('bursting'), 1250);
     }
 
-    const marioLoader = new Image();
-    let marioReady = false;
-    marioLoader.addEventListener('load', () => { marioReady = true; });
-    marioLoader.src = './Art/Mario.png';
-
     function spawnMarioConfettiBurst(host, centerX, centerY, rotationDeg) {
       const colors = ['#58a6ff', '#f0c14b', '#7ee787', '#f472b6', '#a78bfa', '#fb923c'];
       for (let i = 0; i < 36; i += 1) {
@@ -465,20 +460,10 @@
       });
       const startMario = () => {
         sprite.getAnimations().forEach((anim) => anim.cancel());
-        sprite.src = marioLoader.src;
-        sprite.style.display = 'block';
         sprite.style.opacity = '1';
         sprite.style.transform = 'translate(-50%, -50%) scale(1)';
       };
-      if (marioReady || (sprite.complete && sprite.naturalWidth > 0)) {
-        startMario();
-      } else {
-        const onReady = () => startMario();
-        sprite.addEventListener('load', onReady, { once: true });
-        setTimeout(() => {
-          if (!host.classList.contains('hidden')) startMario();
-        }, 350);
-      }
+      startMario();
     }
 
     function animateRows(container, onDone) {
