@@ -146,13 +146,13 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week active">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.91</div>
+<div class="sidebar-version">Report.version 3.92</div>
 </nav>
     <main class="content">
       <section class="hero">
         <h1>Cycle 2602 Class Leaderboard</h1>
         <p>Class-wide star leaders across the published report pages. The top row shows the lifetime allstar leader, then the category leaders for each star type.</p>
-        <div class="hero-meta">Leaderboard.version 3.91</div>
+        <div class="hero-meta">Leaderboard.version 3.92</div>
       </section>
       <section class="card">
         <h2>Lifetime Allstar</h2>
@@ -673,9 +673,9 @@
         const thirdPct = third ? parseFloat(third.style.getPropertyValue('--third-pct') || '0') : 0;
         if (noWinner) {
           const trackWidthNoWinner = wrap.offsetWidth - 34;
-          const finishLeft = 22 + (trackWidthNoWinner * (currentWeekPct / 100));
-          const progressFloor = Math.max(LEADERBOARD_TUNING.gagProgressFloorMin, (currentWeekPct / 100) * LEADERBOARD_TUNING.gagProgressFloorFactor);
-          const progressCeil = Math.max(progressFloor + LEADERBOARD_TUNING.gagProgressCeilGap, (currentWeekPct / 100) * LEADERBOARD_TUNING.gagProgressCeilFactor);
+          const finishLeft = 22 + (trackWidthNoWinner * (GLOBAL_TUNING.currentWeekPct / 100));
+          const progressFloor = Math.max(LEADERBOARD_TUNING.gagProgressFloorMin, (GLOBAL_TUNING.currentWeekPct / 100) * LEADERBOARD_TUNING.gagProgressFloorFactor);
+          const progressCeil = Math.max(progressFloor + LEADERBOARD_TUNING.gagProgressCeilGap, (GLOBAL_TUNING.currentWeekPct / 100) * LEADERBOARD_TUNING.gagProgressCeilFactor);
           const chasePct = progressFloor + (Math.random() * Math.max(LEADERBOARD_TUNING.gagRandomSpreadMin, progressCeil - progressFloor));
           let crashLeft = 22 + (trackWidthNoWinner * chasePct);
           crashLeft = Math.min(crashLeft, finishLeft - 14);
