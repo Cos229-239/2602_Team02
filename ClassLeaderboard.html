@@ -79,7 +79,7 @@
     .burst { position:absolute; width:10px; height:10px; border-radius:999px; pointer-events:none; opacity:0; }
     .mario-finale { position:fixed; inset:0; pointer-events:none; z-index:9999; overflow:hidden; }
     .mario-finale.hidden { display:none; }
-    .mario-sprite { position:absolute; left:50%; top:50%; width:120px; height:auto; transform:translate(-50%, -50%) scale(0); transform-origin:center; opacity:0; filter:drop-shadow(0 18px 36px rgba(0,0,0,0.42)); }
+    .mario-sprite { position:absolute; left:50%; top:50%; width:120px; height:auto; transform:translate(-50%, -50%) scale(4); transform-origin:center; opacity:0; filter:drop-shadow(0 18px 36px rgba(0,0,0,0.42)); }
     .mario-confetti { position:absolute; width:12px; height:12px; border-radius:2px; opacity:0; }
   </style>
 </head>
@@ -135,13 +135,13 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week active">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.71</div>
+<div class="sidebar-version">Report.version 3.72</div>
 </nav>
     <main class="content">
       <section class="hero">
         <h1>Cycle 2602 Class Leaderboard</h1>
         <p>Class-wide star leaders across the published report pages. The top row shows the lifetime allstar leader, then the category leaders for each star type.</p>
-        <div class="hero-meta">Leaderboard.version 3.71</div>
+        <div class="hero-meta">Leaderboard.version 3.72</div>
       </section>
       <section class="card">
         <h2>Lifetime Allstar</h2>
@@ -372,6 +372,7 @@
   </div>
   <script>
     const currentWeekPct = 100.00;
+    const PRE_FINALE_SPEED_MULTIPLIER = 4;
     const LEADERBOARD_TUNING = {
       mainRaceSpeed: 0.75,
       mainBaseDuration: 900,
@@ -467,11 +468,10 @@
         sprite.src = marioLoader.src;
         sprite.style.display = 'block';
         sprite.style.opacity = '1';
-        sprite.style.transform = 'translate(-50%, -50%) scale(0)';
+        sprite.style.transform = 'translate(-50%, -50%) scale(4)';
         sprite.animate([
-          { transform:'translate(-50%, -50%) scale(0)', opacity:0 },
-          { transform:'translate(-50%, -50%) scale(8)', opacity:1, offset:0.18 },
-          { transform:'translate(-50%, -50%) scale(8)', opacity:1, offset:0.55 },
+          { transform:'translate(-50%, -50%) scale(4)', opacity:1 },
+          { transform:'translate(-50%, -50%) scale(4)', opacity:1, offset:0.55 },
           { transform:'translate(-50%, -50%) rotate(-1080deg) scale(0)', opacity:0, offset:1 }
         ], { duration: 2200, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' });
         setTimeout(() => host.classList.add('hidden'), 3400);
@@ -545,12 +545,12 @@
           const carDuration = Math.max(
             LEADERBOARD_TUNING.gagCarMinDuration,
             (LEADERBOARD_TUNING.gagCarBaseDuration * (carDistance / finishDistance)) / LEADERBOARD_TUNING.mainRaceSpeed
-          );
+          ) / PRE_FINALE_SPEED_MULTIPLIER;
           const shellDistance = Math.max(1, shellHit - shellStart);
           const shellDuration = Math.max(
             LEADERBOARD_TUNING.gagShellMinDuration,
             carDuration * (shellDistance / (carDistance * LEADERBOARD_TUNING.gagShellSpeedRatio))
-          );
+          ) / PRE_FINALE_SPEED_MULTIPLIER;
           const shellDelay = Math.max(0, carDuration - shellDuration);
           bar.style.width = '0px';
           car.animate([
@@ -588,7 +588,7 @@
                 { transform:'scale(' + LEADERBOARD_TUNING.gagExplosionScale + ')', opacity:0, offset:1 }
               ], { duration: LEADERBOARD_TUNING.gagExplosionDuration, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' });
             }
-            const retractDuration = Math.max(LEADERBOARD_TUNING.gagRetractMinDuration, carDuration);
+            const retractDuration = Math.max(LEADERBOARD_TUNING.gagRetractMinDuration, carDuration) / PRE_FINALE_SPEED_MULTIPLIER;
             bar.animate([
               { width:(crashLeft - 22) + 'px', opacity:1 },
               { width:'0px', opacity:0 }
@@ -606,12 +606,12 @@
               rowTrophy.style.opacity = '0';
             }
             row.classList.add('name-visible');
-            setTimeout(() => runRow(index + 1), LEADERBOARD_TUNING.gagRowAdvanceDelay);
-          }, carDuration + Math.max(LEADERBOARD_TUNING.gagRetractMinDuration, carDuration));
+            setTimeout(() => runRow(index + 1), LEADERBOARD_TUNING.gagRowAdvanceDelay / PRE_FINALE_SPEED_MULTIPLIER);
+          }, carDuration + (Math.max(LEADERBOARD_TUNING.gagRetractMinDuration, carDuration) / PRE_FINALE_SPEED_MULTIPLIER));
           return;
         }
         const start = performance.now();
-        const duration = (LEADERBOARD_TUNING.mainBaseDuration + (targetPct / 100) * LEADERBOARD_TUNING.mainDurationRange) / LEADERBOARD_TUNING.mainRaceSpeed;
+        const duration = ((LEADERBOARD_TUNING.mainBaseDuration + (targetPct / 100) * LEADERBOARD_TUNING.mainDurationRange) / LEADERBOARD_TUNING.mainRaceSpeed) / PRE_FINALE_SPEED_MULTIPLIER;
         function step(now) {
           const t = Math.min(1, (now - start) / duration);
           const eased = 1 - Math.pow(1 - t, 1.25);
@@ -627,7 +627,7 @@
           } else {
             row.classList.add('name-visible');
             burstBehindName(row.querySelector('.row-name'));
-            setTimeout(() => runRow(index + 1), LEADERBOARD_TUNING.rowAdvanceDelay);
+            setTimeout(() => runRow(index + 1), LEADERBOARD_TUNING.rowAdvanceDelay / PRE_FINALE_SPEED_MULTIPLIER);
           }
         }
         requestAnimationFrame(step);
