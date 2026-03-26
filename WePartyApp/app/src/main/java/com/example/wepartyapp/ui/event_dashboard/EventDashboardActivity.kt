@@ -54,8 +54,9 @@ import com.example.wepartyapp.ui.home.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 import java.time.LocalDate
 import java.util.*
+import com.example.wepartyapp.utils.BaseActivity
 
-class EventDashboardActivity : ComponentActivity() {
+class EventDashboardActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

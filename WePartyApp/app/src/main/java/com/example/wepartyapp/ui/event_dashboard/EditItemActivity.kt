@@ -65,9 +65,10 @@ import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.home.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 import java.time.LocalDate
+import com.example.wepartyapp.utils.BaseActivity
 
 
-class EditItemActivity : ComponentActivity() {
+class EditItemActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

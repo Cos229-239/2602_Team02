@@ -16,8 +16,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Event
@@ -56,8 +59,9 @@ import com.example.wepartyapp.ui.EventViewModel
 import com.example.wepartyapp.ui.ItemPriceViewModel
 import com.example.wepartyapp.ui.home.MainActivity
 import com.example.wepartyapp.ui.home.MainScreen
+import com.example.wepartyapp.utils.BaseActivity
 
-class CreateEventActivity : ComponentActivity() {
+class CreateEventActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -70,6 +74,7 @@ class CreateEventActivity : ComponentActivity() {
             if (!view.isInEditMode) {
                 SideEffect {
                     val window = (view.context as Activity).window
+                    WindowCompat.setDecorFitsSystemWindows(window, false)
                     WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
                 }
             }
@@ -100,6 +105,9 @@ class CreateEventActivity : ComponentActivity() {
 fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewModel) {
 
     val context = LocalContext.current
+
+    // --- Create the Scroll State ---
+    val scrollState = rememberScrollState()
 
     // --- Tracks if we should show red validation errors ---
     var showErrors by remember { mutableStateOf(false) }
@@ -141,13 +149,16 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFFFE9EA))
-                .padding(innerpadding),
+                .padding(innerpadding)
+                .imePadding(),
             contentAlignment = Alignment.Center
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
+                    // --- Makes the column scrollable ---
+                    .verticalScroll(scrollState)
             ) {
                 Row(
                     modifier = Modifier
@@ -198,6 +209,9 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
 
                 // --- Pass the 'showErrors' flag down to the details screen ---
                 EventDetailsScreenUI(viewItemModel, showErrors)
+
+                // --- Spacer so the last field doesn't hide behind the Next button ---
+                Spacer(modifier = Modifier.height(80.dp))
             }
 
             // --- Next Page Button with Dynamic Toast Error Handling ---

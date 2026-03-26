@@ -19,10 +19,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Create
@@ -58,8 +61,9 @@ import com.example.wepartyapp.ui.create_event.EventDetailsScreenUI
 import com.example.wepartyapp.ui.create_event.InviteFriendsActivity
 import com.google.firebase.auth.FirebaseAuth
 import kotlin.getValue
+import com.example.wepartyapp.utils.BaseActivity
 
-class EditEventActivity : ComponentActivity() {
+class EditEventActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,8 +76,8 @@ class EditEventActivity : ComponentActivity() {
             if (!view.isInEditMode) {
                 SideEffect {
                     val window = (view.context as Activity).window
-                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
-                        true
+                    WindowCompat.setDecorFitsSystemWindows(window, false)
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
                 }
             }
 
@@ -89,6 +93,9 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
     val context = LocalContext.current
     val events = eventViewModel.events.observeAsState(emptyList())
     val currEvent = events.value.find { it.name == eventName }
+
+    // --- Create the Scroll State ---
+    val scrollState = rememberScrollState()
 
     // --- The "Ghost Event" Fix ---
     if (currEvent == null) {
@@ -157,13 +164,15 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFFFE9EA))
-                .padding(innerpadding),
+                .padding(innerpadding)
+                .imePadding(),
             contentAlignment = Alignment.Center
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
+                    .verticalScroll(scrollState)
             ) {
                 Row(
                     modifier = Modifier
@@ -229,7 +238,9 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
                             intent.putExtra("IS_EDIT_MODE", true)
                             context.startActivity(intent)
                         },
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(1.dp, Color(0xFFBF6363))
                     ) {
@@ -244,6 +255,8 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
 
                 // We still show the fields so they can see them, but the save button below is protected
                 EventDetailsScreenUI(eventViewModel)
+
+                Spacer(modifier = Modifier.height(80.dp))
             }
 
             // --- Next Button with Error Handling & Host Verification ---

@@ -5,8 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import com.example.wepartyapp.ui.EventViewModel
+import com.example.wepartyapp.utils.BaseActivity
 
-class InviteFriendsActivity : ComponentActivity() {
+class InviteFriendsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
