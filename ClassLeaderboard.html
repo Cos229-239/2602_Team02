@@ -135,13 +135,13 @@
 </div>
 <div class="nav-phase-label">Class</div>
 <a href="ClassLeaderboard.html" class="nav-week active">Leaderboard</a>
-<div class="sidebar-version">Report.version 3.68</div>
+<div class="sidebar-version">Report.version 3.69</div>
 </nav>
     <main class="content">
       <section class="hero">
         <h1>Cycle 2602 Class Leaderboard</h1>
         <p>Class-wide star leaders across the published report pages. The top row shows the lifetime allstar leader, then the category leaders for each star type.</p>
-        <div class="hero-meta">Leaderboard.version 3.68</div>
+        <div class="hero-meta">Leaderboard.version 3.69</div>
       </section>
       <section class="card">
         <h2>Lifetime Allstar</h2>
@@ -252,7 +252,7 @@
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
-            <span class="row-name">—</span><span class="row-trophy">🏆</span>
+            <span class="row-name">—</span>
           </span>
           <span class="row-value">0</span>
         </span>
@@ -294,7 +294,7 @@
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
-            <span class="row-name">—</span><span class="row-trophy">🏆</span>
+            <span class="row-name">—</span>
           </span>
           <span class="row-value">0</span>
         </span>
@@ -336,7 +336,7 @@
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
-            <span class="row-name">—</span><span class="row-trophy">🏆</span>
+            <span class="row-name">—</span>
           </span>
           <span class="row-value">0</span>
         </span>
@@ -357,7 +357,7 @@
         </div>
         <span class="row-first">
           <span class="row-name-wrap">
-            <span class="row-name">—</span><span class="row-trophy">🏆</span>
+            <span class="row-name">—</span>
           </span>
           <span class="row-value">0</span>
         </span>
@@ -574,8 +574,11 @@
           setTimeout(() => {
             bar.style.width = '0px';
             bar.style.opacity = '0';
-            car.classList.add('car-gone');
-            car.style.opacity = '0';
+            car.classList.remove('car-gone');
+            car.textContent = '💀';
+            car.style.left = crashLeft + 'px';
+            car.style.opacity = '1';
+            car.style.transform = 'translateY(-50%) scale(1)';
             row.classList.add('name-visible');
             setTimeout(() => runRow(index + 1), LEADERBOARD_TUNING.gagRowAdvanceDelay);
           }, carDuration + Math.max(LEADERBOARD_TUNING.gagRetractMinDuration, carDuration));
