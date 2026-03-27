@@ -124,6 +124,24 @@ fun EventInboxScreen(viewModel: EventViewModel) {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFFFE9EA)
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(
+                    text = "Tip: Swipe left to remove events.",
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                    fontSize = 14.sp,
+                    color = Color.DarkGray,
+                    textAlign = TextAlign.Center
+                )
+            }
+
             // --- The "Empty Inbox" State ---
             if (sortedEvents.isEmpty()) {
                 Column(
