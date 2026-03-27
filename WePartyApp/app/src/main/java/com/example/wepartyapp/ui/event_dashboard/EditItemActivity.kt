@@ -4,9 +4,9 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -188,7 +188,7 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null,
-                            Modifier.size(35.dp)
+                            Modifier.size(30.dp)
                         )
                     }
                     Text(
@@ -254,6 +254,7 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
                             viewPriceModel.getData(trimmedItem)
                             item = ""
                         },
+                        border = BorderStroke(1.dp, Color(0xFFBF6363)),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
                     ) {
                         Text(text = "Add", color = Color.Black)
@@ -333,6 +334,7 @@ fun EditItemsScreen(eventID: String, viewPriceModel: ItemPriceViewModel, viewIte
                     context.startActivity(intent)
                     (context as? Activity)?.finish()
                 },
+                border = BorderStroke(1.dp, Color(0xFFBF6363)),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

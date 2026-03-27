@@ -2,9 +2,9 @@ package com.example.wepartyapp.ui.event_dashboard
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -181,6 +181,7 @@ fun EventDetails(eventID: String, eventName: String, eventItemsList: List<PartyI
                         intent.putExtra("Event_ID", eventID)
                         context.startActivity(intent)
                     },
+                    border = BorderStroke(1.dp, Color(0xFFBF6363)),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
                     modifier = Modifier.height(36.dp) // Keeps the button from getting too tall
                 ) {
