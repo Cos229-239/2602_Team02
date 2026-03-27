@@ -187,7 +187,7 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null,
-                            Modifier.size(35.dp)
+                            Modifier.size(30.dp)
                         )
                     }
                     Text(
@@ -278,10 +278,9 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
                     context.startActivity(intent)
                     (context as? Activity)?.finish()
                 },
-                // Turn the button gray if they aren't the host so they know it's disabled
+                border = if (isHost) BorderStroke(1.dp, Color(0xFFBF6363)) else BorderStroke(1.dp, Color.DarkGray),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isHost) Color(0xFFFA8989) else Color.LightGray
-                ),
+                    containerColor = if (isHost) Color(0xFFFA8989) else Color.LightGray),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(16.dp)

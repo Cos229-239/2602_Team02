@@ -1,6 +1,7 @@
 package com.example.wepartyapp.ui.create_event
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -119,7 +120,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null,
-                            Modifier.size(35.dp)
+                            Modifier.size(30.dp)
                         )
                     }
                     Text(
@@ -188,6 +189,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                             viewModel.getData(trimmedItem)
                             item = ""
                         },
+                        border = BorderStroke(1.dp, Color(0xFFBF6363)),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8989)),
                     ) {
                         Text(text = "Add", color = Color.Black)
@@ -264,7 +266,6 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                     if (isListNotEmpty) {
                         navController.navigate(CreateEventRoutes.inviteFriends)
                     } else {
-                        // Graceful error handling: Tell the user they need at least one item
                         Toast.makeText(
                             context,
                             "Please add at least one item to your list!",
@@ -272,10 +273,9 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                         ).show()
                     }
                 },
-                // Manually swapping colors to show a "disabled" state if list is empty
+                border = if (isListNotEmpty) BorderStroke(1.dp, Color(0xFFBF6363)) else BorderStroke(1.dp, Color.DarkGray),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isListNotEmpty) Color(0xFFFA8989) else Color.LightGray
-                ),
+                    containerColor = if (isListNotEmpty) Color(0xFFFA8989) else Color.LightGray),
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
