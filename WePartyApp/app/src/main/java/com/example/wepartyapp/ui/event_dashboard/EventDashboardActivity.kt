@@ -6,10 +6,14 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,6 +24,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
@@ -36,14 +41,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.wepartyapp.R
@@ -55,6 +63,8 @@ import com.google.firebase.auth.FirebaseAuth
 import java.time.LocalDate
 import java.util.*
 import com.example.wepartyapp.utils.BaseActivity
+import kotlin.math.roundToInt
+
 
 class EventDashboardActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -142,7 +152,9 @@ fun EventInboxScreen(viewModel: EventViewModel) {
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(sortedEvents, key = { it.id }) { event ->
-                        InboxItem(event, currentUserId)
+                        InboxItem(event, currentUserId, onDelete = {
+                            viewModel.deleteEvent(event);
+                        })
                     }
                 }
             }
@@ -151,8 +163,18 @@ fun EventInboxScreen(viewModel: EventViewModel) {
 }
 
 @Composable
-fun InboxItem(event: PartyEvent, currentUserId: String?) {
+fun InboxItem(event: PartyEvent, currentUserId: String?, onDelete: () -> Unit,) {
     val context = LocalContext.current
+
+    val density = LocalDensity.current
+    val maxDrag = with(density) { 80.dp.toPx() }
+
+    var offsetX by remember { mutableFloatStateOf(0f) }
+
+    val animatedOffsetX by animateFloatAsState(
+        targetValue = offsetX,
+        label = "swipeOffset"
+    )
     
     // Determine if unread dot should show
     // Logic: last message exists AND user is NOT the last sender AND user has not read the latest message
@@ -161,66 +183,108 @@ fun InboxItem(event: PartyEvent, currentUserId: String?) {
                      event.lastMessageTime > lastReadTime && 
                      event.lastSenderId != currentUserId
 
-    Card(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                val intent = Intent(context, ChatRoomActivity::class.java)
-                intent.putExtra("EVENT_ID", event.id)
-                intent.putExtra("EVENT_NAME", event.name)
-                context.startActivity(intent)
-            }
-            .border(1.dp, Color.Black, RoundedCornerShape(8.dp)),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFA8989)),
-        shape = RoundedCornerShape(8.dp)
+            .height(IntrinsicSize.Min)
     ) {
-        Row(
+        // Delete Icon
+        Box(
             modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .matchParentSize()
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color.Red)
+                .padding(end = 20.dp),
+            contentAlignment = Alignment.CenterEnd
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = event.name,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
+            IconButton(
+                onClick = onDelete
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete Event",
+                    tint = Color.White
                 )
-                
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    val rawSnippet = event.lastMessage ?: "Start a chat..."
-                    val cleanSnippet = rawSnippet.replace("\n", " ").trim()
+            }
+        }
 
+        // Event Inbox
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .offset { IntOffset(animatedOffsetX.roundToInt(), 0) }
+                .draggable(
+                    orientation = Orientation.Horizontal,
+                    state = rememberDraggableState { delta ->
+                        val newOffset = offsetX + delta
+                        offsetX = newOffset.coerceIn(-maxDrag, 0f)
+                    },
+                    onDragStopped = {
+                        offsetX = if (offsetX < -maxDrag / 2f) -maxDrag else 0f
+                    }
+                )
+                .clickable {
+                    if (offsetX != 0f) {
+                        offsetX = 0f
+                    } else {
+                        val intent = Intent(context, ChatRoomActivity::class.java)
+                        intent.putExtra("EVENT_ID", event.id)
+                        intent.putExtra("EVENT_NAME", event.name)
+                        context.startActivity(intent)
+                    }
+                }
+                .border(1.dp, Color.Black, RoundedCornerShape(8.dp)),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFFA8989)),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = cleanSnippet,
-                        fontSize = 14.sp,
-                        color = Color.DarkGray,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f, fill = false)
+                        text = event.name,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
                     )
 
-                    if (!event.lastMessage.isNullOrBlank()) {
-                        event.lastMessageTime?.let { time ->
-                            Text(
-                                text = "  •  ${formatTimestamp(time)}",
-                                fontSize = 14.sp,
-                                color = Color.DarkGray,
-                                maxLines = 1
-                            )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        val rawSnippet = event.lastMessage ?: "Start a chat..."
+                        val cleanSnippet = rawSnippet.replace("\n", " ").trim()
+
+                        Text(
+                            text = cleanSnippet,
+                            fontSize = 14.sp,
+                            color = Color.DarkGray,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false)
+                        )
+
+                        if (!event.lastMessage.isNullOrBlank()) {
+                            event.lastMessageTime?.let { time ->
+                                Text(
+                                    text = "  •  ${formatTimestamp(time)}",
+                                    fontSize = 14.sp,
+                                    color = Color.DarkGray,
+                                    maxLines = 1
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            if (showUnread) {
-                Box(
-                    modifier = Modifier
-                        .size(12.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFF2196F3)) // Blue dot
-                )
+                if (showUnread) {
+                    Box(
+                        modifier = Modifier
+                            .size(12.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF2196F3))
+                    )
+                }
             }
         }
     }
