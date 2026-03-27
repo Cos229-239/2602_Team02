@@ -21,9 +21,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.FamilyRestroom
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -62,13 +62,13 @@ fun InviteFriendsScreenUI(
     existingEventId: String? = null // <-- Null for new events, ID for existing ones
 ) {
 
-    // --- Updated for FlowLinks Deep Linking ---
+    // --- FlowLinks Deep Linking ---
     val uniqueEventId = existingEventId ?: viewItemModel.eventId ?: "temp-id"
-    var urlLink = "https://wepartyapp-8a3a7-flowlinks.web.app/$uniqueEventId"
+    val urlLink = "https://wepartyapp-8a3a7-flowlinks.web.app/$uniqueEventId"
 
     val context = LocalContext.current
 
-    // --- New: State to hold friends and selections ---
+    // --- State to hold friends and selections ---
     val friendsList by viewItemModel.friendsList.collectAsState()
     var selectedFriendUids by remember { mutableStateOf(setOf<String>()) }
 
@@ -130,6 +130,7 @@ fun InviteFriendsScreenUI(
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // -- Back button - returns to Add Items or Edit Event page --
                     IconButton(onClick = {
                         if (navController != null) navController.popBackStack()
                         else (context as? Activity)?.finish()
@@ -141,7 +142,7 @@ fun InviteFriendsScreenUI(
                         )
                     }
                     Text(
-                        text = if (existingEventId != null) "Manage Guests" else "Add Items",
+                        text = if (existingEventId != null) "Edit Event" else "Add Items",
                         fontSize = 20.sp
                     )
                 }
@@ -151,13 +152,15 @@ fun InviteFriendsScreenUI(
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // -- Page Icon --
                     Icon(
-                        imageVector = Icons.Default.AccountCircle,
+                        imageVector = Icons.Default.FamilyRestroom,
                         contentDescription = null,
-                        Modifier.size(60.dp),
+                        Modifier.size(65.dp),
                         tint = Color(0xFFBF6363)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
+                    // -- Page Title --
                     Text(
                         text = if (existingEventId != null) "Invite More" else "Invite Friends",
                         fontWeight = FontWeight.SemiBold,

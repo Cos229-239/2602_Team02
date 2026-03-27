@@ -37,8 +37,9 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import com.example.wepartyapp.utils.BaseActivity
 
-class CalendarActivity : ComponentActivity() {
+class CalendarActivity : BaseActivity() {
     // This creates the ViewModel and keeps it alive
     private val eventViewModel: EventViewModel by viewModels()
 
@@ -87,19 +88,7 @@ fun CalendarScreenUI(viewModel: EventViewModel) {
         verticalArrangement = Arrangement.Top
     ) {
 
-        // 1. LOGO
-        Image(
-            painter = painterResource(id = R.drawable.app_logo),
-            contentDescription = "WeParty Logo",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(140.dp),
-            contentScale = ContentScale.Fit
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // 2. TODAY BUTTON
+        // 1. TODAY BUTTON
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
@@ -114,7 +103,7 @@ fun CalendarScreenUI(viewModel: EventViewModel) {
             }
         }
 
-        // 3. CALENDAR CARD
+        // 2. CALENDAR CARD
         Card(
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -159,7 +148,7 @@ fun CalendarScreenUI(viewModel: EventViewModel) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 4. DAILY EVENTS SECTION
+        // 3. DAILY EVENTS SECTION
         Column(
             modifier = Modifier
                 .align(Alignment.Start)

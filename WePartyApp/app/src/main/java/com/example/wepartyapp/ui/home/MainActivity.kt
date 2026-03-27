@@ -55,6 +55,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.foundation.lazy.grid.GridCells // <-- Added for LazyGrid Layout
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid// <-- Added for LazyGrid Layout
 import androidx.compose.foundation.lazy.grid.items // <-- Added for LazyGrid Layout
+import androidx.compose.material.icons.filled.Celebration
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.draw.shadow
 import com.example.wepartyapp.ui.event_dashboard.EventInboxScreen
@@ -64,9 +66,10 @@ import com.google.firebase.messaging.FirebaseMessaging // <-- Added for FCM Toke
 import java.time.format.DateTimeFormatter // <-- Added for formatting dates
 import com.example.wepartyapp.ui.event_dashboard.ChatRoomActivity // <-- Added for EventCard Navigation
 import androidx.compose.ui.graphics.Brush
+import com.example.wepartyapp.utils.BaseActivity
 
 
-class MainActivity : ComponentActivity() {
+class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -105,6 +108,26 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+            // --- Ask for Notification Permission on Android 13+ ---
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                val permissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+                    contract = androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+                ) { isGranted ->
+                    if (!isGranted) {
+                        android.util.Log.d("Permissions", "User denied notifications.")
+                    }
+                }
+
+                androidx.compose.runtime.LaunchedEffect(Unit) {
+                    val permissionCheck = androidx.core.content.ContextCompat.checkSelfPermission(
+                        this@MainActivity,
+                        android.Manifest.permission.POST_NOTIFICATIONS
+                    )
+                    if (permissionCheck != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                        permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                }
+            }
             // --- Added This: Pass the starting tab to the screen ---
             MainScreen(initialTab = startTab)
         }
@@ -112,6 +135,14 @@ class MainActivity : ComponentActivity() {
 }
 
 
+/*
+* --- MainScreen ---
+* Displays Header, Navigation Bar and Handles their logic
+*
+* Parameters: (Int) Initial tab
+*
+* Returns: None
+* */
 @Composable
 fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab parameter
 
@@ -199,7 +230,7 @@ fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab p
                     onEditProfileClick = { selectedTab = 7 },
                     onFriendsListClick = { selectedTab = 9 }
                 )
-                7 -> com.example.wepartyapp.ui.profile.ProfileSettingsScreenUI( onBack = { selectedTab = 6 } )
+                7 -> com.example.wepartyapp.ui.profile.ProfileSettingsScreenUI( viewModel = eventViewModel, onBack = { selectedTab = 6 } )
                 8 -> NotificationsScreenUI(
                     viewModel = eventViewModel,
                     onBack = { selectedTab = 0 },
@@ -214,6 +245,16 @@ fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab p
     }
 }
 
+
+/*
+* --- Header ---
+* Header Component
+*
+* Parameters: (Int, Int, Unit, Unit, Unit) selected Tab, notification count, dietary navigation,
+* profile navigation, notification navigation.
+*
+* Returns: None
+* */
 @Composable
 fun Header(
     selectedTab: Int, // <-- Added parameter
@@ -341,6 +382,16 @@ fun Header(
     }
 }
 
+
+
+/*
+* --- HomeScreenUI ---
+* Displays Home Screen Content
+*
+* Parameters: (EventViewModel) viewModel for events
+*
+* Returns: None
+* */
 @Composable
 fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
     val context = LocalContext.current
@@ -473,6 +524,16 @@ fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
 
 }
 
+
+
+/*
+* --- NavigationBar ---
+* Navigation Bar Component
+*
+* Parameters: (Int, Unit(Int)) current tab, logic for what to do on selected tab
+*
+* Returns: None
+* */
 @Composable
 fun NavigationBar(
     selectedTab: Int,
@@ -526,19 +587,30 @@ fun NavigationBar(
 
         // - Consolidated Lists -
         NavigationItem(
-            icon = Icons.Default.CheckCircle,
+            icon = Icons.Default.List,
             label = "Lists",
             selected = selectedTab == 3
         ) { onTabSelected(3) }
 
         // - Events -
         NavigationItem(
-            icon = Icons.Default.Edit,
+            icon = Icons.Default.Celebration,
             label = "Events",
             selected = selectedTab == 4
         ) { onTabSelected(4) }
     }
 }
+
+
+/*
+* --- NavigationItem ---
+* The function acts as a button with an icon, label, and onClick logic. The function is meant
+* for the navigation bar to ensure all icons are created the same.
+*
+* Parameters: (ImageVector, String, Boolean, Unit) Icon, Name, Check if icon is selected, OnClick Logic
+*
+* Returns: None
+* */
 @Composable
 fun NavigationItem(
     icon: ImageVector,
@@ -567,7 +639,17 @@ fun NavigationItem(
     }
 }
 
-// --- Updated Event Card ---
+/*
+* --- EventCard ---
+* Function is used to automate the creation of event cards. This helps in handling the event cards easily
+* and effectively. Allowing for removal,addition and editing of the Event Cards without having to
+* manually do it everytime.
+*
+* Parameters: (String, String, String, Boolean, Unit, Unit) Title, Date, Time, IsHost, Deletion Logic
+* Card Click Logic
+*
+* Returns: None
+* */
 @Composable
 fun EventCard(title: String, date: String, time: String, isHost: Boolean, // --- New: Added isHost parameter ---
     onDeleteClick: () -> Unit, onCardClick: () -> Unit ) {
@@ -687,7 +769,8 @@ fun updateDeviceToken() {
 
         // 3. Package the token up
         val tokenData = hashMapOf(
-            "fcmToken" to token
+            "fcmToken" to token,
+            "timeZone" to java.util.TimeZone.getDefault().id // <-- Grabs the phone's timezone
         )
 
         // 4. Save it to Firestore using the user's exact UID

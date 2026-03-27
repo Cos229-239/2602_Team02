@@ -18,9 +18,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -58,13 +58,12 @@ import com.example.wepartyapp.ui.PartyItem
 @Composable
 fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel, viewItemModel: EventViewModel) {
 
-    //mutable var that'll store user input - starts off empty
     var item by remember {
         mutableStateOf("")
     }
 
     val priceResult = viewModel.priceResult.observeAsState()
-    val context = LocalContext.current // Added so we can show Toast messages
+    val context = LocalContext.current
 
     // --- Check if at least one item is added ---
     val _itemList by viewItemModel._items.collectAsState()
@@ -115,7 +114,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    //Back to events page btn
+                    // -- Back button - returns to create events page --
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
@@ -134,15 +133,15 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    //Page Icon
+                    // -- Page Icon --
                     Icon(
-                        imageVector = Icons.Default.List,
+                        imageVector = Icons.Default.AddShoppingCart,
                         contentDescription = null,
                         Modifier.size(70.dp),
                         tint = Color(0xFFBF6363)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    //Page Title
+                    // -- Page Title --
                     Text(
                         text = "Add Items",
                         fontWeight = FontWeight.SemiBold,
@@ -150,7 +149,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                     )
                 }
                 Spacer(modifier = Modifier.height(20.dp))
-                // --Add items section--
+                // -- Add items section --
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -194,22 +193,18 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                         Text(text = "Add", color = Color.Black)
                     }
                 }
-                //LaunchedEffect is used to run suspendable side effects - coroutine
                 LaunchedEffect(priceResult.value) {
                     when (val result = priceResult.value) {
                         is NetworkResponse.Success -> {
-                            // --- We now use the Pair from the ViewModel ---
                             val itemName = result.data.first
                             val exactPrice = result.data.second
 
                             viewItemModel.updatePrice(itemName, exactPrice)
                         }
-
                         is NetworkResponse.Error -> {
                             // --- Safely display an error toast instead of corrupting the list ---
                             Toast.makeText(context, "Could not fetch price.", Toast.LENGTH_SHORT).show()
                         }
-
                         else -> {}
                     }
                 }
@@ -227,7 +222,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Item Details Column
+                            // -- Item Details Column --
                             Column(modifier = Modifier.weight(1f)) {
                                 // Capitalize just the first letter for UI presentation
                                 val displayName = currentItem.name.replaceFirstChar {
@@ -247,7 +242,7 @@ fun AddItemsScreenUI(navController: NavController, viewModel: ItemPriceViewModel
                                 )
                             }
 
-                            // --- Delete Button ---
+                            // -- Delete Button --
                             IconButton(onClick = {
                                 viewItemModel.removeItem(currentItem)
                             }) {

@@ -62,8 +62,9 @@ import androidx.compose.ui.Alignment
 import com.example.wepartyapp.ui.GroupDietarySummary
 import com.google.firebase.auth.FirebaseAuth
 import com.example.wepartyapp.ui.create_event.InviteFriendsActivity
+import com.example.wepartyapp.utils.BaseActivity
 
-class EventInfoActivity : ComponentActivity() {
+class EventInfoActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -90,6 +91,8 @@ class EventInfoActivity : ComponentActivity() {
     }
 }
 
+
+// - Displays Event Info Content -
 @Composable
 fun EventInfoScreenUI(
     onBackClick: () -> Unit,
@@ -312,8 +315,8 @@ fun EventInfoScreenUI(
                         )
                     }
                 }
-                attending.forEach {
-                    Text("• $it")
+                attending.values.forEach { guestName ->
+                    Text("• $guestName")
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -342,8 +345,8 @@ fun EventInfoScreenUI(
                         )
                     }
                 }
-                maybe.forEach {
-                    Text("• $it")
+                maybe.values.forEach { guestName ->
+                    Text("• $guestName")
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -372,8 +375,8 @@ fun EventInfoScreenUI(
                         )
                     }
                 }
-                declined.forEach {
-                    Text("• $it")
+                declined.values.forEach { guestName ->
+                    Text("• $guestName")
                 }
 
             }
