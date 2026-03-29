@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.BorderStroke
@@ -94,7 +93,7 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
     val events = eventViewModel.events.observeAsState(emptyList())
     val currEvent = events.value.find { it.name == eventName }
 
-    // --- Create the Scroll State ---
+    // --- Scroll State ---
     val scrollState = rememberScrollState()
 
     // --- The "Ghost Event" Fix ---
@@ -118,7 +117,6 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
     val isHost = currEvent.hostId == currentUserId
 
-    //helps with rerendering - text fields were reverting to og data everytime the date+time fields were clicked
     LaunchedEffect(currEvent) {
         // --- The "Literal Null" Fix ---
         // Using .let guarantees we don't accidentally save the word "null" into the text fields
@@ -189,7 +187,7 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null,
-                            Modifier.size(35.dp)
+                            Modifier.size(30.dp)
                         )
                     }
                     Text(
@@ -203,14 +201,16 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(                                                           //pg icon
+                    // -- Page Icon --
+                    Icon(
                         imageVector = Icons.Default.Create,
                         contentDescription = null,
                         Modifier.size(60.dp),
                         tint = Color(0xFFBF6363)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text(                                                           //pg title
+                    // -- Page Title --
+                    Text(
                         text = "Edit Event",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 30.sp,
@@ -250,12 +250,8 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
-
-                //next step - cleaning up code - try calling the composable EventsDetailScreenUI to see if that works - it does
-
-                // We still show the fields so they can see them, but the save button below is protected
+                // -- Calling the composable function instead of rewriting the code --
                 EventDetailsScreenUI(eventViewModel)
-
                 Spacer(modifier = Modifier.height(80.dp))
             }
 
@@ -282,10 +278,9 @@ fun EditEventScreen(eventViewModel: EventViewModel, eventName: String) {
                     context.startActivity(intent)
                     (context as? Activity)?.finish()
                 },
-                // Turn the button gray if they aren't the host so they know it's disabled
+                border = if (isHost) BorderStroke(1.dp, Color(0xFFBF6363)) else BorderStroke(1.dp, Color.DarkGray),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isHost) Color(0xFFFA8989) else Color.LightGray
-                ),
+                    containerColor = if (isHost) Color(0xFFFA8989) else Color.LightGray),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(16.dp)

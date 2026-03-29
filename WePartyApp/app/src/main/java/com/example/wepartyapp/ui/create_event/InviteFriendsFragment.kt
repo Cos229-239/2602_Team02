@@ -3,6 +3,7 @@ package com.example.wepartyapp.ui.create_event
 import android.app.Activity
 import android.content.Intent
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -138,7 +139,7 @@ fun InviteFriendsScreenUI(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null,
-                            Modifier.size(35.dp)
+                            Modifier.size(30.dp)
                         )
                     }
                     Text(
@@ -263,9 +264,10 @@ fun InviteFriendsScreenUI(
                             context.startActivity(Intent.createChooser(sendIntent, null))
                         },
                         modifier = Modifier.align(Alignment.CenterHorizontally),
+                        border = BorderStroke(1.dp, Color(0xFFBF6363)),
                         colors = ButtonDefaults.buttonColors(Color(0xFFFA8989))
                         ) {
-                        Text("Share Item Link")
+                        Text("Share Link")
                     }
                 }
             }
@@ -301,9 +303,9 @@ fun InviteFriendsScreenUI(
                         Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
                     }
                 },
+                border = if (isFormComplete) BorderStroke(1.dp, Color(0xFFBF6363)) else BorderStroke(1.dp, Color.DarkGray),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isFormComplete) Color(0xFFFA8989) else Color.LightGray
-                ),
+                    containerColor = if (isFormComplete) Color(0xFFFA8989) else Color.LightGray),
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)

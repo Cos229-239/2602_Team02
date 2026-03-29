@@ -4,8 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -157,7 +157,6 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
-                    // --- Makes the column scrollable ---
                     .verticalScroll(scrollState)
             ) {
                 Row(
@@ -176,7 +175,7 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null,
-                            Modifier.size(35.dp)
+                            Modifier.size(30.dp)
                         )
                     }
                     Text(
@@ -206,11 +205,9 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-
                 // --- Pass the 'showErrors' flag down to the details screen ---
                 EventDetailsScreenUI(viewItemModel, showErrors)
 
-                // --- Spacer so the last field doesn't hide behind the Next button ---
                 Spacer(modifier = Modifier.height(80.dp))
             }
 
@@ -234,10 +231,9 @@ fun CreateEventScreenUI(navController: NavController, viewItemModel: EventViewMo
                         Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
                     }
                 },
-                // Button remains clickable but turns gray to hint it is incomplete
+                border = if (isFormComplete) BorderStroke(1.dp, Color(0xFFBF6363)) else BorderStroke(1.dp, Color.DarkGray),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isFormComplete) Color(0xFFFA8989) else Color.LightGray
-                ),
+                    containerColor = if (isFormComplete) Color(0xFFFA8989) else Color.LightGray),
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),

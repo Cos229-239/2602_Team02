@@ -126,7 +126,7 @@ class EventViewModel : ViewModel() {
     private val _groupDietarySummary = MutableStateFlow(GroupDietarySummary())
     val groupDietarySummary: StateFlow<GroupDietarySummary> = _groupDietarySummary.asStateFlow()
 
-    // We cache the text fields here so they survive navigation between screens
+    // --- Create/Edit Event text fields ---
     var eventId by mutableStateOf("") // Holds the pre-generated ID for FlowLinks
     var eventName by mutableStateOf("")
     var eventSummary by mutableStateOf("")
@@ -135,21 +135,18 @@ class EventViewModel : ViewModel() {
     var eventAddress by mutableStateOf("")
     var eventInvitedGuests by mutableStateOf<List<String>>(emptyList())
 
-    //-list of PartyItems-
+    // --- Holds list of PartyItems ---
     private val _itemsList = MutableStateFlow<List<PartyItem>>(emptyList())
     val _items: StateFlow<List<PartyItem>> = _itemsList.asStateFlow()
-
-    //-adds a PartyItem to our list-
+    // -adds a PartyItem to our list-
     fun addItems(item: PartyItem) {
         _itemsList.update { currentList -> currentList + item }
     }
-
-    //-clears the PartyItem list-
+    // -clears the PartyItem list-
     fun clearItems() {
         _itemsList.value = emptyList()
     }
-
-    //-updates the price of a PartyItem in the list-
+    // -updates the price of a PartyItem in the list-
     fun updatePrice(itemName: String, updatedPrice: String) {
         _itemsList.update { currentList ->
             currentList.map { item ->
@@ -161,8 +158,7 @@ class EventViewModel : ViewModel() {
             }
         }
     }
-
-    //-removes a PartyItem from our local list before saving-
+    // -removes a PartyItem from our local list before saving-
     fun removeItem(item: PartyItem) {
         _itemsList.update { currentList ->
             currentList.filter { it.name != item.name }
@@ -682,7 +678,7 @@ class EventViewModel : ViewModel() {
             eventId = db.collection("events").document().id
         }
     }
-
+    // Pushes updated event info to the Firestore database
     fun updateEventInfo(eventID: String) {
         db.collection("events").document(eventID).update("name", eventName)
         db.collection("events").document(eventID).update("summary", eventSummary)
@@ -697,7 +693,7 @@ class EventViewModel : ViewModel() {
         eventAddress = ""
     }
 
-    // Updates the checklist items for an existing event
+    // Pushes updated checklist items for an existing event
     fun updateEventItems(eventID: String) {
         val mappedItems = _itemsList.value.map {
             mapOf(
