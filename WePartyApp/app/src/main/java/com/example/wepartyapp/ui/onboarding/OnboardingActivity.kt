@@ -33,7 +33,7 @@ import com.example.wepartyapp.R
 import com.example.wepartyapp.ui.home.MainActivity
 import kotlinx.coroutines.launch
 
-// 1. A simple data class to hold our page information
+// A simple data class to hold our page information
 data class OnboardingItem(
     val title: String,
     val description: String,
@@ -66,7 +66,7 @@ class OnboardingActivity : ComponentActivity() {
 
 @Composable
 fun OnboardingScreenUI(onFinish: () -> Unit) {
-    // 2. Define our expanded slide deck
+    //  Define our expanded slide deck
     val onboardingItems = listOf(
         OnboardingItem(
             "Create Your Party",
@@ -115,7 +115,7 @@ fun OnboardingScreenUI(onFinish: () -> Unit) {
         )
     )
 
-    // 3. Pager setup
+    //  Pager setup
     val pagerState = rememberPagerState(pageCount = { onboardingItems.size })
     val coroutineScope = rememberCoroutineScope()
 
@@ -197,7 +197,7 @@ fun OnboardingScreenUI(onFinish: () -> Unit) {
     }
 }
 
-// 4. This tells Compose how to draw ONE single page
+// This tells Compose how to draw ONE single page
 @Composable
 fun OnboardingPage(item: OnboardingItem) {
     Column(
@@ -237,7 +237,7 @@ fun OnboardingPage(item: OnboardingItem) {
     }
 }
 
-// 5. Custom Dot Indicator Component
+// Custom Dot Indicator Component
 @Composable
 fun PageIndicator(pageCount: Int, currentPage: Int, modifier: Modifier = Modifier) {
     Row(
