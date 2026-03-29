@@ -241,7 +241,7 @@ fun EventInfoScreenUI(
                 .fillMaxWidth()
                 .height(200.dp)
                 .border(2.dp, color = Color.Black, RoundedCornerShape((6.dp)))
-                .background(Color.White)
+                .background(Color(0xFFFFE9EA))  // Updated to matching pink background
                 .padding(12.dp)
         ) {
             // Provide a fallback text if the summary is completely empty

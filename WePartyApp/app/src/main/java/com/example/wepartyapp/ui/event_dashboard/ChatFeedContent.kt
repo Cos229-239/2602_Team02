@@ -51,6 +51,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 
+// Andy: Represents the three main view modes of the Dashboard.
 enum class EventDashboardView {
     CHAT, CHECKLIST, PHOTOS
 }
@@ -231,6 +232,7 @@ fun ChatFeedContent(eventId: String, viewModel: EventViewModel) {
     }
 }
 
+// Andy: This component handles the photo grid and upload button.
 @Composable
 fun EventGalleryUI(eventId: String, viewModel: EventViewModel) {
     val photos by viewModel.eventPhotos.collectAsState()
@@ -367,6 +369,7 @@ fun EventGalleryUI(eventId: String, viewModel: EventViewModel) {
     }
 }
 
+// Andy: Displays the checklist of items needed for the event.
 @Composable
 fun ItemChecklistUI(eventId: String, viewModel: EventViewModel, modifier: Modifier = Modifier) {
     val events by viewModel.events.observeAsState(emptyList())
@@ -471,6 +474,7 @@ fun ItemChecklistUI(eventId: String, viewModel: EventViewModel, modifier: Modifi
     }
 }
 
+// Andy: Represents a single row in the checklist.
 @Composable
 fun ChecklistItemRow(eventId: String, item: PartyItem, viewModel: EventViewModel) {
     val user = FirebaseAuth.getInstance().currentUser
@@ -522,6 +526,7 @@ fun ChecklistItemRow(eventId: String, item: PartyItem, viewModel: EventViewModel
     }
 }
 
+// Andy: Styles the message bubble based on sender identity.
 @Composable
 fun ChatBubble(message: ChatMessage, isCurrentUser: Boolean) {
     // --- Individual Chat Bubble ---
