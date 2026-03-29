@@ -1,0 +1,787 @@
+package com.example.wepartyapp.ui.home
+
+import android.app.Activity // <-- Added for status bar
+import android.content.Context // <-- Added for saving notification count
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.util.Log // <-- Added for FCM Token logging
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete // <-- Added for Delete Button
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person // <-- Added Person Icon
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView // <-- Added for status bar
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.layout.ContentScale // <-- Added for image cropping
+import androidx.core.view.WindowCompat // <-- Added for status bar
+import coil.compose.AsyncImage // <-- Added Coil for loading images
+import com.example.wepartyapp.R
+import com.example.wepartyapp.ui.calendar.CalendarScreenUI
+import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.wepartyapp.ui.event_dashboard.ConsolidatedShoppingListScreenUI
+import androidx.compose.foundation.shape.CircleShape
+import com.example.wepartyapp.ui.profile.DietaryPreferencesScreenUI
+import com.example.wepartyapp.ui.profile.ProfileScreenUI
+import com.example.wepartyapp.ui.create_event.CreateEventActivity
+import androidx.lifecycle.viewmodel.compose.viewModel // <-- Added for ViewModel
+import com.example.wepartyapp.ui.EventViewModel // <-- Added to import EventViewModel
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.foundation.lazy.grid.GridCells // <-- Added for LazyGrid Layout
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid// <-- Added for LazyGrid Layout
+import androidx.compose.foundation.lazy.grid.items // <-- Added for LazyGrid Layout
+import androidx.compose.material.icons.filled.Celebration
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.ui.draw.shadow
+import com.example.wepartyapp.ui.event_dashboard.EventInboxScreen
+import com.google.firebase.firestore.FirebaseFirestore // <-- Added for FCM Token
+import com.google.firebase.firestore.SetOptions // <-- Added for FCM Token
+import com.google.firebase.messaging.FirebaseMessaging // <-- Added for FCM Token
+import java.time.format.DateTimeFormatter // <-- Added for formatting dates
+import com.example.wepartyapp.ui.event_dashboard.ChatRoomActivity // <-- Added for EventCard Navigation
+import androidx.compose.ui.graphics.Brush
+import com.example.wepartyapp.utils.BaseActivity
+
+
+class MainActivity : BaseActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // --- Added This: Update the user's FCM Token in Firestore immediately upon loading ---
+        updateDeviceToken()
+
+        // --- FlowLinks Deep Link Router ---
+        // Check if SplashActivity saved an event ID from a FlowLinks invite link
+        val prefs = getSharedPreferences("WePartyPrefs", Context.MODE_PRIVATE)
+        val pendingEventId = prefs.getString("PENDING_INVITE_EVENT_ID", null)
+
+        if (pendingEventId != null) {
+            // 1. Instantly delete it so it doesn't trigger again next time the app opens
+            prefs.edit().remove("PENDING_INVITE_EVENT_ID").apply()
+
+            // 2. Route the user directly into the party they were invited to
+            val inviteIntent = Intent(this, ChatRoomActivity::class.java).apply {
+                putExtra("EVENT_ID", pendingEventId)
+                putExtra("EVENT_NAME", "Party Invite") // Fallback name until the database loads it
+            }
+            startActivity(inviteIntent)
+        }
+
+        // --- Added This: Catch the hidden message from ChatRoomActivity ---
+        // If there is no message, it defaults to 0 (Home)
+        val startTab = intent.getIntExtra("TARGET_TAB", 0)
+
+        setContent {
+            // --- Status Bar Fix ---
+            // This grabs the phone's window and tells it to use Dark Icons (for light backgrounds)
+            val view = LocalView.current
+            if (!view.isInEditMode) {
+                SideEffect {
+                    val window = (view.context as Activity).window
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+                }
+            }
+
+            // --- Ask for Notification Permission on Android 13+ ---
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                val permissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+                    contract = androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+                ) { isGranted ->
+                    if (!isGranted) {
+                        android.util.Log.d("Permissions", "User denied notifications.")
+                    }
+                }
+
+                androidx.compose.runtime.LaunchedEffect(Unit) {
+                    val permissionCheck = androidx.core.content.ContextCompat.checkSelfPermission(
+                        this@MainActivity,
+                        android.Manifest.permission.POST_NOTIFICATIONS
+                    )
+                    if (permissionCheck != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                        permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                }
+            }
+            // --- Added This: Pass the starting tab to the screen ---
+            MainScreen(initialTab = startTab)
+        }
+    }
+}
+
+
+/*
+* --- MainScreen ---
+* Displays Header, Navigation Bar and Handles their logic
+*
+* Parameters: (Int) Initial tab
+*
+* Returns: None
+* */
+@Composable
+fun MainScreen(initialTab: Int = 0) { // <-- ADDED THIS: Accept the initialTab parameter
+
+    val context = LocalContext.current
+
+    // --- Added This: Setup Shared Preferences to remember seen notifications after app closes ---
+    val prefs = remember { context.getSharedPreferences("notif_prefs", Context.MODE_PRIVATE) }
+
+    // --- Added This: Use the passed tab instead of hardcoding 0 ---
+    var selectedTab by remember { mutableIntStateOf(initialTab) }
+    val eventViewModel: EventViewModel = viewModel() // <-- Instantiated the ViewModel here
+
+    // --- Pull down the alerts to get the live count ---
+    val notifications by eventViewModel.notificationsList.collectAsState()
+
+    // --- New: Track how many notifications the user has already seen ---
+    // Updated: Now initializes from SharedPreferences instead of 0
+    var viewedNotificationCount by remember {
+        mutableIntStateOf(prefs.getInt("viewed_count", 0))
+    }
+
+    // Calculate only the new notifications for the red badge
+    val unreadCount = if (notifications.size > viewedNotificationCount) {
+        notifications.size - viewedNotificationCount
+    } else {
+        0
+    }
+
+    // Automatically clear the badge if they are already on the notifications screen when a new one comes in
+    LaunchedEffect(selectedTab, notifications.size) {
+        if (selectedTab == 8) {
+            viewedNotificationCount = notifications.size
+            // Save to storage immediately
+            prefs.edit().putInt("viewed_count", viewedNotificationCount).apply()
+        }
+    }
+
+    Scaffold(
+        containerColor = Color(0xFFFFE9EA),
+        modifier = Modifier.border(3.dp, color = Color.Black),
+        topBar = {
+            Header(
+                selectedTab = selectedTab, // <-- Passed the tab so Header knows when to refresh!
+                notificationCount = unreadCount, // <-- New: Only pass the unread count to the badge
+                onNavigateToDietary = { selectedTab = 5 },
+                onNavigateToProfile = { selectedTab = 6 },
+                onNotificationClick = {
+                    viewedNotificationCount = notifications.size // <-- New: Mark all as read when clicked
+                    // Save to storage
+                    prefs.edit().putInt("viewed_count", viewedNotificationCount).apply()
+                    selectedTab = 8
+                }
+            )
+        },
+        bottomBar = {
+            NavigationBar(
+                selectedTab = selectedTab,
+                onTabSelected = { selectedTab = it }
+            )
+        }
+    ) { paddingValues ->
+
+        // - This Box Contains Screen UI Content -
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(Color(0xFFFFE9EA))
+        ) {
+            when (selectedTab) {
+                // *Add Screens In Here With Corresponding Tabs*
+                0 -> HomeScreenUI(viewModel = eventViewModel, onNotificationsClick = {
+                    viewedNotificationCount = notifications.size // Mark read if clicked from Home screen shortcut too
+                    // Save to storage
+                    prefs.edit().putInt("viewed_count", viewedNotificationCount).apply()
+                    selectedTab = 8
+                })
+                1 -> CalendarScreenUI(viewModel = eventViewModel) // <-- Passed the ViewModel to fix the error!
+                // 2 -> Create Event Activity Launched In Navigation Bar
+                3 -> ConsolidatedShoppingListScreenUI(viewModel = eventViewModel)
+                4 -> EventInboxScreen(viewModel = eventViewModel)
+                5 -> DietaryPreferencesScreenUI( onBack = { selectedTab = 6 } )
+                6 -> ProfileScreenUI(
+                    onEditDietaryClick = { selectedTab = 5 },
+                    onEditProfileClick = { selectedTab = 7 },
+                    onFriendsListClick = { selectedTab = 9 }
+                )
+                7 -> com.example.wepartyapp.ui.profile.ProfileSettingsScreenUI( viewModel = eventViewModel, onBack = { selectedTab = 6 } )
+                8 -> NotificationsScreenUI(
+                    viewModel = eventViewModel,
+                    onBack = { selectedTab = 0 },
+                    onFriendInviteClick = { selectedTab = 9 },
+                    onEventInviteClick = {
+                        selectedTab = 4
+                    }
+                )
+                9 -> com.example.wepartyapp.ui.profile.FriendsListScreenUI( viewModel = eventViewModel, onBack = { selectedTab = 6 } )
+            }
+        }
+    }
+}
+
+
+/*
+* --- Header ---
+* Header Component
+*
+* Parameters: (Int, Int, Unit, Unit, Unit) selected Tab, notification count, dietary navigation,
+* profile navigation, notification navigation.
+*
+* Returns: None
+* */
+@Composable
+fun Header(
+    selectedTab: Int, // <-- Added parameter
+    notificationCount: Int, // <-- New Parameter to receive the unread count
+    onNavigateToDietary: () -> Unit,
+    onNavigateToProfile: () -> Unit,
+    onNotificationClick: () -> Unit,
+){
+    var profilePhotoUri by remember { mutableStateOf<Uri?>(null) }
+
+    // Every time the user changes a tab (like returning from settings), fetch the newest picture!
+    LaunchedEffect(selectedTab) {
+        profilePhotoUri = FirebaseAuth.getInstance().currentUser?.photoUrl
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(12.dp)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFC96B6B),
+                        Color(0xFFB65C5C),
+                        Color(0xFF8E3F3F)
+                    )
+                )
+            )
+            .border(3.dp, color = Color.Black)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+
+    ) {
+
+        val context = LocalContext.current
+        var expanded by remember { mutableStateOf(false) }
+
+        // - Profile (Now with the image inside!) -
+        Box(
+            modifier = Modifier
+                .size(50.dp)
+                .border(2.dp, color = Color.Black, shape = CircleShape)
+                .clip(CircleShape)
+                .background(Color.White)
+                .align(Alignment.CenterStart)
+                .clickable { onNavigateToProfile() },
+            contentAlignment = Alignment.Center // Centers the placeholder icon if no image
+        ) {
+            if (profilePhotoUri != null) {
+                // Load the image from Firebase Storage
+                AsyncImage(
+                    model = profilePhotoUri,
+                    contentDescription = "Profile Picture",
+                    contentScale = ContentScale.Crop, // Crops the image perfectly to the circle
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                // Show a default gray icon if they haven't uploaded an image yet
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Default Profile Icon",
+                    modifier = Modifier.size(32.dp),
+                    tint = Color.Gray
+                )
+            }
+        }
+
+        // - Logo -
+        Image(
+            painter = painterResource(id = R.drawable.app_logo),
+            contentDescription = "Logo",
+            modifier = Modifier
+                .size(120.dp)
+                .align(Alignment.Center)
+        )
+
+        // - Settings Menu -
+        Box(
+            modifier = Modifier.align(Alignment.CenterEnd)
+        ) {
+
+            // - Notification Button -
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(10.dp)) // rounded square
+                    .background(Color.White)
+                    .border(
+                        width = 1.dp,
+                        color = Color.Black,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .clickable { onNotificationClick() }
+            ) {
+                // 1. The Bell Icon (Centered)
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = "Notifications",
+                    tint = Color.Black,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(22.dp)
+                )
+
+                // 2. The Text Message Badge (Top Right)
+                if (notificationCount > 0) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(top = 4.dp, end = 4.dp) // Pushes it slightly off the exact edge
+                            .size(16.dp)
+                            .background(Color(0xFFE57373), CircleShape) // Uses your app's red theme
+                            .border(1.dp, Color.Black, CircleShape), // Thin black outline makes it pop
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (notificationCount > 9) "9+" else notificationCount.toString(),
+                            color = Color.White,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+/*
+* --- HomeScreenUI ---
+* Displays Home Screen Content
+*
+* Parameters: (EventViewModel) viewModel for events
+*
+* Returns: None
+* */
+@Composable
+fun HomeScreenUI(viewModel: EventViewModel, onNotificationsClick: () -> Unit) {
+    val context = LocalContext.current
+    val events by viewModel.events.observeAsState(emptyList())
+    val today = java.time.LocalDate.now()
+    var selectedDays by remember { mutableStateOf(90) }
+    val upcomingDateSelected = today.plusDays(selectedDays.toLong())
+
+    // --- 1. Grab the current user's ID ---
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+
+    // --- Date Formatter ---
+    // This exact pattern turns "2026-02-26" into "Feb. 26, 2026"
+    val dateFormatter = DateTimeFormatter.ofPattern("MMM. d, yyyy")
+
+    // --- 2. Filter for Date and Participation ---
+    val upcomingEvents = events
+        .filter { event ->
+            val date = event.date
+            val isWithinDateRange = date != null && date >= today && date <= upcomingDateSelected
+
+            // Security Check: Am I the host or was I invited
+            val amIParticipating = currentUserId != null &&
+                    (event.hostId == currentUserId || event.invitedGuests.contains(currentUserId))
+
+            isWithinDateRange && amIParticipating
+        }
+        .sortedBy { it.date }
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp)
+            .padding(top = 16.dp)
+    ) {
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            var expanded by remember { mutableStateOf(false) }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = today.format(dateFormatter), // <-- Applied format here
+                    style = MaterialTheme.typography.labelLarge
+                )
+
+                Box {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = "Filter events"
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        listOf(3, 7, 30, 90).forEach { days ->
+                            DropdownMenuItem(
+                                text = { Text("$days Days") },
+                                onClick = {
+                                    selectedDays = days
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(25.dp))
+
+        // - Events -
+        Text(
+            text = "Upcoming Events - ($selectedDays Days)",
+            style = MaterialTheme.typography.headlineMedium,
+            fontSize = 25.sp,
+            fontWeight = FontWeight.Bold,
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // --- 3. Show a message if no events were found ---
+        if (upcomingEvents.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(
+                    text = "No upcoming parties found.",
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                items(upcomingEvents) { event ->
+                    EventCard(
+                        title = event.name,
+                        date = event.date?.format(dateFormatter) ?: "No Date",
+                        time = event.time,
+                        isHost = event.hostId == currentUserId,
+                        onDeleteClick = { viewModel.deleteEvent(event) },
+                        onCardClick = {
+                            val intent = Intent(context, ChatRoomActivity::class.java)
+                            intent.putExtra("EVENT_ID", event.id)
+                            intent.putExtra("EVENT_NAME", event.name)
+                            context.startActivity(intent)
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    Spacer(modifier = Modifier.height(32.dp))
+
+}
+
+
+
+/*
+* --- NavigationBar ---
+* Navigation Bar Component
+*
+* Parameters: (Int, Unit(Int)) current tab, logic for what to do on selected tab
+*
+* Returns: None
+* */
+@Composable
+fun NavigationBar(
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit
+) {
+    val context = LocalContext.current
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding() // <-- Added this to bump the bar above system navigation buttons
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .height(60.dp)
+            .shadow(8.dp, RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(20.dp))
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFC96B6B),
+                        Color(0xFFB65C5C),
+                        Color(0xFF8E3F3F)
+                    )
+                )
+            )
+            .border(3.dp, Color.Black, RoundedCornerShape(20.dp)),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        // - Home -
+        NavigationItem(
+            icon = Icons.Default.Home,
+            label = "Home",
+            selected = selectedTab == 0
+        ) { onTabSelected(0) }
+
+        // - Calendar -
+        NavigationItem(
+            icon = Icons.Default.DateRange,
+            label = "Calendar",
+            selected = selectedTab == 1
+        ) { onTabSelected(1) }
+
+        // - Create Event -
+        NavigationItem(
+            icon = Icons.Default.Add,
+            label = "Create Event",
+            selected = selectedTab == 2
+        ) {
+            context.startActivity(Intent(context, CreateEventActivity::class.java))
+        }
+
+        // - Consolidated Lists -
+        NavigationItem(
+            icon = Icons.Default.List,
+            label = "Lists",
+            selected = selectedTab == 3
+        ) { onTabSelected(3) }
+
+        // - Events -
+        NavigationItem(
+            icon = Icons.Default.Celebration,
+            label = "Events",
+            selected = selectedTab == 4
+        ) { onTabSelected(4) }
+    }
+}
+
+
+/*
+* --- NavigationItem ---
+* The function acts as a button with an icon, label, and onClick logic. The function is meant
+* for the navigation bar to ensure all icons are created the same.
+*
+* Parameters: (ImageVector, String, Boolean, Unit) Icon, Name, Check if icon is selected, OnClick Logic
+*
+* Returns: None
+* */
+@Composable
+fun NavigationItem(
+    icon: ImageVector,
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clickable { onClick() }
+    ) {
+
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = if (selected) Color.White else Color.Black,
+            modifier = Modifier.size(22.dp)
+        )
+
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            color = if (selected) Color.White else Color.Black
+        )
+    }
+}
+
+/*
+* --- EventCard ---
+* Function is used to automate the creation of event cards. This helps in handling the event cards easily
+* and effectively. Allowing for removal,addition and editing of the Event Cards without having to
+* manually do it everytime.
+*
+* Parameters: (String, String, String, Boolean, Unit, Unit) Title, Date, Time, IsHost, Deletion Logic
+* Card Click Logic
+*
+* Returns: None
+* */
+@Composable
+fun EventCard(title: String, date: String, time: String, isHost: Boolean, // --- New: Added isHost parameter ---
+    onDeleteClick: () -> Unit, onCardClick: () -> Unit ) {
+
+    val context = LocalContext.current
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    // Delete confirmation popup
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Event") },
+            text = { Text("Are you sure you want to delete this event? This cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDeleteClick()
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDeleteDialog = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+    Card(
+        modifier = Modifier
+            .width(160.dp)
+            .height(120.dp)
+            .border(1.dp, Color.Black, shape = RoundedCornerShape(12.dp))
+            .clickable { onCardClick() },
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFE57373),
+        )
+    ) {
+        // We use a Box here so the Delete button can sit completely independent in the corner
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(title, fontWeight = FontWeight.Bold)
+
+                Column {
+                    Text(date, style = MaterialTheme.typography.bodySmall)
+                    Text(time, style = MaterialTheme.typography.bodySmall) // <-- Added the time
+                }
+            }
+
+            // --- New: Only show Delete & Edit buttons if they are the Host ---
+            if (isHost) {
+                // The Delete Button
+                IconButton(
+                    onClick = { showDeleteDialog = true },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                        .size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete Event",
+                        tint = Color.White
+                    )
+                }
+
+                //Edit events button
+                IconButton(
+                    onClick = {     //takes us to edit event screen
+                        val intent = Intent(context, EditEventActivity::class.java)
+                        intent.putExtra("Event_Name", title)
+                        context.startActivity(intent)
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(4.dp)
+                        .size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit Event",
+                        tint = Color.White
+                    )
+                }
+            }
+        }
+    }
+}
+
+// --- Added This: Function to update the FCM Token in Firestore ---
+fun updateDeviceToken() {
+    // 1. Check who is currently logged in
+    val currentUser = FirebaseAuth.getInstance().currentUser
+
+    // If nobody is logged in, stop the function right here
+    if (currentUser == null) return
+
+    // 2. Ask Firebase for this specific device's token
+    FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+        if (!task.isSuccessful) {
+            Log.w("FCM", "Fetching FCM registration token failed", task.exception)
+            return@addOnCompleteListener
+        }
+
+        val token = task.result
+        val db = FirebaseFirestore.getInstance()
+
+        // 3. Package the token up
+        val tokenData = hashMapOf(
+            "fcmToken" to token,
+            "timeZone" to java.util.TimeZone.getDefault().id // <-- Grabs the phone's timezone
+        )
+
+        // 4. Save it to Firestore using the user's exact UID
+        // We use SetOptions.merge() so it updates the token without deleting their other profile info
+        db.collection("users").document(currentUser.uid)
+            .set(tokenData, SetOptions.merge())
+            .addOnSuccessListener {
+                Log.d("FCM", "Token successfully updated for user: ${currentUser.uid}")
+            }
+            .addOnFailureListener { e ->
+                Log.w("FCM", "Error updating token", e)
+            }
+    }
+}
