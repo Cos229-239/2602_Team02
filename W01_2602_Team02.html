@@ -156,19 +156,6 @@
     .radial-wheel .radial-inner .radial-icon.radial-icon-standups svg { color: #5865f2; }
     .radial-wheel .radial-inner .pct { font-size: 1.5rem; font-weight: 800; line-height: 1; color: var(--warn); letter-spacing: 0.02em; }
     .radial-wheel .radial-inner .pct.pct-full { color: var(--success); }
-    @keyframes stampSlamStamp { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(338deg) scale(0); } 12% { opacity: 1; transform: translate(-50%, -50%) rotate(163deg) scale(8); } 100% { opacity: 1; transform: translate(-50%, -50%) rotate(-12deg) scale(1); } }
-    .member-row .fork-stamp,
-    .member-row .rubber-stamp,
-    .branch-entry .fork-stamp,
-    .branch-entry .rubber-stamp,
-    .activity-row .fork-stamp,
-    .activity-row .rubber-stamp { opacity: 0; transform: translate(-50%, -50%) rotate(-12deg) scale(0); }
-    .member-row .fork-stamp.stamp-played,
-    .member-row .rubber-stamp.stamp-played,
-    .branch-entry .fork-stamp.stamp-played,
-    .branch-entry .rubber-stamp.stamp-played,
-    .activity-row .fork-stamp.stamp-played,
-    .activity-row .rubber-stamp.stamp-played { animation: stampSlamStamp 0.675s ease-out 0.075s forwards; }
     .radial-wheel .radial-footer { margin-top: 144px; text-align: center; }
     .radial-wheel .radial-footer .label { display: block; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
     .radial-wheel.wheel-full { --wheel-color: var(--success); }
@@ -265,16 +252,6 @@
     .avatar-ring-wrap .ring-svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
     .avatar-ring-wrap .avatar-wrap { position: absolute; border-radius: 50%; overflow: hidden; z-index: 2; }
     .avatar-ring-wrap .avatar-wrap .avatar { position: relative; z-index: 0; }
-    .avatar-ring-wrap > .fork-stamp,
-    .avatar-ring-wrap > .rubber-stamp {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-12deg) scale(0);
-      font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
-      padding: 0.2rem 0.4rem; border: 2px solid; border-radius: 2px; background: rgba(0,0,0,0.82);
-      box-shadow: 0 0 0 1px currentColor; z-index: 6; pointer-events: none;
-      opacity: 0;
-    }
-    .avatar-ring-wrap > .fork-stamp.stamp-played,
-    .avatar-ring-wrap > .rubber-stamp.stamp-played { animation: stampSlamStamp 0.675s ease-out 0.075s forwards; }
     .avatar-ring-wrap .avatar { border-radius: 50%; object-fit: cover; display: block; background: var(--surface2); }
     #members-v2-root { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
     @media (max-width: 640px) { #members-v2-root { grid-template-columns: repeat(2, 1fr); } }
@@ -284,27 +261,9 @@
     .member-row .avatar-ring-wrap { width: 56px; height: 56px; }
     .member-row .avatar-ring-wrap .avatar-wrap { inset: 6px; }
     .member-row .avatar-ring-wrap .avatar { width: 44px; height: 44px; }
-    .member-row .fork-stamp,
-    .rubber-stamp {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-12deg);
-      font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em;
-      text-transform: uppercase; white-space: nowrap; padding: 0.2rem 0.4rem;
-      border: 2px solid; border-radius: 2px; background: rgba(0,0,0,0.82);
-      box-shadow: 0 0 0 1px currentColor; z-index: 5; pointer-events: none;
-    }
-    .member-row .fork-stamp,
-    .rubber-stamp.danger,
-    .avatar-ring-wrap > .fork-stamp { color: var(--danger); border-color: var(--danger); }
-    .rubber-stamp.missing { color: var(--danger); border-color: var(--danger); }
-    .rubber-stamp.no-activity { color: var(--warn); border-color: var(--warn); }
-    .rubber-stamp.inactive,
-    .rubber-stamp.diverged { color: var(--danger); border-color: var(--danger); }
     .member-row .info { display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem; min-width: 0; text-align: left; width: 100%; }
     .member-row .name-bar { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
     .member-row .name { font-weight: 600; font-size: 0.875rem; text-align: left; }
-    .member-row .attendance-pill { flex-shrink: 0; font-size: 0.68rem; letter-spacing: 0.03em; border-radius: 999px; padding: 0.18rem 0.48rem; border: 1px solid var(--surface2); background: rgba(255,255,255,0.03); color: var(--text-muted); }
-    .member-row .attendance-pill.ok { border-color: rgba(46,160,67,0.65); color: #6ddf7b; background: rgba(46,160,67,0.12); }
-    .member-row .attendance-pill.missing { border-color: rgba(248,81,73,0.55); color: #ff938a; background: rgba(248,81,73,0.10); }
     .member-row .meta { font-size: 0.75rem; color: var(--text-muted); display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 0.25rem; }
     .member-row .member-toggle { margin-top: 0.1rem; background: transparent; border: 1px solid var(--surface2); color: var(--text-muted); border-radius: 999px; font-size: 0.68rem; padding: 0.2rem 0.5rem; cursor: pointer; }
     .member-row .member-toggle:hover { color: var(--text); border-color: var(--accent); }
@@ -845,7 +804,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-31-2026 - 17:48", "period": "2026-02-02 to 2026-02-08", "cycle": "2602", "week": 1, "team": "2602_Team02", "sourceUrl": "W01_2602_Team02_v1.html", "assignmentTitle": "PNP2 \u2014 Week 01 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 01 Assignment Checks", "items": [{"assignment": "1.1 Course Setup: Discord", "what": "Join the course Discord and complete the required intro/setup presence.", "criteria": "Student should be visible in the Discord setup flow and have recognizable intro/setup participation when that evidence is captured."}, {"assignment": "1.2 GitHub Desktop", "what": "Get access to the project repo and establish a working Git setup.", "criteria": "Repo access should be confirmed and there should be some visible Git working-state evidence tied to the student or team."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Rodney F.", "git": null, "trello": false, "discord": false, "githubUsername": "Rodford", "pnp2Setup": {"name": "Rodney Ford", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "Rodford", "githubEmail": "rodford37@gmail.com", "trelloConnected": true, "trelloEmail": "rmford@student.fullsail.edu", "trelloUsername": "rodney_ford", "trelloMemberId": "69816570d1d8fee72b70882f", "trelloDisplayName": "Rodney Ford", "meetingAttendance": {"week_01": true, "week_02": false, "week_03": false, "week_04": false, "week_05": true, "week_06": false, "week_07": false, "week_08": false}, "aliases": ["Rodney Ford", "Rodney F.", "rodney_ford", "rodney_06143", "Rodney 0."]}}, {"name": "Lesly M.", "git": null, "trello": false, "discord": false, "githubUsername": "Lesly-AM", "pnp2Setup": {"name": "Lesly Morales", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "Lesly-AM", "githubEmail": "LDMorales1@student.fullsail.edu", "trelloConnected": true, "trelloEmail": "LDMorales1@student.fullsail.edu", "trelloUsername": "leslymorales13", "trelloMemberId": "6983f53993fd6b41176e7efa", "trelloDisplayName": "Lesly Morales", "meetingAttendance": {"week_01": false, "week_02": false, "week_03": false, "week_04": false, "week_05": false, "week_06": false, "week_07": false, "week_08": false}, "aliases": ["Lesly Morales", "Lesly M.", "leslymorales13", "l_m1234", "L M."]}}, {"name": "Hasani C.", "git": null, "trello": false, "discord": false, "githubUsername": "4hzzz", "pnp2Setup": {"name": "Hasani Carter", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "4hzzz", "githubEmail": "pbmhasani@gmail.com", "trelloConnected": true, "trelloEmail": "hscarter@student.fullsail.edu", "trelloUsername": "hscarter", "trelloMemberId": "698238572995a2bc2d19f06f", "trelloDisplayName": "Hasani Carter", "meetingAttendance": {"week_01": false, "week_02": false, "week_03": false, "week_04": false, "week_05": false, "week_06": false, "week_07": false, "week_08": false}, "aliases": ["Hasani Carter", "Hasani C.", "hscarter", "hasanicarter"]}}, {"name": "Maret M.", "git": null, "trello": false, "discord": true, "githubUsername": "MarRivMer", "pnp2Setup": {"name": "Maret G. Rivera Merced", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "MarRivMer", "githubEmail": "maretr50@gmail.com", "trelloConnected": true, "trelloEmail": "mgriveramerced@student.fullsail.edu", "trelloUsername": "mgriveramerced", "trelloMemberId": "6984f01ab2de073c425e00d7", "trelloDisplayName": "Maret Gabriel Rivera Merced", "meetingAttendance": {"week_01": false, "week_02": false, "week_03": false, "week_04": false, "week_05": false, "week_06": false, "week_07": false, "week_08": false}, "aliases": ["Maret G. Rivera Merced", "Maret M.", "Maret Gabriel Rivera Merced", "mgriveramerced", "maretgabriel12"]}}, {"name": "Andy T.", "git": null, "trello": false, "discord": false, "githubUsername": "717Andy", "pnp2Setup": {"name": "Andy Tran", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "717Andy", "githubEmail": "andytran7381@yahoo.com", "trelloConnected": true, "trelloEmail": "ahtran@student.fullsail.edu", "trelloUsername": "ahtran1", "trelloMemberId": "6990c0ea796cdff5a95fa3d9", "trelloDisplayName": "Andy Tran", "meetingAttendance": {"week_01": false, "week_02": false, "week_03": false, "week_04": false, "week_05": false, "week_06": false, "week_07": false, "week_08": false}, "aliases": ["Andy Tran", "Andy T.", "ahtran1", "ando777"]}}], "branchHealth": [], "filesTouched": [], "trello": {"assignments": {}, "actions": {}, "actionBreakdown": {}, "status": "HEALTHY"}, "discord": [{"person": "01Thatoneguy01", "posts": 1, "dates": "Feb 5", "summary": ""}, {"person": "Maret M.", "posts": 1, "dates": "Feb 5", "summary": ""}], "alerts": [{"type": "warn", "text": "Rodney F. has no GIT activity this week ."}, {"type": "warn", "text": "Lesly M. has no GIT activity this week ."}, {"type": "warn", "text": "Hasani C. has no GIT activity this week ."}, {"type": "warn", "text": "Maret M. has no GIT activity this week ."}, {"type": "warn", "text": "Andy T. has no GIT activity this week ."}]};
+    const data = {"report": {"generated": "03-31-2026 - 17:57", "period": "2026-02-02 to 2026-02-08", "cycle": "2602", "week": 1, "team": "2602_Team02", "sourceUrl": "W01_2602_Team02_v1.html", "assignmentTitle": "PNP2 \u2014 Week 01 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 01 Assignment Checks", "items": [{"assignment": "1.1 Course Setup: Discord", "what": "Join the course Discord and complete the required intro/setup presence.", "criteria": "Student should be visible in the Discord setup flow and have recognizable intro/setup participation when that evidence is captured."}, {"assignment": "1.2 GitHub Desktop", "what": "Get access to the project repo and establish a working Git setup.", "criteria": "Repo access should be confirmed and there should be some visible Git working-state evidence tied to the student or team."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Rodney F.", "git": null, "trello": false, "discord": false, "githubUsername": "Rodford", "pnp2Setup": {"name": "Rodney Ford", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "Rodford", "githubEmail": "rodford37@gmail.com", "trelloConnected": true, "trelloEmail": "rmford@student.fullsail.edu", "trelloUsername": "rodney_ford", "trelloMemberId": "69816570d1d8fee72b70882f", "trelloDisplayName": "Rodney Ford", "aliases": ["Rodney Ford", "Rodney F.", "rodney_ford", "rodney_06143", "Rodney 0."]}}, {"name": "Lesly M.", "git": null, "trello": false, "discord": false, "githubUsername": "Lesly-AM", "pnp2Setup": {"name": "Lesly Morales", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "Lesly-AM", "githubEmail": "LDMorales1@student.fullsail.edu", "trelloConnected": true, "trelloEmail": "LDMorales1@student.fullsail.edu", "trelloUsername": "leslymorales13", "trelloMemberId": "6983f53993fd6b41176e7efa", "trelloDisplayName": "Lesly Morales", "aliases": ["Lesly Morales", "Lesly M.", "leslymorales13", "l_m1234", "L M."]}}, {"name": "Hasani C.", "git": null, "trello": false, "discord": false, "githubUsername": "4hzzz", "pnp2Setup": {"name": "Hasani Carter", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "4hzzz", "githubEmail": "pbmhasani@gmail.com", "trelloConnected": true, "trelloEmail": "hscarter@student.fullsail.edu", "trelloUsername": "hscarter", "trelloMemberId": "698238572995a2bc2d19f06f", "trelloDisplayName": "Hasani Carter", "aliases": ["Hasani Carter", "Hasani C.", "hscarter", "hasanicarter"]}}, {"name": "Maret M.", "git": null, "trello": false, "discord": true, "githubUsername": "MarRivMer", "pnp2Setup": {"name": "Maret G. Rivera Merced", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "MarRivMer", "githubEmail": "maretr50@gmail.com", "trelloConnected": true, "trelloEmail": "mgriveramerced@student.fullsail.edu", "trelloUsername": "mgriveramerced", "trelloMemberId": "6984f01ab2de073c425e00d7", "trelloDisplayName": "Maret Gabriel Rivera Merced", "aliases": ["Maret G. Rivera Merced", "Maret M.", "Maret Gabriel Rivera Merced", "mgriveramerced", "maretgabriel12"]}}, {"name": "Andy T.", "git": null, "trello": false, "discord": false, "githubUsername": "717Andy", "pnp2Setup": {"name": "Andy Tran", "introPosted": true, "introSource": "Roster welcome message", "githubConnected": true, "githubId": "717Andy", "githubEmail": "andytran7381@yahoo.com", "trelloConnected": true, "trelloEmail": "ahtran@student.fullsail.edu", "trelloUsername": "ahtran1", "trelloMemberId": "6990c0ea796cdff5a95fa3d9", "trelloDisplayName": "Andy Tran", "aliases": ["Andy Tran", "Andy T.", "ahtran1", "ando777"]}}], "branchHealth": [], "filesTouched": [], "trello": {"assignments": {}, "actions": {}, "actionBreakdown": {}, "status": "HEALTHY"}, "discord": [{"person": "01Thatoneguy01", "posts": 1, "dates": "Feb 5", "summary": ""}, {"person": "Maret M.", "posts": 1, "dates": "Feb 5", "summary": ""}], "alerts": [{"type": "warn", "text": "Rodney F. has no GIT activity this week ."}, {"type": "warn", "text": "Lesly M. has no GIT activity this week ."}, {"type": "warn", "text": "Hasani C. has no GIT activity this week ."}, {"type": "warn", "text": "Maret M. has no GIT activity this week ."}, {"type": "warn", "text": "Andy T. has no GIT activity this week ."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     function escapeHtml(value) {
@@ -1035,15 +994,6 @@
     }
     function memberPreviousPnp2(member) {
       return (member && member.pnp2Previous) ? member.pnp2Previous : { week: currentWeek - 1, commits: 0, additions: 0, deletions: 0, net: 0, posts: 0 };
-    }
-    function memberAttendanceState(member) {
-      const setup = memberSetupEvidence(member);
-      const attendance = setup.meetingAttendance || {};
-      const key = 'week_' + String(currentWeek || 0).padStart(2, '0');
-      if (!(key in attendance)) return { label: 'Attendance N/A', cls: '' };
-      return attendance[key]
-        ? { label: 'Attendance Present', cls: 'ok' }
-        : { label: 'Attendance Missing', cls: 'missing' };
     }
     function memberStandupPosts(member) {
       return standupCountFor(member.name);
@@ -1836,15 +1786,6 @@
       });
     })();
 
-    function memberStampFor(m) {
-      if (isPnp2Week) return null;
-      const issue = branchIssueLevel(m.name);
-      if (issue === 'inactive') return { label: 'Inactive Branch', cls: 'inactive', title: 'Branch is inactive' };
-      if (issue === 'diverged') return { label: 'Diverged', cls: 'diverged', title: 'Branch is diverged' };
-      if (issue === 'missing') return { label: 'Missing', cls: 'missing', title: 'No tracked personal branch' };
-      if (m.git === 'fork') return { label: 'Fork', cls: 'danger', title: 'Working from a fork' };
-      return null;
-    }
     document.getElementById('members-v2-root').innerHTML = data.members.map(m => {
       const stars = allstarsFor(m.name);
       const starsHtml = stars.length ? `<span class="allstar-group">${stars.map(s => `<span class="avatar-star tier-${badgeTierFor(s.key)} has-tip" data-tip="${escapeHtml(s.title)} · ${escapeHtml(s.multiplier || badgeMultiplierFor(s.key))}" aria-label="${escapeHtml(s.title)}">★</span>`).join('')}</span>` : '';
@@ -1863,12 +1804,9 @@
       const badgeListHtml = stars.length
         ? `<ul>${stars.map(s => `<li><strong>${badgeLabelHtml(s)}:</strong> ${escapeHtml(s.description)}</li>`).join('')}</ul>`
         : '<p>No allstar badges earned this week.</p>';
-      const stampInfo = memberStampFor(m);
-      const stamp = stampInfo ? `<span class="rubber-stamp ${stampInfo.cls}" aria-label="${escapeHtml(stampInfo.label)}" title="${escapeHtml(stampInfo.title)}">${stampInfo.label}</span>` : '';
       const gitPillState = memberGitState(m);
       const trelloPillState = memberTrelloState(m);
       const discordPillState = memberDiscordState(m);
-      const attendanceState = memberAttendanceState(m);
       const introSourceText = memberIntroPosted(m)
         ? `Discord intro/setup captured from ${memberSetupEvidence(m).introSource || 'roster evidence'}.`
         : 'Discord intro/setup has not been captured yet.';
@@ -1885,12 +1823,10 @@
             <div class="avatar-wrap">
               <img class="avatar" src="${avatarUrl(m)}" alt="" width="44" height="44" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=388bfd&color=fff&size=88'">
             </div>
-            ${stamp}
         </div>
         <div class="info">
           <div class="name-bar">
             <div class="name">${m.name}</div>
-            <span class="attendance-pill ${attendanceState.cls}">${attendanceState.label}</span>
           </div>
           <div class="meta">
             <span class="pill ${gitPillState === 'danger' ? 'danger' : gitPillState === 'warn' ? 'warn' : gitPillState === 'ok' ? 'ok' : 'na'}">GIT</span>
@@ -2044,13 +1980,6 @@
       if (s.includes('behind')) return 'Behind';
       return status || 'Sync';
     }
-    function branchStampFor(b) {
-      if (b.isMissing) return { label: 'Missing', cls: 'missing' };
-      const status = (b.status || '').toLowerCase();
-      if (status.includes('inactive')) return { label: 'Inactive', cls: 'inactive' };
-      if (status.includes('diverged')) return { label: 'Diverged', cls: 'diverged' };
-      return null;
-    }
     function branchDetailContent(b, statusInPanel) {
       const statusLower = (b.status || '').toLowerCase();
       const branchName = b.branch || 'your-branch';
@@ -2128,8 +2057,6 @@
       const statusLower = (b.status || '').toLowerCase();
       const statusClass = b.isMissing ? 'missing' : (statusLower.includes('inactive') || statusLower.includes('diverged')) ? 'danger' : statusLower.includes('behind') ? 'behind' : statusLower.includes('ahead') ? 'ahead' : 'sync';
       const statusLabel = branchStatusDisplay(b.status, b.isMissing);
-      const stampInfo = branchStampFor(b);
-      const stamp = stampInfo ? `<span class="rubber-stamp ${stampInfo.cls}" aria-label="${stampInfo.label}" title="${stampInfo.label}">${stampInfo.label}</span>` : '';
       const statusTextClass = b.isMissing ? 'status-text-missing' : (statusLower.includes('inactive') || statusLower.includes('diverged')) ? 'status-text-danger' : statusLower.includes('behind') ? 'status-text-behind' : statusLower.includes('ahead') ? 'status-text-ahead' : 'status-text-sync';
       const statusInPanel = '<span class="' + statusTextClass + '">' + statusLabel + '</span>';
       const branchDetail = branchDetailContent(b, statusInPanel);
@@ -2143,7 +2070,6 @@
             <div class="avatar-wrap">
               <img class="avatar" src="${avatarSrc}" alt="" width="40" height="40" loading="lazy" data-name="${b.person.replace(/"/g, '&quot;')}" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='https://ui-avatars.com/api/?name='+encodeURIComponent(this.dataset.name||'User')+'&size=80'}">
             </div>
-            ${stamp}
           </div>
           <div style="flex:1;min-width:0;">
             <div class="name">${b.person}</div>
@@ -2200,7 +2126,6 @@
       const pct = Math.min(100, (progress / MIN_WEEKLY_POINTS) * 100);
       const m = data.members.find(x => x.name === name);
       const src = m ? avatarUrl(m) : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&size=72';
-      const stamp = actions === 0 ? '<span class="rubber-stamp no-activity" aria-label="No activity">No activity</span>' : '';
       const actionsNeeded = Math.max(0, MIN_WEEKLY_POINTS - progress);
       const stepsHtml = actions < MIN_WEEKLY_POINTS ? '<h4 class="steps-heading">Steps to resolve</h4><p style="color:var(--warn);">Need a minimum of 4 actions per week. Consider doing the following: complete a checklist item, move a card, add a comment, or create/update a card. Post a minimum of ' + actionsNeeded + ' more action' + (actionsNeeded === 1 ? '' : 's') + '.</p>' : '';
       const breakdown = data.trello.actionBreakdown && data.trello.actionBreakdown[name];
@@ -2215,7 +2140,6 @@
             <div class="avatar-wrap">
               <img class="avatar" src="${src}" alt="" width="36" height="36" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=72'">
             </div>
-            ${stamp}
           </div>
           <div class="activity-name-wrap" style="min-width:0;">
             <div class="activity-name">${name}</div>
@@ -2280,7 +2204,6 @@
       const progress = Math.min(MIN_WEEKLY_POINTS, posts);
       const pct = Math.min(100, (progress / MIN_WEEKLY_POINTS) * 100);
       const src = avatarUrl(m);
-      const stamp = posts === 0 ? '<span class="rubber-stamp no-activity" aria-label="No activity">No activity</span>' : '';
       const panelBorder = posts === 0 ? 'border-danger' : (posts >= MIN_WEEKLY_POINTS ? 'border-ok' : 'border-warn');
       const statsHtml = '<h4>Statistics</h4><p><strong>Posts this week:</strong> ' + posts + (d ? ' · <strong>Dates:</strong> ' + dates : '') + '</p>';
       const summaryHtml = summary ? '<h4 class="summary-heading">Summary</h4><p>' + summary + '</p>' : '';
@@ -2297,7 +2220,6 @@
             <div class="avatar-wrap">
               <img class="avatar" src="${src}" alt="" width="36" height="36" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&size=72'">
             </div>
-            ${stamp}
           </div>
           <div style="flex:1;min-width:0;">
             <div class="activity-name">${m.name} · ${posts} post${posts !== 1 ? 's' : ''}</div>
@@ -2415,38 +2337,6 @@
       </div>
     `;
     }).join('');
-  </script>
-
-  <script>
-  (function() {
-    function playStampsOnce() {
-      document.querySelectorAll('.fork-stamp, .rubber-stamp').forEach(function(el) {
-        if (!el.classList.contains('stamp-played')) el.classList.add('stamp-played');
-      });
-    }
-    function onRowHover(ev) {
-      var row = ev.currentTarget;
-      row.querySelectorAll('.fork-stamp, .rubber-stamp').forEach(function(el) {
-        if (!el.classList.contains('stamp-played')) el.classList.add('stamp-played');
-      });
-    }
-    function attachHover() {
-      document.addEventListener('mouseover', function(ev) {
-        var row = ev.target.closest('.member-row, .branch-entry, .activity-row');
-        if (!row || row.contains(ev.relatedTarget)) return;
-        onRowHover({ currentTarget: row });
-      });
-    }
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(playStampsOnce, 450);
-        attachHover();
-      });
-    } else {
-      setTimeout(playStampsOnce, 450);
-      attachHover();
-    }
-  })();
   </script>
 
 </body></html>
