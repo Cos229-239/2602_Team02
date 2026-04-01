@@ -461,7 +461,6 @@
           <div class="snapshot-line" id="v2-snapshot-line">SNAPSHOT - Cycle - Week</div>
           <div class="meta-line" id="v2-generated-line">Generated: --</div>
           <div class="meta-line" id="v2-period-line">Report period: --</div>
-          <div class="meta-line" id="v2-attendance-line">Build review attendance: not recorded yet</div>
         </div>
         <section class="assignment-brief" id="v2-assignment-brief" hidden>
           <h2 class="assignment-brief-title">Assignments Due This Week</h2>
@@ -758,15 +757,6 @@
 
   <script>
   (function dropdownDelegation() {
-    function playStampOnExpand(container) {
-      var stamps = container.querySelectorAll('.rubber-stamp, .fork-stamp');
-      stamps.forEach(function(stamp) {
-        stamp.classList.remove('stamp-played');
-        requestAnimationFrame(function() {
-          requestAnimationFrame(function() { stamp.classList.add('stamp-played'); });
-        });
-      });
-    }
     document.body.addEventListener('click', function(e) {
       var branchBtn = e.target.closest('.branch-entry .branch-row-top');
       if (branchBtn) {
@@ -775,7 +765,6 @@
           entry.classList.toggle('open');
           var isOpen = entry.classList.contains('open');
           branchBtn.setAttribute('aria-expanded', isOpen);
-          if (isOpen) playStampOnExpand(entry);
         }
         return;
       }
@@ -786,7 +775,6 @@
           row.classList.toggle('open');
           var isOpen = row.classList.contains('open');
           rowBtn.setAttribute('aria-expanded', isOpen);
-          if (isOpen) playStampOnExpand(row);
         }
         return;
       }
@@ -804,7 +792,7 @@
   </script>
 
   <script>
-    const data = {"report": {"generated": "03-31-2026 - 17:57", "period": "2026-02-02 to 2026-02-08", "cycle": "2602", "week": 1, "team": "2602_Team01", "sourceUrl": "W01_2602_Team01_v1.html", "assignmentTitle": "PNP2 \u2014 Week 01 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 01 Assignment Checks", "items": [{"assignment": "1.1 Course Setup: Discord", "what": "Join the course Discord and complete the required intro/setup presence.", "criteria": "Student should be visible in the Discord setup flow and have recognizable intro/setup participation when that evidence is captured."}, {"assignment": "1.2 GitHub Desktop", "what": "Get access to the project repo and establish a working Git setup.", "criteria": "Repo access should be confirmed and there should be some visible Git working-state evidence tied to the student or team."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Daniel W.", "git": null, "trello": false, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc", "trelloDisplayName": "Daniel Wetenkamp", "aliases": ["Daniel Wetenkamp", "Daniel W.", "danielwetenkamp", "ismeedan"]}}], "branchHealth": [], "filesTouched": [], "trello": {"assignments": {}, "actions": {}, "actionBreakdown": {}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 5, "dates": "Feb 4, Feb 5, Feb 7", "summary": ""}, {"person": "01Thatoneguy01", "posts": 1, "dates": "Feb 3", "summary": ""}], "alerts": [{"type": "warn", "text": "Daniel W. has no GIT activity this week ."}]};
+    const data = {"report": {"generated": "03-31-2026 - 23:39", "period": "2026-02-02 to 2026-02-08", "cycle": "2602", "week": 1, "team": "2602_Team01", "sourceUrl": "W01_2602_Team01_v1.html", "assignmentTitle": "PNP2 \u2014 Week 01 Assignment Checks", "assignmentSpec": {"title": "PNP2 \u2014 Week 01 Assignment Checks", "items": [{"assignment": "1.1 Course Setup: Discord", "what": "Join the course Discord and complete the required intro/setup presence.", "criteria": "Student should be visible in the Discord setup flow and have recognizable intro/setup participation when that evidence is captured."}, {"assignment": "1.2 GitHub Desktop", "what": "Get access to the project repo and establish a working Git setup.", "criteria": "Repo access should be confirmed and there should be some visible Git working-state evidence tied to the student or team."}]}, "assignmentSpecSource": "WEB/config/reports/pnp2_assignments.json"}, "members": [{"name": "Daniel W.", "git": null, "trello": true, "discord": true, "githubUsername": "", "pnp2Setup": {"name": "Daniel Wetenkamp", "introPosted": false, "introSource": "", "githubConnected": true, "githubId": "danielwetenkamp", "githubEmail": "", "trelloConnected": true, "trelloEmail": "", "trelloUsername": "danielwetenkamp", "trelloMemberId": "69838ac807b2fc5bc5c9abcc", "trelloDisplayName": "Daniel Wetenkamp", "aliases": ["Daniel Wetenkamp", "Daniel W.", "danielwetenkamp", "ismeedan"]}}], "branchHealth": [], "filesTouched": [], "trello": {"assignments": {"Daniel W.": 1}, "actions": {"Daniel W.": 5}, "actionBreakdown": {"Daniel W.": {"Create card": 5}}, "status": "HEALTHY"}, "discord": [{"person": "Daniel W.", "posts": 5, "dates": "Feb 4, Feb 5, Feb 7", "summary": ""}, {"person": "01Thatoneguy01", "posts": 1, "dates": "Feb 3", "summary": ""}], "alerts": [{"type": "warn", "text": "Daniel W. has no GIT activity this week ."}]};
     try { sessionStorage.setItem('snapshotData', JSON.stringify(data)); } catch (e) {}
 
     function escapeHtml(value) {
