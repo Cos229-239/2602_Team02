@@ -10,40 +10,66 @@
     h2 { margin-top: 1.5rem; }
     .top-links { margin: 0.25rem 0 1rem; font-size: 0.95rem; }
     .meta { color: #57606a; margin: 0.2rem 0; }
+    .partial-note { margin: 0.7rem 0 1rem; padding: 0.7rem 0.85rem; border: 1px solid #f2cc60; border-radius: 10px; background: #fff8db; color: #7a5a00; font-weight: 600; }
     table { border-collapse: collapse; width: 100%; margin-top: 0.5rem; table-layout: fixed; font-size: 0.92rem; }
     th, td { border: 1px solid #d0d7de; padding: 0.48rem 0.56rem; text-align: left; vertical-align: top; word-break: break-word; }
     th { background: #f6f8fa; }
     .copy-note { margin: 1rem 0 1.25rem; color: #57606a; font-size: 0.95rem; }
     .section-link { margin: 0.5rem 0 1rem; font-size: 0.95rem; word-break: break-all; }
     .section-note { margin: 0.35rem 0 0.65rem; color: #57606a; font-size: 0.92rem; }
+    .evidence-group { margin: 1.4rem 0; padding: 1rem 1rem 1.15rem; border: 1px solid #d0d7de; border-radius: 14px; background: #fbfdff; box-shadow: 0 1px 0 rgba(31, 35, 40, 0.04); }
+    .evidence-group:first-of-type { margin-top: 0.75rem; }
+    .evidence-group h2:first-of-type { margin-top: 0.2rem; }
+    .group-kicker { display: inline-block; margin-bottom: 0.5rem; padding: 0.22rem 0.55rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+    .evidence-group-git { border-color: #bfd4ff; background: #f8fbff; }
+    .evidence-group-git .group-kicker { background: #dbe9ff; color: #174ea6; }
+    .evidence-group-trello { border-color: #bfe4ce; background: #f7fcf8; }
+    .evidence-group-trello .group-kicker { background: #d8f3df; color: #13653a; }
+    .evidence-group-discord { border-color: #d7cbff; background: #fbfaff; }
+    .evidence-group-discord .group-kicker { background: #ece6ff; color: #5b34b1; }
   </style>
 </head>
 <body>
   <h1>2602_Team01 — LMS Data</h1>
   <div class="top-links"><a href="W06_2602_Team01_v1.html">V1</a> · <a href="W06_2602_Team01.html">V2</a></div>
   <div class="meta">SNAPSHOT - Cycle 2602 - Week 6</div>
-  <div class="meta">Generated: 04-01-2026 - 00:41</div>
+  <div class="meta">Generated: 04-07-2026 - 02:02</div>
   <div class="meta">Report period: 2026-03-09 to 2026-03-15</div>
+  
   <div class="copy-note">Simple copy/paste tables for LMS grading modules.</div>
   
-  <h2>Git — Branch Health</h2>
-  <table><thead><tr><th>Name</th><th>Branch</th><th>Status</th><th>Activity</th><th>A / B</th></tr></thead><tbody><tr><td>Daniel W.</td><td>daniel</td><td>In Sync</td><td>2d ago</td><td>0 / 0</td></tr></tbody></table>
-  <h2>Git — Top Activity</h2>
-  <table><thead><tr><th>Name</th><th>Commits</th><th>Net</th></tr></thead><tbody><tr><td>Daniel W.</td><td>2</td><td>191</td></tr></tbody></table>
-  <h2>Git — Top Files Touched</h2>
-  <table><thead><tr><th>Name</th><th>Files Touched</th></tr></thead><tbody><tr><td>Daniel W.</td><td>App.kt +148/-48<br>FieldsScreen.kt +83/-37<br>AddMenuSheet.kt +42/-25<br>NodeScreen.kt +35/-12<br>SampleTree.kt +9/-4</td></tr></tbody></table>
-  <div class="section-link">https://github.com/Cos229-239/2602_Team01</div>
-  <h2>Trello</h2>
-  <table><thead><tr><th>Name</th><th>Assigned</th><th>Actions</th><th>Detail</th><th>Weekly Status</th></tr></thead><tbody><tr><td>Daniel W.</td><td>1</td><td>6</td><td>1 Create card, 5 Move card</td><td>OK</td></tr></tbody></table>
-  <div class="section-link">Trello board link unavailable in source report</div>
-  <h2>Discord</h2>
-  <table><thead><tr><th>Name</th><th>Posts</th><th>Dates</th><th>Summary</th><th>Status</th></tr></thead><tbody><tr><td>Daniel W.</td><td>5</td><td>Mar 9, Mar 10, Mar 12, Mar 15</td><td></td><td>OK</td></tr></tbody></table>
-  <h2>PNP3 — AI Work Summary (Git)</h2>
-<div class="section-note">Interpretive summary based on commits, changed files, and net code movement from the current report window.</div>
-<table><thead><tr><th>Name</th><th>Commits</th><th>Top Files</th><th>Git Summary</th></tr></thead><tbody><tr><td>Daniel W.</td><td>2</td><td>App.kt, FieldsScreen.kt, AddMenuSheet.kt</td><td>Some continued work touching App.kt, FieldsScreen.kt, and AddMenuSheet.kt with a net code change of +191.</td></tr></tbody></table>
-<h2>PNP3 — AI Work Summary (Trello)</h2>
-<div class="section-note">Interpretive summary based on assigned cards and Trello action signals from the current report window.</div>
-<table><thead><tr><th>Name</th><th>Assigned</th><th>Actions</th><th>Trello Summary</th></tr></thead><tbody><tr><td>Daniel W.</td><td>1</td><td>6</td><td>Showed Trello progress through 1 assigned card and 6 recorded actions. Most visible actions: 1 create card, 5 move card.</td></tr></tbody></table>
+  <div class="evidence-group evidence-group-git">
+    <div class="group-kicker">Git</div>
+    <h2>Git — Branch Health</h2>
+    <table><thead><tr><th>Name</th><th>Branch</th><th>Status</th><th>Activity</th><th>A / B</th></tr></thead><tbody><tr><td>Daniel W.</td><td>daniel</td><td>In Sync</td><td>8d ago</td><td>0 / 0</td></tr></tbody></table>
+    <h2>Git — Top Activity</h2>
+    <table><thead><tr><th>Name</th><th>Commits</th><th>Net</th></tr></thead><tbody><tr><td>Daniel W.</td><td>2</td><td>191</td></tr></tbody></table>
+    <h2>Git — Top Files Touched</h2>
+    <table><thead><tr><th>Name</th><th>Files Touched</th></tr></thead><tbody><tr><td>Daniel W.</td><td>App.kt +148/-48<br>FieldsScreen.kt +83/-37<br>AddMenuSheet.kt +42/-25<br>NodeScreen.kt +35/-12<br>SampleTree.kt +9/-4</td></tr></tbody></table>
+    <h2>PNP3 — Work Summary (Git)</h2>
+    <div class="section-note">Interpretive summary based on commits, changed files, and net code movement from the current report window.</div>
+    <table><thead><tr><th>Name</th><th>Commits</th><th>Top Files</th><th>Git Summary</th></tr></thead><tbody><tr><td>Daniel W.</td><td>2</td><td>App.kt, FieldsScreen.kt, AddMenuSheet.kt</td><td>Daniel W. focused on App.kt, FieldsScreen.kt, and AddMenuSheet.kt with a light net code change of +191 lines, across 2 commits (319 added / 128 removed). Their branch `daniel` is currently marked in sync.</td></tr></tbody></table>
+    <div class="section-link">https://github.com/Cos229-239/2602_Team01</div>
+  </div>
+  <div class="evidence-group evidence-group-trello">
+    <div class="group-kicker">Trello</div>
+    <h2>Trello</h2>
+    <table><thead><tr><th>Name</th><th>Assigned</th><th>Actions</th><th>Detail</th><th>Weekly Status</th></tr></thead><tbody><tr><td>Daniel W.</td><td>1</td><td>6</td><td>1 Create card, 5 Move card</td><td>OK</td></tr></tbody></table>
+    <h2>Trello Tasks</h2>
+    <table><thead><tr><th>Name</th><th>Touched Cards</th><th>Card Edits</th><th>Summary</th></tr></thead><tbody><tr><td>Daniel W.</td><td>color options and clearer differentiation from popups and current cards, Ability for user to add their own categories and subcategories, per their specific needs</td><td>color options and clearer differentiation from popups and current cards -- moved Backlog B Features -&gt; Backlog A Features - Must Have; color options and clearer differentiation from popups and current cards -- created; Ability for user to add their own categories and subcategories, per their specific needs -- moved Backlog A Features - Must Have -&gt; Completed</td><td>Worked across 1 assigned card and 6 recorded actions. Most visible cards were color options and clearer differentiation from popups and current cards, Ability for user to add their own categories and subcategories, per their specific needs. The strongest Trello signals were moved cards across lists (2), created cards (1). Concrete edits included color options and clearer differentiation from popups and current cards -- moved Backlog B Features -&gt; Backlog A Features - Must Have; color options and clearer differentiation from popups and current cards -- created; Ability for user to add their own categories and subcategories, per their specific needs -- moved Backlog A Features - Must Have -&gt; Completed.</td></tr></tbody></table>
+    <h2>PNP3 — Work Summary (Trello)</h2>
+    <div class="section-note">Interpretive summary based on assigned cards, touched cards, and Trello action signals from the current report window.</div>
+    <table><thead><tr><th>Name</th><th>Assigned</th><th>Actions</th><th>Trello Summary</th></tr></thead><tbody><tr><td>Daniel W.</td><td>1</td><td>6</td><td>Worked across 1 assigned card and 6 recorded actions. Most visible cards were color options and clearer differentiation from popups and current cards, Ability for user to add their own categories and subcategories, per their specific needs. The strongest Trello signals were moved cards across lists (2), created cards (1). Concrete edits included color options and clearer differentiation from popups and current cards -- moved Backlog B Features -&gt; Backlog A Features - Must Have; color options and clearer differentiation from popups and current cards -- created; Ability for user to add their own categories and subcategories, per their specific needs -- moved Backlog A Features - Must Have -&gt; Completed.</td></tr></tbody></table>
+    <div class="section-link">Trello board link unavailable</div>
+  </div>
+  <div class="evidence-group evidence-group-discord">
+    <div class="group-kicker">Discord</div>
+    <h2>Discord</h2>
+    <table><thead><tr><th>Name</th><th>Posts</th><th>Dates</th><th>Summary</th><th>Status</th></tr></thead><tbody><tr><td>Daniel W.</td><td>4</td><td>Mar 10, Mar 12, Mar 15</td><td>Reported work on node layout, add button additions; continued trying to get node structure w; FAB to do what I want it to do. Planned next steps around tbd...settings button or maybe start incorporating fields functionality; continuation of node structure; Weekly Build Review. Blockers: getting my FAB to properly make either a new category (aka container) vs directly coming to data screen with adding data.</td><td>OK</td></tr></tbody></table>
+    <h2>PNP3 — Work Summary (Discord)</h2>
+    <div class="section-note">Interpretive summary based on posting cadence, covered dates, and any captured standup summary text from the current report window.</div>
+    <table><thead><tr><th>Name</th><th>Posts</th><th>Dates</th><th>Discord Summary</th></tr></thead><tbody><tr><td>Daniel W.</td><td>4</td><td>Mar 10, Mar 12, Mar 15</td><td>Reported work on node layout, add button additions; continued trying to get node structure w; FAB to do what I want it to do. Planned next steps around tbd...settings button or maybe start incorporating fields functionality; continuation of node structure; Weekly Build Review. Blockers: getting my FAB to properly make either a new category (aka container) vs directly coming to data screen with adding data.</td></tr></tbody></table>
+  </div>
 
 </body>
 </html>

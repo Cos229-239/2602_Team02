@@ -10,40 +10,66 @@
     h2 { margin-top: 1.5rem; }
     .top-links { margin: 0.25rem 0 1rem; font-size: 0.95rem; }
     .meta { color: #57606a; margin: 0.2rem 0; }
+    .partial-note { margin: 0.7rem 0 1rem; padding: 0.7rem 0.85rem; border: 1px solid #f2cc60; border-radius: 10px; background: #fff8db; color: #7a5a00; font-weight: 600; }
     table { border-collapse: collapse; width: 100%; margin-top: 0.5rem; table-layout: fixed; font-size: 0.92rem; }
     th, td { border: 1px solid #d0d7de; padding: 0.48rem 0.56rem; text-align: left; vertical-align: top; word-break: break-word; }
     th { background: #f6f8fa; }
     .copy-note { margin: 1rem 0 1.25rem; color: #57606a; font-size: 0.95rem; }
     .section-link { margin: 0.5rem 0 1rem; font-size: 0.95rem; word-break: break-all; }
     .section-note { margin: 0.35rem 0 0.65rem; color: #57606a; font-size: 0.92rem; }
+    .evidence-group { margin: 1.4rem 0; padding: 1rem 1rem 1.15rem; border: 1px solid #d0d7de; border-radius: 14px; background: #fbfdff; box-shadow: 0 1px 0 rgba(31, 35, 40, 0.04); }
+    .evidence-group:first-of-type { margin-top: 0.75rem; }
+    .evidence-group h2:first-of-type { margin-top: 0.2rem; }
+    .group-kicker { display: inline-block; margin-bottom: 0.5rem; padding: 0.22rem 0.55rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+    .evidence-group-git { border-color: #bfd4ff; background: #f8fbff; }
+    .evidence-group-git .group-kicker { background: #dbe9ff; color: #174ea6; }
+    .evidence-group-trello { border-color: #bfe4ce; background: #f7fcf8; }
+    .evidence-group-trello .group-kicker { background: #d8f3df; color: #13653a; }
+    .evidence-group-discord { border-color: #d7cbff; background: #fbfaff; }
+    .evidence-group-discord .group-kicker { background: #ece6ff; color: #5b34b1; }
   </style>
 </head>
 <body>
   <h1>2602_Team01 — LMS Data</h1>
   <div class="top-links"><a href="W07_2602_Team01_v1.html">V1</a> · <a href="W07_2602_Team01.html">V2</a></div>
   <div class="meta">SNAPSHOT - Cycle 2602 - Week 7</div>
-  <div class="meta">Generated: 04-01-2026 - 00:41</div>
+  <div class="meta">Generated: 04-07-2026 - 02:02</div>
   <div class="meta">Report period: 2026-03-16 to 2026-03-22</div>
+  
   <div class="copy-note">Simple copy/paste tables for LMS grading modules.</div>
   
-  <h2>Git — Branch Health</h2>
-  <table><thead><tr><th>Name</th><th>Branch</th><th>Status</th><th>Activity</th><th>A / B</th></tr></thead><tbody><tr><td>Daniel W.</td><td>daniel</td><td>In Sync</td><td>2d ago</td><td>0 / 0</td></tr></tbody></table>
-  <h2>Git — Top Activity</h2>
-  <table><thead><tr><th>Name</th><th>Commits</th><th>Net</th></tr></thead><tbody><tr><td>Daniel W.</td><td>3</td><td>350</td></tr></tbody></table>
-  <h2>Git — Top Files Touched</h2>
-  <table><thead><tr><th>Name</th><th>Files Touched</th></tr></thead><tbody><tr><td>Daniel W.</td><td>NodeScreen.kt +224/-49<br>App.kt +123/-38<br>FieldsScreen.kt +80/-14<br>CategoryTile.kt +31/-7<br>AddMenuSheet.kt +3/-3</td></tr></tbody></table>
-  <div class="section-link">https://github.com/Cos229-239/2602_Team01</div>
-  <h2>Trello</h2>
-  <table><thead><tr><th>Name</th><th>Assigned</th><th>Actions</th><th>Detail</th><th>Weekly Status</th></tr></thead><tbody><tr><td>Daniel W.</td><td>1</td><td>15</td><td>3 Create card, 12 Move card</td><td>OK</td></tr></tbody></table>
-  <div class="section-link">Trello board link unavailable in source report</div>
-  <h2>Discord</h2>
-  <table><thead><tr><th>Name</th><th>Posts</th><th>Dates</th><th>Summary</th><th>Status</th></tr></thead><tbody><tr><td>Daniel W.</td><td>1</td><td>Mar 22</td><td></td><td>Needs attention</td></tr></tbody></table>
-  <h2>PNP3 — AI Work Summary (Git)</h2>
-<div class="section-note">Interpretive summary based on commits, changed files, and net code movement from the current report window.</div>
-<table><thead><tr><th>Name</th><th>Commits</th><th>Top Files</th><th>Git Summary</th></tr></thead><tbody><tr><td>Daniel W.</td><td>3</td><td>NodeScreen.kt, App.kt, FieldsScreen.kt</td><td>Steady ongoing work touching NodeScreen.kt, App.kt, and FieldsScreen.kt with a net code change of +350.</td></tr></tbody></table>
-<h2>PNP3 — AI Work Summary (Trello)</h2>
-<div class="section-note">Interpretive summary based on assigned cards and Trello action signals from the current report window.</div>
-<table><thead><tr><th>Name</th><th>Assigned</th><th>Actions</th><th>Trello Summary</th></tr></thead><tbody><tr><td>Daniel W.</td><td>1</td><td>15</td><td>Showed Trello progress through 1 assigned card and 15 recorded actions. Most visible actions: 3 create card, 12 move card.</td></tr></tbody></table>
+  <div class="evidence-group evidence-group-git">
+    <div class="group-kicker">Git</div>
+    <h2>Git — Branch Health</h2>
+    <table><thead><tr><th>Name</th><th>Branch</th><th>Status</th><th>Activity</th><th>A / B</th></tr></thead><tbody><tr><td>Daniel W.</td><td>daniel</td><td>In Sync</td><td>8d ago</td><td>0 / 0</td></tr></tbody></table>
+    <h2>Git — Top Activity</h2>
+    <table><thead><tr><th>Name</th><th>Commits</th><th>Net</th></tr></thead><tbody><tr><td>Daniel W.</td><td>3</td><td>350</td></tr></tbody></table>
+    <h2>Git — Top Files Touched</h2>
+    <table><thead><tr><th>Name</th><th>Files Touched</th></tr></thead><tbody><tr><td>Daniel W.</td><td>NodeScreen.kt +224/-49<br>App.kt +123/-38<br>FieldsScreen.kt +80/-14<br>CategoryTile.kt +31/-7<br>AddMenuSheet.kt +3/-3</td></tr></tbody></table>
+    <h2>PNP3 — Work Summary (Git)</h2>
+    <div class="section-note">Interpretive summary based on commits, changed files, and net code movement from the current report window.</div>
+    <table><thead><tr><th>Name</th><th>Commits</th><th>Top Files</th><th>Git Summary</th></tr></thead><tbody><tr><td>Daniel W.</td><td>3</td><td>NodeScreen.kt, App.kt, FieldsScreen.kt</td><td>Daniel W. focused on NodeScreen.kt, App.kt, and FieldsScreen.kt with a meaningful net code change of +350 lines, across 3 commits (461 added / 111 removed). Their branch `daniel` is currently marked in sync.</td></tr></tbody></table>
+    <div class="section-link">https://github.com/Cos229-239/2602_Team01</div>
+  </div>
+  <div class="evidence-group evidence-group-trello">
+    <div class="group-kicker">Trello</div>
+    <h2>Trello</h2>
+    <table><thead><tr><th>Name</th><th>Assigned</th><th>Actions</th><th>Detail</th><th>Weekly Status</th></tr></thead><tbody><tr><td>Daniel W.</td><td>1</td><td>15</td><td>3 Create card, 12 Move card</td><td>OK</td></tr></tbody></table>
+    <h2>Trello Tasks</h2>
+    <table><thead><tr><th>Name</th><th>Touched Cards</th><th>Card Edits</th><th>Summary</th></tr></thead><tbody><tr><td>Daniel W.</td><td>Editable text fields in Files, Move folders/icons to other folders and reorder on page, Add/Edit/Delete pop up, language choices in settings or tied to phone's language settings</td><td>Editable text fields in Files -- moved In progress -&gt; Completed; Editable text fields in Files -- created; Move folders/icons to other folders and reorder on page -- moved In progress -&gt; Completed; Move folders/icons to other folders and reorder on page -- created; Add/Edit/Delete pop up -- moved In progress -&gt; Completed; language choices in settings or tied to phone's language settings -- created</td><td>Worked across 1 assigned card and 15 recorded actions. Most visible cards were Editable text fields in Files, Move folders/icons to other folders and reorder on page, Add/Edit/Delete pop up, …and 1 more. The strongest Trello signals were created cards (3), moved cards across lists (3). Concrete edits included Editable text fields in Files -- moved In progress -&gt; Completed; Editable text fields in Files -- created; Move folders/icons to other folders and reorder on page -- moved In progress -&gt; Completed; Move folders/icons to other folders and reorder on page -- created; …and 2 more.</td></tr></tbody></table>
+    <h2>PNP3 — Work Summary (Trello)</h2>
+    <div class="section-note">Interpretive summary based on assigned cards, touched cards, and Trello action signals from the current report window.</div>
+    <table><thead><tr><th>Name</th><th>Assigned</th><th>Actions</th><th>Trello Summary</th></tr></thead><tbody><tr><td>Daniel W.</td><td>1</td><td>15</td><td>Worked across 1 assigned card and 15 recorded actions. Most visible cards were Editable text fields in Files, Move folders/icons to other folders and reorder on page, Add/Edit/Delete pop up, …and 1 more. The strongest Trello signals were created cards (3), moved cards across lists (3). Concrete edits included Editable text fields in Files -- moved In progress -&gt; Completed; Editable text fields in Files -- created; Move folders/icons to other folders and reorder on page -- moved In progress -&gt; Completed; Move folders/icons to other folders and reorder on page -- created; …and 2 more.</td></tr></tbody></table>
+    <div class="section-link">Trello board link unavailable</div>
+  </div>
+  <div class="evidence-group evidence-group-discord">
+    <div class="group-kicker">Discord</div>
+    <h2>Discord</h2>
+    <table><thead><tr><th>Name</th><th>Posts</th><th>Dates</th><th>Summary</th><th>Status</th></tr></thead><tbody><tr><td>Daniel W.</td><td>1</td><td>Mar 22</td><td>Reported work on started working on trying to reformat the move; reorder; added two confirmation alert popups for delete to confirm deletion. Planned next steps around break.</td><td>Needs attention</td></tr></tbody></table>
+    <h2>PNP3 — Work Summary (Discord)</h2>
+    <div class="section-note">Interpretive summary based on posting cadence, covered dates, and any captured standup summary text from the current report window.</div>
+    <table><thead><tr><th>Name</th><th>Posts</th><th>Dates</th><th>Discord Summary</th></tr></thead><tbody><tr><td>Daniel W.</td><td>1</td><td>Mar 22</td><td>Reported work on started working on trying to reformat the move; reorder; added two confirmation alert popups for delete to confirm deletion. Planned next steps around break.</td></tr></tbody></table>
+  </div>
 
 </body>
 </html>
